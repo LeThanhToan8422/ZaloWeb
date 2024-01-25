@@ -1,8 +1,16 @@
-import { useState } from 'react';
-import '../../sass/ListChat.scss';
+import { useState } from "react";
+import "../../sass/ListChat.scss";
 
-const ListChat = () => {
+const ListChat = ({ handleChangeChat }) => {
   const [isPrioritize, setIsPrioritize] = useState(true);
+  const [chats, setChats]= useState([
+    {
+      id : "1",
+      avatar : "/slide8.png",
+      receiver : "Tran",
+      message : "Hello My Friend!!"
+    }
+  ])
   return (
     <div className="container-list-chat">
       <div className="contents-search-types">
@@ -25,24 +33,27 @@ const ListChat = () => {
               className="text"
               onClick={() => setIsPrioritize(true)}
               style={{
-                color: isPrioritize ? '#0068ff' : '#7c8fa6',
-              }}>
+                color: isPrioritize ? "#0068ff" : "#7c8fa6",
+              }}
+            >
               Ưu tiên
             </span>
             <span
               className="different text"
               onClick={() => setIsPrioritize(false)}
               style={{
-                color: isPrioritize ? '#7c8fa6' : '#0068ff',
-              }}>
+                color: isPrioritize ? "#7c8fa6" : "#0068ff",
+              }}
+            >
               Khác
             </span>
             <span
               className="border"
               style={{
-                width: isPrioritize ? '48px' : '38px',
-                left: isPrioritize ? '0px' : '65px',
-              }}></span>
+                width: isPrioritize ? "48px" : "38px",
+                left: isPrioritize ? "0px" : "65px",
+              }}
+            ></span>
           </div>
           <div className="type-status">
             <div className="select-type">
@@ -55,9 +66,14 @@ const ListChat = () => {
       </div>
 
       <div className="contents-chats">
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        {
+          chats.map((chat, index) => (
+            <div style={{ display: "flex", alignItems: "center" }} 
+            key={index}
+            onClick={() => handleChangeChat(chat.id)}
+            >
           <img
-            src="slide8.png"
+            src={chat.avatar}
             style={{
               height: 45,
               width: 45,
@@ -66,11 +82,24 @@ const ListChat = () => {
               marginLeft: 20,
             }}
           />
-          <div style={{ flexDirection: 'row' }}>
-            <div style={{marginTop:10, fontSize:18, marginLeft:5}}>Clound của tôi</div>
-            <div style={{fontSize:15, marginTop:7, color:'gray', marginLeft:5}}>Ăn cơm chưa</div>
+          <div style={{ flexDirection: "row" }}>
+            <div style={{ marginTop: 10, fontSize: 18, marginLeft: 5 }}>
+              {chat.receiver}
+            </div>
+            <div
+              style={{
+                fontSize: 15,
+                marginTop: 7,
+                color: "gray",
+                marginLeft: 5,
+              }}
+            >
+              {chat.message}
+            </div>
           </div>
         </div>
+          ))
+        }
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 .container-nav-bar{
-    border: 1px solid blue;
+    border: 1px solid #d6dbe1;
     width: 5%;
     height: 100%;
     display: flex;
@@ -40,7 +40,7 @@
                 height: calc(100%/3);
                 cursor: pointer;
                 .icon{
-                    font-size: 40px;
+                    font-size: 35px;
                     color: #fff;
                 }
             }
@@ -59,7 +59,7 @@
                 height: calc(100%/3);
                 cursor: pointer;
                 .icon{
-                    font-size: 40px;
+                    font-size: 30px;
                     color: #fff;
                 }
             }

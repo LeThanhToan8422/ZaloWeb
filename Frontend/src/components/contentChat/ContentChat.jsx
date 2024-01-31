@@ -13,21 +13,26 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 
 //import icon
 import { SendOutlined, EditOutlined } from "@ant-design/icons";
-import { LuSticker, LuAlarmClock } from "react-icons/lu";
+import { LuSticker, LuAlarmClock, LuTrash } from "react-icons/lu";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { IoVideocamOutline, IoSearchOutline } from "react-icons/io5";
 import {
   VscLayoutSidebarRightOff,
   VscLayoutSidebarRight,
 } from "react-icons/vsc";
-import { BsBell, BsPinAngle } from "react-icons/bs";
+import { BsBell, BsPinAngle, BsEyeSlash } from "react-icons/bs";
 import { HiOutlineUsers } from "react-icons/hi2";
+import { FaCaretDown, FaCaretRight } from "react-icons/fa";
+import { BiSolidToggleLeft } from "react-icons/bi";
 
 const ContentChat = ({ idChat }) => {
   const [isClickInfo, setIsClickInfo] = useState(false);
   const [isClickSticker, setIsClickSticker] = useState(false);
   const [isClickLink, setIsClickLink] = useState(false);
-
+  const [isClickDownMedia, setIsClickDownMedia] = useState(false);
+  const [isClickDownFile, setIsClickDownFile] = useState(false);
+  const [isClickDownLink, setIsClickDownLink] = useState(false);
+  const [isClickDownSetting, setIsClickDownSetting] = useState(false);
   useEffect(() => {});
 
   return (
@@ -267,10 +272,79 @@ const ContentChat = ({ idChat }) => {
                 <span>0 nhóm chung</span>
               </div>
             </div>
-            <div className="group-media"></div>
-            <div className="group-file"></div>
-            <div className="group-link"></div>
-            <div className="group-setting"></div>
+            <div className="group-media">
+              <div className="media-header">
+                <span>Ảnh/Video</span><div onClick={()=> setIsClickDownMedia(!isClickDownMedia)}>{isClickDownMedia ?  <FaCaretRight className="icon"/>: <FaCaretDown className="icon"/>}</div>
+              </div>
+              <div style = {{display: isClickDownMedia ? "none": ""}}>
+                <div className="media-body" >
+                  <div className="frame"></div>
+                </div>
+                <div className="btn">
+                  <div className="btn-all">Xem tất cả</div>
+                </div>
+              </div>
+            </div>
+            <div className="group-file">
+              <div className="file-header">
+                  <span>File</span><div onClick={()=> setIsClickDownFile(!isClickDownFile)}>{isClickDownFile ? <FaCaretRight className="icon"/>: <FaCaretDown className="icon"/>}</div>
+              </div>
+              <div style = {{display: isClickDownFile ? "none": ""}}>
+                <div className="file-body">
+                   <div className="frame">
+                     <div className="frame-left"></div>
+                     <div className="frame-right">
+                      <div className="frame-right-top">file.rar</div>
+                      <div className="frame-right-bottom">
+                        <div className="frame-weight">51.63 KB</div>
+                        <div className="frame-date">30/01/2024</div>
+                      </div>
+                     </div>
+                   </div>
+                </div>
+                <div className="btn">
+                  <div className="btn-all">Xem tất cả</div>
+                </div>
+              </div>
+            </div>
+            <div className="group-link">
+              <div className="file-header">
+                <span>Link</span><div onClick={()=> setIsClickDownLink(!isClickDownLink)}>{isClickDownLink ? <FaCaretRight className="icon"/>: <FaCaretDown className="icon"/>}</div>
+              </div>
+              <div style = {{display: isClickDownLink ? "none": ""}}>
+                <div className="link-body">
+                  <div className="frame">
+                     <div className="frame-left"></div>
+                     <div className="frame-right">
+                      <div className="frame-right-top">link</div>
+                      <div className="frame-right-bottom">
+                        <div className="frame-link">link.com</div>
+                        <div className="frame-date">30/01/2024</div>
+                      </div>
+                     </div>
+                   </div>
+                </div>
+                <div className="btn">
+                  <div className="btn-all">Xem tất cả</div>
+                </div>
+              </div>
+            </div>
+            <div className="group-setting" style={{'border-bottom' : "none"}}>
+              <div className="setting-header">
+                <span>Thiết lập bảo mật</span><div onClick={()=> setIsClickDownSetting(!isClickDownSetting)}>{isClickDownSetting ? <FaCaretRight className="icon"/>: <FaCaretDown className="icon"/>}</div>
+              </div>
+              <div className="setting-body" style = {{display: isClickDownSetting ? "none": ""}}>
+                <div className="hidden-chat">
+                  <BsEyeSlash className="icon"/>
+                  <span>Ẩn trò chuyện</span>
+                  <BiSolidToggleLeft  className="icon-toggle"/>
+                </div>
+                <div className="delete-chat">
+                 <LuTrash className="icon"/>
+                 <span>Xóa lịch sử trò chuyện</span>
+                </div>
+              </div>
+            </div>
           </div>
         </>
       )}

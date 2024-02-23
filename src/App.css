@@ -1,0 +1,8 @@
+.app{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  height: 97vh;
+  width: 100%;
+}

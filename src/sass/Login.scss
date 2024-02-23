@@ -1,0 +1,129 @@
+.container-login{
+    width: 100%;
+    height: 97vh;
+    background-image: url("/public/background/bg-zalo.png");
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+
+    .form-login{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        width: 50%;
+        height: 70%;
+
+        .title{
+            font-size: 65px;
+            font-weight: bold;
+            color: #056BFF;
+            height: 10%;
+        }
+
+        .content{
+            font-size: 20px;
+            text-align: center;
+            line-height: 1.5;
+            height: 10%;
+        }
+
+        .form{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            width: 50%;
+            height: 70%;
+            background-color: white;
+
+            .choose-login{
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                height: 10%;
+                width: 100%;
+
+                span{
+                    width: 50%;
+                    text-align: center;
+                    cursor: pointer;
+                }
+
+                span + span {
+                    border-left: 1px solid black;
+                }
+            }
+
+            .form-content{
+                width: 80%;
+                height: 10%;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: end;
+                border-bottom: 1px solid black;
+                padding-bottom: 10px;
+
+                .icon{
+                    font-size: 20px;
+                }
+
+                .select-national{
+                    height: 65%;
+                    width: 60px;
+                    text-align: end;
+                    border: none;
+                    outline: none;
+                }
+                
+                .input-phone{
+                    height: 50%;
+                    width: calc(100% - 85px);
+                    font-size: 15px;
+                    border: none;
+                    outline: none;
+                }
+
+                .input-password{
+                    height: 50%;
+                    width: calc(100% - 35px);
+                    font-size: 15px;
+                    border: none;
+                    outline: none;
+                }
+            }
+
+            .button-password{
+                width: 80%;
+                height: 12%;
+                background-color: #0190F3;
+                border: none;
+                color: white;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+
+            .button-phone{
+                width: 80%;
+                height: 12%;
+                border: 1px solid #EBEBEB;
+                color: #0190F3;
+                background-color: white;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+            
+            .button-phone:hover{
+                border: 1px solid #0190F3;
+            }
+
+            .forget-password:hover{
+                color: #0190F3;
+                cursor: pointer;
+            }
+        }
+    }
+}

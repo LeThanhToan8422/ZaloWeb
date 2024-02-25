@@ -14,9 +14,9 @@ const Login = () => {
             phone : phone,
             password : password
         })
-        if(datas.data > 0){
+        if(datas.data.id > 0){
             navigate("/home", {state : {
-                userId : datas.data
+                userId : datas.data.id
             }});
         }
     }

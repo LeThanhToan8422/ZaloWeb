@@ -38,6 +38,150 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
   const [message, setMessage] = useState("")
   const [stompClient, setStompClient] = useState(null)
 
+  const [icons, setIcons] = useState([
+    {
+      id : ":an",
+      image : "/an.png"
+    },
+    {
+      id : ":ccnm",
+      image : "/ccnm.png"
+    },
+    {
+      id : ":cg",
+      image : "/cg.png"
+    },
+    {
+      id : ":chv",
+      image : "/chv.png"
+    },
+    {
+      id : ":cn",
+      image : "/cn.png"
+    },
+    {
+      id : ":cpl",
+      image : "/cpl.png"
+    },
+    {
+      id : ":ct",
+      image : "/ct.png"
+    },
+    {
+      id : ":ctr",
+      image : "/ctr.png"
+    },
+    {
+      id : ":ctt",
+      image : "/ctt.png"
+    },
+    {
+      id : ":cxg",
+      image : "/cxg.png"
+    },
+    {
+      id : ":hg",
+      image : "/hg.png"
+    },
+    {
+      id : ":hgctt",
+      image : "/hgctt.png"
+    },
+    {
+      id : ":hgnm",
+      image : "/hgnm.png"
+    },
+    {
+      id : ":hgtt",
+      image : "/hgtt.png"
+    },
+    {
+      id : ":hh",
+      image : "/hh.png"
+    },
+    {
+      id : ":hs",
+      image : "/hs.png"
+    },
+    {
+      id : ":ht",
+      image : "/ht.png"
+    },
+    {
+      id : ":khoc",
+      image : "/khoc.png"
+    },
+    {
+      id : ":kss",
+      image : "/kss.png"
+    },
+    {
+      id : ":mm",
+      image : "/mm.png"
+    },
+    {
+      id : ":mrr",
+      image : "/mrr.png"
+    },
+    {
+      id : ":mt",
+      image : "/mt.png"
+    },
+    {
+      id : ":mtt",
+      image : "/mtt.png"
+    },
+    {
+      id : ":ng",
+      image : "/ng.png"
+    },
+    {
+      id : ":nm",
+      image : "/nm.png"
+    },
+    {
+      id : ":nmtl",
+      image : "/nmtl.png"
+    },
+    {
+      id : ":nt",
+      image : "/nt.png"
+    },
+    {
+      id : ":ntmtl",
+      image : "/ntmtl.png"
+    },
+    {
+      id : ":om",
+      image : "/om.png"
+    },
+    {
+      id : ":stmhl",
+      image : "/stmhl.png"
+    },
+    {
+      id : ":tg",
+      image : "/tg.png"
+    },
+    {
+      id : ":tl",
+      image : "/tl.png"
+    },
+    {
+      id : ":tmh",
+      image : "/tmh.png"
+    },
+    {
+      id : ":tp",
+      image : "/tp.png"
+    },
+    {
+      id : ":tth",
+      image : "/tth.png"
+    },
+  ])
+  const [displayIcons, setDisplayIcons] = useState(false)
+
   useEffect(() => {
     const sock = new SockJS("http://localhost:8080/ws")
     const client = Stomp.over(sock)
@@ -70,6 +214,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
       }))
     }
     setMessage("")
+    setDisplayIcons(false)
   }
 
   useEffect(() => {
@@ -92,6 +237,14 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
     };
     getApiContentChats();
   }, [userId, idChat]);
+
+  useEffect(() => {
+
+  }, [message])
+
+  let handleClickIcon = (id) => {
+    setMessage(`${message} ${id}`)
+  }
 
   return (
     <div className="container-content-chat">
@@ -247,7 +400,11 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                         {message.sender.name}
                       </span>
                     ) : null}
-                    <span className="info mess">{message.message}</span>
+                    <span className="info mess">{
+                      message.message.split(" ").map((ms, index) => (
+                        ms.startsWith(":") ? <img key={index} src={`/icons/${ms.split(":")[1]}.png`} className="ms-emotion"/> : <span key={index}>{ms} </span>
+                      ))
+                    }</span>
                     <span className="info time">
                       {message.dateTimeSend.slice(11, 16)}
                     </span>
@@ -301,6 +458,18 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                 />
               </div>
               <div className="chat-text-right">
+                <div className="chat-text-icon">
+                  <i className="fa-regular fa-face-grin" style={{fontSize : '20px'}} onClick={() => setDisplayIcons(!displayIcons)}></i>
+                  <div className="content-icons" style={{display : displayIcons ? "flex" : "none"}}>
+                    {
+                      icons.map(icon => (
+                        <img key={icon.id} src={`/icons/${icon.image}`} className="emotion"
+                        onClick={() => handleClickIcon(icon.id)}
+                        />
+                      ))
+                    }
+                  </div>
+                </div>
                 <div className="chat-text-icon">
                   <i className="fa-solid fa-at icon"></i>
                 </div>

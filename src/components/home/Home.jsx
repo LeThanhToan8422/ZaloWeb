@@ -31,7 +31,7 @@ function Home() {
   }
   return (
     <div className='app'>
-      <NavBar/>
+      <NavBar userId={location.state.userId}/>
       <ListChat 
         handleChangeChat={handleChangeChat} 
         chats={chats} 

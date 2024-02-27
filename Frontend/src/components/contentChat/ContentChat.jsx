@@ -20,10 +20,13 @@ import {
   VscLayoutSidebarRightOff,
   VscLayoutSidebarRight,
 } from "react-icons/vsc";
-import { BsBell, BsPinAngle, BsEyeSlash } from "react-icons/bs";
+import { BsBell, BsPinAngle, BsEyeSlash, BsEmojiGrin } from "react-icons/bs";
 import { HiOutlineUsers } from "react-icons/hi2";
 import { FaCaretDown, FaCaretRight } from "react-icons/fa";
 import { BiSolidToggleLeft } from "react-icons/bi";
+import Picker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
+
 
 const ContentChat = ({ idChat }) => {
   const [isClickInfo, setIsClickInfo] = useState(false);
@@ -33,7 +36,13 @@ const ContentChat = ({ idChat }) => {
   const [isClickDownFile, setIsClickDownFile] = useState(false);
   const [isClickDownLink, setIsClickDownLink] = useState(false);
   const [isClickDownSetting, setIsClickDownSetting] = useState(false);
+  const [isClickIcon, setIsClickIcon] = useState(false);
+  const [isClickPicture, setIsClickPicture] = useState(false);
+  const [message, setMessage] = useState("");
+
   useEffect(() => {});
+  console.log(message);
+  console.log(isClickPicture);
 
   return (
     <div className="container-content-chat">
@@ -123,6 +132,7 @@ const ContentChat = ({ idChat }) => {
         </div>
       ) : (
         <>
+        {/* content chat */}
           <div
             className="content-chat"
             style={{ width: isClickInfo ? "70%" : "" }}
@@ -170,6 +180,7 @@ const ContentChat = ({ idChat }) => {
             </div>
             <div className="chat-view"></div>
             <div className="chat-utilities">
+              {/* stickers */}
               <div
                 className="chat-utilities-icon"
                 onClick={() => setIsClickSticker(!isClickSticker)}
@@ -177,12 +188,34 @@ const ContentChat = ({ idChat }) => {
                   color: isClickSticker ? "#0068ff" : "",
                   background: isClickSticker ? "#d4e4fa" : "",
                 }}
+                
               >
                 <LuSticker className="icon" />
               </div>
-              <div className="chat-utilities-icon">
-                <i className="fa-regular fa-image icon"></i>
+
+              {/* icon */}
+              <div className="chat-utilities-icon"
+                  onClick={() => setIsClickIcon(!isClickIcon)}
+                  style={{
+                    color: isClickIcon ? "#0068ff" : "",
+                    background: isClickIcon ? "#d4e4fa" : "",
+                  }}
+              >
+                <BsEmojiGrin className="icon"/>
+                
               </div>
+              <div className="list-icon" style={{display: isClickIcon ? "block": "none"}}>
+                  <Picker data={data}
+                          onEmojiSelect = {(e) => setMessage(message+e.native)}/>
+                </div>
+
+              {/* picture */}
+              <div className="chat-utilities-icon" onClick={()=> setIsClickPicture(!isClickPicture)}>
+              
+              <i className="fa-regular fa-image icon"></i>
+              </div>
+
+              {/* file */}
               <div
                 className="chat-utilities-icon"
                 onClick={() => setIsClickLink(!isClickLink)}
@@ -209,6 +242,9 @@ const ContentChat = ({ idChat }) => {
                   className="chat-text-input"
                   type="text"
                   placeholder="Nhập @, tin nhắn tới Le Thi Kim Ngan"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onClick={() => setIsClickIcon(false)}
                 />
               </div>
               <div className="chat-text-right">
@@ -349,7 +385,6 @@ const ContentChat = ({ idChat }) => {
         </>
       )}
 
-      {/* content chat */}
     </div>
   );
 };

@@ -12,13 +12,11 @@ import {
 } from "antd";
 import axios from "axios";
 import {  EditOutlined } from "@ant-design/icons";
-import FormUpdate from "./formUpdate";
 
-function InfoAccount({visible, setVisible, userId}) {
+function InfoUser({visible, setVisible, userId}) {
     const [form] = Form.useForm();
     const [visibleModal, setVisibleModal] = useState(false);
     const [user, setUser] = useState({});
-    const [isClickUpdate, setIsClickUpdate] = useState(false);
     console.log(user);
     useEffect(() => {
         setVisibleModal(visible);
@@ -39,16 +37,13 @@ function InfoAccount({visible, setVisible, userId}) {
       setVisible(false);
     }
     }
-
-    return ( 
-           <div>
-                <Modal
+    return (
+        <Modal
                 title="Thông tin tài khoản"
                 open={visibleModal}
                 onOk={() => handleCancel()}
                 onCancel={() => handleCancel()}
                 width="30%"
-                style={{display: isClickUpdate?"none":"block"}}
                 footer={null}
             >
                       <Form
@@ -59,7 +54,7 @@ function InfoAccount({visible, setVisible, userId}) {
                         <Row>
                             <Col lg={24} xs={24}>
                             <Form.Item
-                              name="background"
+                              name="background"                              
                             >
                               <img src={user.background} style={{width : "100%", height : "90px"}} alt="Ảnh bìa"/>
                             </Form.Item>
@@ -69,15 +64,42 @@ function InfoAccount({visible, setVisible, userId}) {
                             <Form.Item
                               name="avt"
                             >
-                              <img src={user.image} style={{width : "50px", height : "50px"}} alt="Ảnh đại diện"/>&nbsp;&nbsp;&nbsp; <b>{user.name}</b>&nbsp;&nbsp;&nbsp; <EditOutlined />
+                              <img src={user.image} style={{width : "50px", height : "50px"}} alt="Ảnh đại diện"/>&nbsp;&nbsp;&nbsp; <b>{user.name}</b>&nbsp;&nbsp;&nbsp; <EditOutlined style={{cursor: "pointer"}}/>
                             </Form.Item>  
                         </Row>
-                        <Row>
+                        <Row>                             
+                            <Col lg={11} >
+                            <Form.Item>
+                                <Button
+                                    type="default"
+                                    size="large"
+                                    block
+                                    
+                                >
+                                    Gọi điện
+                                </Button>
+                            </Form.Item>
+                            </Col> 
+                            <Col lg={2} >
+                            </Col>
+                            <Col lg={11}>
+                            <Form.Item >
+                                <Button
+                                    type="primary"
+                                    size="large"
+                                    block
+                                >
+                                    Nhắn tin
+                                </Button>
+                            </Form.Item>
+                            </Col>   
+                        </Row>
+                        {/* <Row>
                             <Form.Item
                             >
                                 <b>Thông tin cá nhân</b>
                             </Form.Item>  
-                        </Row>
+                        </Row> */}
                     
                         <Row>
                             <Col lg={6} xs={6}>
@@ -107,7 +129,7 @@ function InfoAccount({visible, setVisible, userId}) {
                                 </Form.Item>
                             </Col>              
                         </Row>
-                        <Row>
+                        <Row  >
                             <Col lg={6} xs={6}>
                                 <Form.Item>
                                     <b>Điện thoại</b>
@@ -121,23 +143,28 @@ function InfoAccount({visible, setVisible, userId}) {
                                 </Form.Item>
                             </Col>              
                         </Row>
-                        <Row><Form.Item><i>Chỉ bạn bè có lưu số của bạn trong danh bạ máy xem được số này</i></Form.Item></Row>
-                        <Row>
-                          
+                        <hr/>
+                        <Row>                          
                           <Button
-                            type="default"
+                            type="text"
                             size="large"
                             block="true"
-                            onClick={() => setIsClickUpdate(true) }
                           >
-                           <EditOutlined /> Cập nhật 
+                            Chặn tin nhắn và cuộc gọi
+                          </Button>
+                        </Row>
+                        <Row>                          
+                          <Button
+                            type="text"
+                            size="large"
+                            block="true"
+                          >
+                            Xóa khỏi danh sách bạn bè
                           </Button>
                         </Row>
                       </Form>
-                </Modal> 
-                <FormUpdate setVisible={setIsClickUpdate} visible={isClickUpdate} user={user}/>
-           </div>
+                </Modal>
      );
 }
 
-export default InfoAccount;
+export default InfoUser;

@@ -15,13 +15,15 @@ import {
   Radio
 } from "antd";
 import axios from "axios";
+import moment from "moment";
+
 function FormUpdate({visible, setVisible, user}) {
   const { name, gender, dob } = user;
+  let setGender = gender? 1: 0;
+  let date = new Date(dob);
   console.log(gender);
-  console.log(dob);
+  console.log(Date.parse(dob));
   const [form] = Form.useForm();
-  let location = useLocation();
-  const { Option } = Select;
   const [visibleModal, setVisibleModal] = useState(false);
   useEffect(() => {
     setVisibleModal(visible);
@@ -47,47 +49,39 @@ function FormUpdate({visible, setVisible, user}) {
                 //onFinish={onFinish}
                 name="form_edit_account"
                 className="ant-advanced-search-form"
+                initialValues={{name: name, gender: setGender, dob: moment(dob)}}
               >
                 <Row gutter={15}>
-                  <Col lg={24} xs={24}>
+                  <Col lg={10}><b>Tên hiển thị</b></Col>
+                  <Col lg={14} xs={24}>
                     <Form.Item
-                      label="Tên hiển thị"
-                      name="showName"
-                      rules={[
-                        { required: true, message: "Bạn chưa nhập tên!" },
-                      ]}
+                      name="name"
                     >
-                      <Input maxLength={100} defaultValue={name}/>
+                      <Input maxLength={100} />
                     </Form.Item>
                   </Col>             
                 </Row>
               
-                <Row>
-                  <Col lg={24} xs={24}>
+                <Row gutter={15}>
+                  <Col lg={10}><b>Giới tính</b></Col>
+                  <Col lg={14} xs={24}>
                     <Form.Item
-                      label="Giới tính"
                       name="gender"
                     >
-                      {gender ? <Radio.Group >
+                     <Radio.Group >
                                 <Radio value={1} >Nam</Radio>
-                                <Radio value={0} defaultChecked>Nữ</Radio>
-                              </Radio.Group>: 
-                              <Radio.Group >
-                                <Radio value={1} defaultChecked>Nam</Radio>
                                 <Radio value={0} >Nữ</Radio>
-                              </Radio.Group>
-                              
-                      }                      
+                              </Radio.Group>                   
                     </Form.Item>
                   </Col>                
                 </Row>
-                <Row>
-                  <Col lg={24} xs={24}>
+                <Row gutter={15}>
+                  <Col lg={10}><b>Ngày sinh</b></Col>
+                  <Col lg={14} xs={24}>
                     <Form.Item
-                      label="Ngày sinh"
                       name="dob"
                     >
-                      <DatePicker placeholder="" />
+                      <DatePicker placeholder="" style={{ width: "100%" }} format="YYYY-MM-DD"/>
                     </Form.Item>
                   </Col>                
                 </Row>

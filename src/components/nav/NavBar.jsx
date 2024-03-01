@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import "../../sass/NavBar.scss";
 import axios from "axios";
+import InfoAccount from "./components/InfoAccount";
 
 const NavBar = ({ userId }) => {
   const [user, setUser] = useState({});
-
+  const [isClickAvt, setIsClickAvt]= useState(false); 
+  const [visibleInfoAccount, setVisibleInfoAccount] = useState(false);
   useEffect(() => {
     let getApiUserById = async () => {
       let datas = await axios.get(`http://localhost:8080/user/${userId}`);
@@ -15,7 +17,8 @@ const NavBar = ({ userId }) => {
 
   return (
     <div className="container-nav-bar">
-      <div className="nav-avt">
+      <InfoAccount setVisible={setVisibleInfoAccount} visible={visibleInfoAccount} userId={user.id}/>
+      <div className="nav-avt" onClick={()=> setIsClickAvt(!isClickAvt)}>
         <img
           src={user.image}
           alt=""
@@ -27,6 +30,12 @@ const NavBar = ({ userId }) => {
             cursor : "pointer"
           }}
         />
+        <div className="nav-avt-menu" style={{display: isClickAvt? "flex": "none"}}>
+          <div className="child name">{user.name}</div>
+          <div className="child profile" onClick={()=> setVisibleInfoAccount(true)}>Hồ sơ của bạn</div>
+          <div className="child setting">Cài đặt</div>
+          <div className="child sign-out">Đăng xuất</div>
+        </div>
       </div>
       <div className="nav-group">
         <div className="nav-group-chat">

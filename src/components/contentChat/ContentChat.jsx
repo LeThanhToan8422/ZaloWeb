@@ -26,160 +26,25 @@ import axios from "axios";
 import { Stomp } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 
+//emotion
+import Picker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
+
+//form
+import InfoUser from "./components/InfoUser";
+
 const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
   let chatRef = useRef(null)
 
   const [isClickInfo, setIsClickInfo] = useState(false);
   const [isClickSticker, setIsClickSticker] = useState(false);
   const [isClickLink, setIsClickLink] = useState(false);
+  const [isClickUser, setIsClickUser] = useState(false);
   const [nameReceiver, setNameReceiver] = useState({});
   const [contentMessages, setContentMessages] = useState([]);
 
   const [message, setMessage] = useState("")
   const [stompClient, setStompClient] = useState(null)
-
-  const [icons, setIcons] = useState([
-    {
-      id : ":an",
-      image : "/an.png"
-    },
-    {
-      id : ":ccnm",
-      image : "/ccnm.png"
-    },
-    {
-      id : ":cg",
-      image : "/cg.png"
-    },
-    {
-      id : ":chv",
-      image : "/chv.png"
-    },
-    {
-      id : ":cn",
-      image : "/cn.png"
-    },
-    {
-      id : ":cpl",
-      image : "/cpl.png"
-    },
-    {
-      id : ":ct",
-      image : "/ct.png"
-    },
-    {
-      id : ":ctr",
-      image : "/ctr.png"
-    },
-    {
-      id : ":ctt",
-      image : "/ctt.png"
-    },
-    {
-      id : ":cxg",
-      image : "/cxg.png"
-    },
-    {
-      id : ":hg",
-      image : "/hg.png"
-    },
-    {
-      id : ":hgctt",
-      image : "/hgctt.png"
-    },
-    {
-      id : ":hgnm",
-      image : "/hgnm.png"
-    },
-    {
-      id : ":hgtt",
-      image : "/hgtt.png"
-    },
-    {
-      id : ":hh",
-      image : "/hh.png"
-    },
-    {
-      id : ":hs",
-      image : "/hs.png"
-    },
-    {
-      id : ":ht",
-      image : "/ht.png"
-    },
-    {
-      id : ":khoc",
-      image : "/khoc.png"
-    },
-    {
-      id : ":kss",
-      image : "/kss.png"
-    },
-    {
-      id : ":mm",
-      image : "/mm.png"
-    },
-    {
-      id : ":mrr",
-      image : "/mrr.png"
-    },
-    {
-      id : ":mt",
-      image : "/mt.png"
-    },
-    {
-      id : ":mtt",
-      image : "/mtt.png"
-    },
-    {
-      id : ":ng",
-      image : "/ng.png"
-    },
-    {
-      id : ":nm",
-      image : "/nm.png"
-    },
-    {
-      id : ":nmtl",
-      image : "/nmtl.png"
-    },
-    {
-      id : ":nt",
-      image : "/nt.png"
-    },
-    {
-      id : ":ntmtl",
-      image : "/ntmtl.png"
-    },
-    {
-      id : ":om",
-      image : "/om.png"
-    },
-    {
-      id : ":stmhl",
-      image : "/stmhl.png"
-    },
-    {
-      id : ":tg",
-      image : "/tg.png"
-    },
-    {
-      id : ":tl",
-      image : "/tl.png"
-    },
-    {
-      id : ":tmh",
-      image : "/tmh.png"
-    },
-    {
-      id : ":tp",
-      image : "/tp.png"
-    },
-    {
-      id : ":tth",
-      image : "/tth.png"
-    },
-  ])
   const [displayIcons, setDisplayIcons] = useState(false)
 
   useEffect(() => {
@@ -241,10 +106,6 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
   useEffect(() => {
 
   }, [message])
-
-  let handleClickIcon = (id) => {
-    setMessage(`${message} ${id}`)
-  }
 
   return (
     <div className="container-content-chat">
@@ -334,13 +195,14 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
         </div>
       ) : (
         <>
+          <InfoUser setVisible={setIsClickUser} visible={isClickUser} userId={idChat}/>
           <div
             className="content-chat"
             style={{ width: isClickInfo ? "70%" : "" }}
           >
             <div className="chat-header">
               <div className="chat-header-left">
-                <div className="chat-header-left-avt">
+                <div className="chat-header-left-avt" onClick={() => setIsClickUser(true)}>
                   <img src={nameReceiver.image} style={{width : "50px", height : "50px"}}/>
                 </div>
                 <div className="chat-header-left-name">
@@ -458,16 +320,19 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                 />
               </div>
               <div className="chat-text-right">
-                <div className="chat-text-icon">
-                  <i className="fa-regular fa-face-grin" style={{fontSize : '20px'}} onClick={() => setDisplayIcons(!displayIcons)}></i>
+                <div className="chat-text-icon" onClick={() => setDisplayIcons(!displayIcons)}>
+                  <i className="fa-regular fa-face-grin" style={{fontSize : '20px', color: displayIcons ? "#0068ff" : ""}} ></i>
                   <div className="content-icons" style={{display : displayIcons ? "flex" : "none"}}>
-                    {
+                    {/* {
                       icons.map(icon => (
                         <img key={icon.id} src={`/icons/${icon.image}`} className="emotion"
                         onClick={() => handleClickIcon(icon.id)}
                         />
                       ))
-                    }
+                    } */}
+                    <Picker data={data}
+                          onEmojiSelect = {(e) => setMessage(message+e.native)}
+                          />
                   </div>
                 </div>
                 <div className="chat-text-icon">

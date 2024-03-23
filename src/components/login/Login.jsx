@@ -8,6 +8,7 @@ const Login = () => {
 
     const [phone, setPhone] = useState("")
     const [password, setPassword] = useState("")
+    const [isLoginByPhone, setIsLoginByPhone] = useState(true);
 
     let handleClickLogin = async() => {
         let datas = await axios.post("http://localhost:8080/account", {
@@ -31,32 +32,40 @@ const Login = () => {
             </span>
             <div className="form">
                 <div className="choose-login">
-                    <span>VỚI MÃ QR</span>
-                    <span>VỚI SỐ ĐIỆN THOẠI</span>
+                    <span onClick = {()=>setIsLoginByPhone(false)} style = {{color: !isLoginByPhone ? "#056BFF": ""}}>VỚI MÃ QR</span>
+                    <span onClick = {()=>setIsLoginByPhone(true)} style = {{color: isLoginByPhone ? "#056BFF": ""}}>VỚI SỐ ĐIỆN THOẠI</span>
                 </div>
-                <div className="form-content">
-                    <i className="fa-solid fa-mobile-screen-button icon"></i>
-                    <select name="phone" id="" className="select-national">
-                        <option value={84}>+84</option>
-                    </select>
-                    <input value={phone} type="text" className="input-phone" placeholder="Số điện thoại"
-                    onChange={(e) => setPhone(e.target.value)}
-                    />
+                {isLoginByPhone ? 
+                <div className="login-by-phone">
+                    <div className="form-content">
+                        <i className="fa-solid fa-mobile-screen-button icon"></i>
+                        <select name="phone" id="" className="select-national">
+                            <option value={84}>+84</option>
+                        </select>
+                        <input value={phone} type="text" className="input-phone" placeholder="Số điện thoại"
+                        onChange={(e) => setPhone(e.target.value)}
+                        />
+                    </div>
+                    <div className="form-content">
+                        <i className="fa-solid fa-lock icon"></i>
+                        <input value={password} type="password" className="input-password" placeholder="Mật khẩu"
+                        onChange={(e) => setPassword(e.target.value)}
+                        />
+                    </div>
+                    <button className="button-password" onClick={handleClickLogin}>Đăng nhập với mật khẩu</button>
+                    <button className="button-phone">Đăng nhập bằng thiết bị di động</button>
+                    <span onClick={() => navigate("/forget-password")} className="forget-password">Quên mật khẩu?</span>
+                </div>:
+                <div className="login-by-qrcode">
+                    <div className="qrcode"></div>
+                    <span>Sử dụng ứng dụng Zalo để quét mã QR</span>
                 </div>
-                <div className="form-content">
-                    <i className="fa-solid fa-lock icon"></i>
-                    <input value={password} type="password" className="input-password" placeholder="Mật khẩu"
-                    onChange={(e) => setPassword(e.target.value)}
-                    />
-                </div>
-                <button className="button-password" onClick={handleClickLogin}>Đăng nhập với mật khẩu</button>
-                <button className="button-phone">Đăng nhập bằng thiết bị di động</button>
-                <span className="forget-password">Quên mật khẩu?</span>
+                }
+                
+                
             </div>
         </div>
         <div className="language">
-            <span>Tiếng Việt</span>
-            <span>English</span>
         </div>
     </div>
   )

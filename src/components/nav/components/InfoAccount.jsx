@@ -13,6 +13,7 @@ import {
 import axios from "axios";
 import {  EditOutlined } from "@ant-design/icons";
 import FormUpdate from "./formUpdate";
+import { IoCameraOutline } from "react-icons/io5";
 
 function InfoAccount({visible, setVisible, userId}) {
     const [form] = Form.useForm();
@@ -50,6 +51,7 @@ function InfoAccount({visible, setVisible, userId}) {
                 width="30%"
                 style={{display: isClickUpdate?"none":"block"}}
                 footer={null}
+                
             >
                       <Form
                         form={form}
@@ -61,16 +63,24 @@ function InfoAccount({visible, setVisible, userId}) {
                             <Form.Item
                               name="background"
                             >
-                              <img src={user.background} style={{width : "100%", height : "90px"}} alt="Ảnh bìa"/>
+                              <img src={user.background=="null" ?"/public/anhbiadefault.jpg":user.background} style={{width : "100%", height : "90px"}} alt="Ảnh bìa"/>
                             </Form.Item>
                             </Col>   
                         </Row>
                         <Row>
-                            <Form.Item
-                              name="avt"
+                            <Col lg={5}>
+                                <Form.Item
                             >
-                              <img src={user.image} style={{width : "50px", height : "50px"}} alt="Ảnh đại diện"/>&nbsp;&nbsp;&nbsp; <b>{user.name}</b>&nbsp;&nbsp;&nbsp; <EditOutlined />
-                            </Form.Item>  
+                              <img src={user.image=="null" ?"/public/avatardefault.png":user.image} style={{width : "60px", height : "60px"}} alt="Ảnh đại diện"/>
+                              <IoCameraOutline style={{cursor:"pointer"}}/>
+                                </Form.Item> 
+                            </Col>
+                            <Col lg={12}>
+                                <Form.Item
+                            >
+                              &nbsp;&nbsp;&nbsp; <b>{user.name}</b>&nbsp;&nbsp;&nbsp; <EditOutlined onClick={() => setIsClickUpdate(true) }/>
+                                </Form.Item> 
+                            </Col>
                         </Row>
                         <Row>
                             <Form.Item

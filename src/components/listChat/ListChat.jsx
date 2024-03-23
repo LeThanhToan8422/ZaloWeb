@@ -105,7 +105,7 @@ const ListChat = ({ handleChangeChat, chats, userId, messageFinal }) => {
             }}
           >
             <img
-              src={chat.image}
+              src={chat.image=="null" ?"/public/avatardefault.png":chat.image}
               style={{
                 height: 45,
                 width: 45,

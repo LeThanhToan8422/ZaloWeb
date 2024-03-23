@@ -1,6 +1,6 @@
 .container-nav-bar{
     border: 1px solid #d6dbe1;
-    width: 5%;
+    width: 4%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -16,7 +16,7 @@
             border: 1px solid #fff;
             padding: 10px;
             border-radius: 50%;
-            font-size: 40px;
+            font-size: 50px;
             color: #fff;
         }
         .nav-avt-menu{
@@ -25,7 +25,7 @@
             width: 200px;
             height: 140px;
             top: 30px;
-            left: 85px;
+            left: 70px;
             background-color: #ffffff;
             border-radius: 2%;
             box-shadow: 0 0 5px #b4a7a7;
@@ -78,7 +78,7 @@
                 height: calc(100%/3);
                 cursor: pointer;
                 .icon{
-                    font-size: 35px;
+                    font-size: 30px;
                     color: #fff;
                 }
             }
@@ -97,7 +97,7 @@
                 height: calc(100%/3);
                 cursor: pointer;
                 .icon{
-                    font-size: 30px;
+                    font-size: 25px;
                     color: #fff;
                 }
             }

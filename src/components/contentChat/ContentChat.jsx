@@ -46,6 +46,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
   const [message, setMessage] = useState("")
   const [stompClient, setStompClient] = useState(null)
   const [displayIcons, setDisplayIcons] = useState(false)
+  const [flag, setFlag] = useState(1);
 
   useEffect(() => {
     const sock = new SockJS("http://localhost:8080/ws")
@@ -71,6 +72,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
   }, [JSON.stringify(contentMessages)])
 
   let sendMessage = () => {
+    console.log(message);
     if(message.trim()){
       stompClient.send(`/app/chat/${userId < idChat ? `${userId}${idChat}` : `${idChat}${userId}`}`, {}, JSON.stringify({
         message : message,
@@ -203,7 +205,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
             <div className="chat-header">
               <div className="chat-header-left">
                 <div className="chat-header-left-avt" onClick={() => setIsClickUser(true)}>
-                  <img src={nameReceiver.image} style={{width : "50px", height : "50px"}}/>
+                  <img src={nameReceiver.image==null ?"/public/avatardefault.png":nameReceiver.image} style={{width : "50px", height : "50px"}}/>
                 </div>
                 <div className="chat-header-left-name">
                   <div className="user">
@@ -254,18 +256,17 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                   }}
                 >
                   {message.sender.id !== userId ? (
-                    <img src={message.sender.image} className="avatar-user" />
+                    <img src={message.sender.image ==null ?"/public/avatardefault.png": message.sender.image} className="avatar-user" />
                   ) : null}
+                  
                   <div className="content-message">
-                    {message.sender.id !== userId ? (
+                    {/* {message.sender.id !== userId ? (
                       <span className="info name-user">
                         {message.sender.name}
                       </span>
-                    ) : null}
+                    ) : null} */}
                     <span className="info mess">{
-                      message.message.split(" ").map((ms, index) => (
-                        ms.startsWith(":") ? <img key={index} src={`/icons/${ms.split(":")[1]}.png`} className="ms-emotion"/> : <span key={index}>{ms} </span>
-                      ))
+                      message.message
                     }</span>
                     <span className="info time">
                       {message.dateTimeSend.slice(11, 16)}
@@ -314,7 +315,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                 <input
                   className="chat-text-input"
                   type="text"
-                  placeholder="Nhập @, tin nhắn tới Le Thi Kim Ngan"
+                  placeholder={`Nhập @, tin nhắn tới ${nameReceiver.name}`}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                 />
@@ -323,13 +324,6 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                 <div className="chat-text-icon" onClick={() => setDisplayIcons(!displayIcons)}>
                   <i className="fa-regular fa-face-grin" style={{fontSize : '20px', color: displayIcons ? "#0068ff" : ""}} ></i>
                   <div className="content-icons" style={{display : displayIcons ? "flex" : "none"}}>
-                    {/* {
-                      icons.map(icon => (
-                        <img key={icon.id} src={`/icons/${icon.image}`} className="emotion"
-                        onClick={() => handleClickIcon(icon.id)}
-                        />
-                      ))
-                    } */}
                     <Picker data={data}
                           onEmojiSelect = {(e) => setMessage(message+e.native)}
                           />

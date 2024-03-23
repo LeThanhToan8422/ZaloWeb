@@ -23,7 +23,7 @@ const NavBar = ({ userId }) => {
       <InfoAccount setVisible={setVisibleInfoAccount} visible={visibleInfoAccount} userId={user.id}/>
       <div className="nav-avt" onClick={()=> setIsClickAvt(!isClickAvt)}>
         <img
-          src={user.image}
+          src={user.image=="null" ?"/public/avatardefault.png":user.image}
           alt=""
           style={{
             width: 50,

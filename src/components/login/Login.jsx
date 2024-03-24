@@ -6,12 +6,12 @@ import { useNavigate } from "react-router-dom"
 const Login = () => {
     let navigate = useNavigate()
 
-    const [phone, setPhone] = useState("")
-    const [password, setPassword] = useState("")
+    const [phone, setPhone] = useState("0329623380")
+    const [password, setPassword] = useState("123456789")
     const [isLoginByPhone, setIsLoginByPhone] = useState(true);
 
     let handleClickLogin = async() => {
-        let datas = await axios.post("http://localhost:8080/account", {
+        let datas = await axios.post("http://localhost:8080/login", {
             phone : phone,
             password : password
         })

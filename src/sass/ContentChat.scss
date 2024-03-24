@@ -83,7 +83,7 @@
           display: flex;
           width: 50%;
           .chat-header-left-avt  {
-            width: 130px;
+            width: 100px;
             height: 100%;
             display: flex;
             justify-content:center;
@@ -117,7 +117,13 @@
               .user-edit{
                 margin-left: 10px;
                 cursor: pointer;
-                // display: none;
+                color: #fff;
+                border-radius: 50%;
+                padding: 2px 5px;
+              }
+              .user-edit:hover{
+                color: #17273b;
+                background-color: #c3c1c1;
               }
             }
             
@@ -227,6 +233,7 @@
           .icon{
             font-size: 25px;
             opacity: 0.8;
+            cursor: pointer;
           }
         }
         .chat-utilities-icon:hover{
@@ -285,7 +292,7 @@
               width: 300px;
               height: 350px;
               top: -450px;
-              right: -70px;
+              right: 25px;
               padding-top: 5px;
               background-color: white;
 

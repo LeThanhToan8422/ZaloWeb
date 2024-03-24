@@ -15,6 +15,7 @@ import {  EditOutlined } from "@ant-design/icons";
 import FormUpdateName from "./formUpdateName";
 import { CiTrash } from "react-icons/ci";
 import { MdOutlineBlock } from "react-icons/md";
+import moment from "moment";
 
 function InfoUser({visible, setVisible, userId}) {
     const [form] = Form.useForm();
@@ -131,7 +132,7 @@ function InfoUser({visible, setVisible, userId}) {
                                   <Form.Item
                                       name="dob"
                                   >
-                                      {user.dob}
+                                      {moment(user.dob).format("YYYY-MM-DD")}
                                   </Form.Item>
                               </Col>              
                           </Row>

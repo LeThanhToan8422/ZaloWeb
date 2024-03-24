@@ -20,9 +20,6 @@ import moment from "moment";
 function FormUpdate({visible, setVisible, user}) {
   const { name, gender, dob } = user;
   let setGender = gender? 1: 0;
-  let date = new Date(dob);
-  console.log(gender);
-  console.log(Date.parse(dob));
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
   useEffect(() => {
@@ -35,6 +32,27 @@ function FormUpdate({visible, setVisible, user}) {
       setVisible(false);
     }
   };
+
+
+  const onFinish = async (values) => {
+    try {
+      const { id } = user;
+      values.id = id;
+      const userUpdate = {
+        ...values,
+        dob: values["dob"] ? values["dob"].format("YYYY-MM-DD") : ""
+      }
+      const res = await axios.put(`http://localhost:8080/users`, userUpdate)
+      if(res){
+        message.success("Cập nhật thành công!")
+        setVisible(false);
+      }
+    } catch (error) {
+      console.log("Error: ", error);
+      message.error(error.message);
+    }
+  }
+
     return ( <Modal
         title="Cập nhật thông tin cá nhân"
         open={visibleModal}
@@ -46,7 +64,7 @@ function FormUpdate({visible, setVisible, user}) {
     >
               <Form
                 form={form}
-                //onFinish={onFinish}
+                onFinish={onFinish}
                 name="form_edit_account"
                 className="ant-advanced-search-form"
                 initialValues={{name: name, gender: setGender, dob: moment(dob)}}
@@ -71,7 +89,7 @@ function FormUpdate({visible, setVisible, user}) {
                      <Radio.Group >
                                 <Radio value={1} >Nam</Radio>
                                 <Radio value={0} >Nữ</Radio>
-                              </Radio.Group>                   
+                      </Radio.Group>                   
                     </Form.Item>
                   </Col>                
                 </Row>

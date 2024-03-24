@@ -222,7 +222,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
             <div className="chat-header">
               <div className="chat-header-left">
                 <div className="chat-header-left-avt" onClick={() => setIsClickUser(true)}>
-                  <img src={nameReceiver.image==null ?"/public/avatardefault.png":nameReceiver.image} style={{width : "50px", height : "50px"}}/>
+                  <img src={nameReceiver.image==null ?"/public/avatardefault.png":nameReceiver.image} style={{width : "60px", height : "60px", borderRadius: "50%"}}/>
                 </div>
                 <div className="chat-header-left-name">
                   <div className="user">

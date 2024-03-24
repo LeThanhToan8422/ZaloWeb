@@ -14,6 +14,7 @@ import axios from "axios";
 import {  EditOutlined } from "@ant-design/icons";
 import FormUpdate from "./formUpdate";
 import { IoCameraOutline } from "react-icons/io5";
+import moment from "moment";
 
 function InfoAccount({visible, setVisible, userId}) {
     const [form] = Form.useForm();
@@ -31,7 +32,8 @@ function InfoAccount({visible, setVisible, userId}) {
       setUser(datas.data);
     };
     getApiUserById();
-    }, [userId]);
+    }, [userId, isClickUpdate]);
+
 
     const handleCancel = () => {
         form.resetFields();
@@ -113,7 +115,7 @@ function InfoAccount({visible, setVisible, userId}) {
                                 <Form.Item
                                     name="dob"
                                 >
-                                    {user.dob}
+                                    {moment(user.dob).format("YYYY-MM-DD")}
                                 </Form.Item>
                             </Col>              
                         </Row>

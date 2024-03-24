@@ -23,8 +23,9 @@ import {
 import { BsBell, BsPinAngle } from "react-icons/bs";
 import { HiOutlineUsers } from "react-icons/hi2";
 import axios from "axios";
-import { Stomp } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
+// import { Stomp } from "@stomp/stompjs";
+// import SockJS from "sockjs-client";
+import { io } from "socket.io-client";
 
 //emotion
 import Picker from "@emoji-mart/react";
@@ -32,82 +33,97 @@ import data from "@emoji-mart/data";
 
 //form
 import InfoUser from "./components/InfoUser";
+import FormUpdateName from "./components/formUpdateName";
 
 const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
-  let chatRef = useRef(null)
+  let scrollRef = useRef(null)
 
   const [isClickInfo, setIsClickInfo] = useState(false);
   const [isClickSticker, setIsClickSticker] = useState(false);
-  const [isClickLink, setIsClickLink] = useState(false);
   const [isClickUser, setIsClickUser] = useState(false);
   const [nameReceiver, setNameReceiver] = useState({});
+  const [nameSender, setNameSender] = useState({});
   const [contentMessages, setContentMessages] = useState([]);
 
   const [message, setMessage] = useState("")
-  const [stompClient, setStompClient] = useState(null)
   const [displayIcons, setDisplayIcons] = useState(false)
-  const [flag, setFlag] = useState(1);
+  const [isClickUpdate, setIsClickUpdate] = useState(false);
+  
+
+  const [socket, setSocket] = useState(null);
+  useEffect(() => {
+    let newSocket = io("http://localhost:8080");
+    newSocket.emit(`Client-Chat-Room`, {
+      message: "",
+      chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
+    });
+    setSocket(newSocket);
+  }, [JSON.stringify(contentMessages)]);
 
   useEffect(() => {
-    const sock = new SockJS("http://localhost:8080/ws")
-    const client = Stomp.over(sock)
-
-    client.connect({}, () => {
-      client.subscribe(`/topic/messages/${userId < idChat ? `${userId}${idChat}` : `${idChat}${userId}`}`, (message) => {
-        const receivedmessage = JSON.parse(message.body)
-        handleChangeMessageFinal(receivedmessage);
-        setContentMessages((prev) => [...prev, receivedmessage])
-      })
-    })
-
-    setStompClient(client)
+    socket?.on(
+      `Server-Chat-Room-${
+        userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`
+      }`,
+      (dataGot) => {
+        handleChangeMessageFinal(dataGot.data);
+        setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
+      }
+    ); // mỗi khi có tin nhắn thì mess sẽ được render thêm
 
     return () => {
-      client.disconnect()
-    }
-  }, [JSON.stringify(contentMessages)])
+      socket?.disconnect();
+    };
+  }, [JSON.stringify(contentMessages)]);
 
   useEffect(() => {
-    chatRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [JSON.stringify(contentMessages)])
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [JSON.stringify(contentMessages)]);
 
-  let sendMessage = () => {
-    console.log(message);
-    if(message.trim()){
-      stompClient.send(`/app/chat/${userId < idChat ? `${userId}${idChat}` : `${idChat}${userId}`}`, {}, JSON.stringify({
-        message : message,
-        sender : userId,
-        receiver : idChat
-      }))
+  const sendMessage = () => {
+    if (message !== null) {
+      socket.emit(
+        "chatRoom",
+        userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`
+      );
+      socket.emit(`Client-Chat-Room`, {
+        message: message,
+        sender: userId,
+        receiver: idChat,
+        chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
+      });
+
+      setMessage("");
+      setDisplayIcons(false);
     }
-    setMessage("")
-    setDisplayIcons(false)
-  }
+  };
 
   useEffect(() => {
     let getApiContentChats = async () => {
       let datas = await axios.get(
-        `http://localhost:8080/chat/content-chats-between-users/${userId}-and-${idChat}`
+        `http://localhost:8080/chats/content-chats-between-users/${userId}-and-${idChat}`
       );
+      let sender = await axios.get(`http://localhost:8080/users/${userId}`);
+      let receiver = await axios.get(`http://localhost:8080/users/${idChat}`); 
+      console.log(datas.data);
       setContentMessages(datas.data);
       setNameReceiver(
-        datas.data[0].sender.id !== userId
-          ? {
-              name: datas.data[0].sender.name,
-              image: datas.data[0].sender.image,
-            }
-          : {
-              name: datas.data[0].receiver.name,
-              image: datas.data[0].receiver.image,
-            }
+        {
+          name: receiver.data.name,
+          image: receiver.data.image,
+        } 
       );
+      setNameSender(
+        {
+          name: sender.data.name,
+          image: sender.data.image,
+        }
+      )
     };
     getApiContentChats();
   }, [userId, idChat]);
 
-  useEffect(() => {
-
-  }, [message])
+  useEffect(() => {}, [message]);
 
   return (
     <div className="container-content-chat">
@@ -198,6 +214,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
       ) : (
         <>
           <InfoUser setVisible={setIsClickUser} visible={isClickUser} userId={idChat}/>
+          <FormUpdateName setVisible={setIsClickUpdate} visible={isClickUpdate} user={nameReceiver}/>
           <div
             className="content-chat"
             style={{ width: isClickInfo ? "70%" : "" }}
@@ -211,7 +228,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                   <div className="user">
                     <div className="user-name">{nameReceiver.name}</div>
                     <div className="user-edit">
-                      <EditOutlined />
+                      <EditOutlined onClick={() => setIsClickUpdate(true)}/>
                     </div>
                   </div>
                   <div className="is-active">Active</div>
@@ -246,30 +263,34 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
             <div className="chat-view">
               {contentMessages.map((message, index) => (
                 <div
-                  ref={index === contentMessages.length - 1 ? chatRef : null}
-                  key={message.id}
+                ref={index === contentMessages.length - 1 ? scrollRef : null}
+                  key={index}
                   className="message"
                   style={{
                     justifyContent:
-                      message.sender.id !== userId ? "flex-start" : "flex-end",
+                      message.sender !== userId ? "flex-start" : "flex-end",
                     marginTop: index === 0 ? "10px" : "0px",
                   }}
                 >
-                  {message.sender.id !== userId ? (
-                    <img src={message.sender.image ==null ?"/public/avatardefault.png": message.sender.image} className="avatar-user" />
+                  {message.sender !== userId ? (
+                    <img 
+                      src={nameReceiver.image ==null ?"/public/avatardefault.png": nameReceiver.image} 
+                      className="avatar-user" 
+                      onClick={() => setIsClickUser(true)}
+                      style={{cursor: 'pointer'}}/>
                   ) : null}
                   
                   <div className="content-message">
-                    {/* {message.sender.id !== userId ? (
+                    {/* {message.sender !== userId ? (
                       <span className="info name-user">
-                        {message.sender.name}
+                        {nameReceiver.name}
                       </span>
                     ) : null} */}
                     <span className="info mess">{
                       message.message
                     }</span>
-                    <span className="info time">
-                      {message.dateTimeSend.slice(11, 16)}
+                    <span className="info time" style={{fontSize:10, color: "darkgrey"}}>
+                      {message.dateTimeSend?.slice(11, 16)}
                     </span>
                   </div>
                 </div>
@@ -287,17 +308,24 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                 <LuSticker className="icon" />
               </div>
               <div className="chat-utilities-icon">
-                <i className="fa-regular fa-image icon"></i>
+                <input type="file" style={{display:"none"}} id="image"/>
+                  <label htmlFor="image">
+                    <i className="fa-regular fa-image icon"></i>
+                  </label>             
               </div>
               <div
                 className="chat-utilities-icon"
-                onClick={() => setIsClickLink(!isClickLink)}
-                style={{
-                  color: isClickLink ? "#0068ff" : "",
-                  background: isClickLink ? "#d4e4fa" : "",
-                }}
+                // onClick={() => setIsClickLink(!isClickLink)}
+                // style={{
+                //   color: isClickLink ? "#0068ff" : "",
+                //   background: isClickLink ? "#d4e4fa" : "",
+                // }}
               >
-                <i className="fa-solid fa-paperclip icon"></i>
+                <input type="file" style={{display:"none"}} id="file"/>
+                  <label htmlFor="file">
+                    <i className="fa-solid fa-paperclip icon"></i>
+                  </label> 
+                
               </div>
               <div className="chat-utilities-icon">
                 <i className="fa-regular fa-address-card icon"></i>
@@ -329,9 +357,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                           />
                   </div>
                 </div>
-                <div className="chat-text-icon">
-                  <i className="fa-solid fa-at icon"></i>
-                </div>
+                
                 {/*Send message*/}
                 <div className="chat-text-icon"
                 onClick={sendMessage}

@@ -53,7 +53,7 @@ function FormUpdateName({visible, setVisible, user}) {
                         <Form.Item
                             name="avt"
                         >
-                            <img src={image=="null" ?"/public/avatardefault.png":image} style={{width : "50px", height : "50px"}} alt="Ảnh đại diện"/>
+                            <img src={image=="null" || image==null ?"/public/avatardefault.png":image} style={{width : "50px", height : "50px"}} alt="Ảnh đại diện"/>
                         </Form.Item>  
                     </Col>
                     <Col lg={10}></Col>

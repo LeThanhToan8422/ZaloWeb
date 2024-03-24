@@ -12,7 +12,7 @@ const NavBar = ({ userId }) => {
   const [visibleInfoAccount, setVisibleInfoAccount] = useState(false);
   useEffect(() => {
     let getApiUserById = async () => {
-      let datas = await axios.get(`http://localhost:8080/user/${userId}`);
+      let datas = await axios.get(`http://localhost:8080/users/${userId}`);
       setUser(datas.data);
     };
     getApiUserById();

@@ -16,7 +16,7 @@ function Home() {
 
     useEffect(() => {
         let getApiChatsByUserId = async() => {
-            let datas = await axios.get(`http://localhost:8080/user/get-chats-by-id/${location.state.userId}`)
+            let datas = await axios.get(`http://localhost:8080/users/get-chats-by-id/${location.state.userId}`)
             setChats(datas.data)
         }
         getApiChatsByUserId()

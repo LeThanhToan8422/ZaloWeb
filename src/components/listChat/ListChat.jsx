@@ -34,7 +34,6 @@ const ListChat = ({ handleChangeChat, chats, userId, messageFinal }) => {
     let datas = await axios.get(
       `http://localhost:8080/relationship/get-friends-of-${userId}/${value}`
     );
-    console.log(datas.data);
     setSearch(value);
   };
 

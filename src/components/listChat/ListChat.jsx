@@ -12,14 +12,14 @@ const ListChat = ({ handleChangeChat, chats, userId, messageFinal }) => {
     if (messageFinal !== "") {
       let findMessage = chats.find(
         (c) =>
-          (c.sender === messageFinal.sender.id ||
-            c.sender === messageFinal.receiver.id) &&
-          (c.receiver === messageFinal.sender.id ||
-            c.receiver === messageFinal.receiver.id)
+          (c.sender === messageFinal.sender ||
+            c.sender === messageFinal.receiver) &&
+          (c.receiver === messageFinal.sender ||
+            c.receiver === messageFinal.receiver)
       );
 
-      findMessage.sender = messageFinal.sender.id;
-      findMessage.receiver = messageFinal.receiver.id;
+      findMessage.sender = messageFinal.sender;
+      findMessage.receiver = messageFinal.receiver;
       findMessage.message = messageFinal.message;
     }
     setRerender(!rerender);
@@ -127,23 +127,9 @@ const ListChat = ({ handleChangeChat, chats, userId, messageFinal }) => {
               >
                 <span>{chat.sender == userId ? "Bạn: " : ""}</span>
                 <span>
-                  {chat.message.slice(0, chat.sender == userId ? 35 : 40).split(" ").map((ms, index) =>
-                    ms.startsWith(":") ? (
-                      <img
-                        key={index}
-                        src={`/icons/${ms.split(":")[1]}.png`}
-                        style={{
-                          width: "18px",
-                          height: "18px",
-                          borderRadius : "50%"
-                        }}
-                      />
-                    ) : (
-                      <span key={index}>{ms} </span>
-                    )
-                  )}
+                  {chat.message}
                 </span>
-                <span>{chat.message.length > 35 ? "..." : null}</span>
+                <span>{chat.message?.length > 35 ? "..." : null}</span>
               </div>
             </div>
           </div>

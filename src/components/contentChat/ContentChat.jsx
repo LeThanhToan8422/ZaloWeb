@@ -44,12 +44,12 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
   const [nameReceiver, setNameReceiver] = useState({});
   const [nameSender, setNameSender] = useState({});
   const [contentMessages, setContentMessages] = useState([]);
-
+  const [image, setImage] = useState(null);
   const [message, setMessage] = useState("")
   const [displayIcons, setDisplayIcons] = useState(false)
   const [isClickUpdate, setIsClickUpdate] = useState(false);
   
-
+console.log(image);
   const [socket, setSocket] = useState(null);
   useEffect(() => {
     let newSocket = io("http://localhost:8080");
@@ -296,7 +296,9 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                 </div>
               ))}
             </div>
+
             <div className="chat-utilities">
+              {/* button sticker */}
               <div
                 className="chat-utilities-icon"
                 onClick={() => setIsClickSticker(!isClickSticker)}
@@ -307,12 +309,14 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
               >
                 <LuSticker className="icon" />
               </div>
+              {/* button image */}
               <div className="chat-utilities-icon">
-                <input type="file" style={{display:"none"}} id="image"/>
+                <input type="file" style={{display:"none"}} id="image" onChange={e => setImage(e.target.files[0])}/>
                   <label htmlFor="image">
                     <i className="fa-regular fa-image icon"></i>
                   </label>             
               </div>
+              {/* button file */}
               <div
                 className="chat-utilities-icon"
                 // onClick={() => setIsClickLink(!isClickLink)}
@@ -347,6 +351,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                 />
+                {image? <img src={image}/>:""}
               </div>
               <div className="chat-text-right">
                 <div className="chat-text-icon" onClick={() => setDisplayIcons(!displayIcons)}>

@@ -45,10 +45,12 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
   const [nameSender, setNameSender] = useState({});
   const [contentMessages, setContentMessages] = useState([]);
 
-  const [message, setMessage] = useState("");
-  const [displayIcons, setDisplayIcons] = useState(false);
+  const [image, setImage] = useState(null);
+  const [message, setMessage] = useState("")
+  const [displayIcons, setDisplayIcons] = useState(false)
   const [isClickUpdate, setIsClickUpdate] = useState(false);
-  const [file, setFile] = useState("");
+  
+console.log(image);
 
   const [socket, setSocket] = useState(null);
   useEffect(() => {
@@ -361,7 +363,9 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                 </div>
               ))}
             </div>
+
             <div className="chat-utilities">
+              {/* button sticker */}
               <div
                 className="chat-utilities-icon"
                 onClick={() => setIsClickSticker(!isClickSticker)}
@@ -372,6 +376,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
               >
                 <LuSticker className="icon" />
               </div>
+              {/* button image */}
               <div className="chat-utilities-icon">
                 <input
                   type="file"
@@ -409,6 +414,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                 />
+                {image? <img src={image}/>:""}
               </div>
               <div className="chat-text-right">
                 <div

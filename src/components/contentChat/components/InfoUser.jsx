@@ -22,7 +22,7 @@ function InfoUser({visible, setVisible, userId}) {
     const [visibleModal, setVisibleModal] = useState(false);
     const [user, setUser] = useState({});
     const [isClickUpdate, setIsClickUpdate] = useState(false);
-    console.log(user);
+    
     useEffect(() => {
         setVisibleModal(visible);
       }, [visible]);

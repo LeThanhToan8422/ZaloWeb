@@ -36,7 +36,7 @@ import InfoUser from "./components/InfoUser";
 import FormUpdateName from "./components/formUpdateName";
 
 const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
-  let scrollRef = useRef(null)
+  let scrollRef = useRef(null);
 
   const [isClickInfo, setIsClickInfo] = useState(false);
   const [isClickSticker, setIsClickSticker] = useState(false);
@@ -45,10 +45,10 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
   const [nameSender, setNameSender] = useState({});
   const [contentMessages, setContentMessages] = useState([]);
 
-  const [message, setMessage] = useState("")
-  const [displayIcons, setDisplayIcons] = useState(false)
+  const [message, setMessage] = useState("");
+  const [displayIcons, setDisplayIcons] = useState(false);
   const [isClickUpdate, setIsClickUpdate] = useState(false);
-  
+  const [file, setFile] = useState("");
 
   const [socket, setSocket] = useState(null);
   useEffect(() => {
@@ -82,10 +82,6 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
 
   const sendMessage = () => {
     if (message !== null) {
-      socket.emit(
-        "chatRoom",
-        userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`
-      );
       socket.emit(`Client-Chat-Room`, {
         message: message,
         sender: userId,
@@ -104,26 +100,62 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
         `http://localhost:8080/chats/content-chats-between-users/${userId}-and-${idChat}`
       );
       let sender = await axios.get(`http://localhost:8080/users/${userId}`);
-      let receiver = await axios.get(`http://localhost:8080/users/${idChat}`); 
-      console.log(datas.data);
-      setContentMessages(datas.data);
-      setNameReceiver(
-        {
-          name: receiver.data.name,
-          image: receiver.data.image,
-        } 
+      let receiver = await axios.get(`http://localhost:8080/users/${idChat}`);
+
+      setContentMessages(
+        datas.data.map((dt) => {
+          const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/;
+          if (urlRegex.test(dt.message)) {
+            dt.url = dt.message;
+            dt.message = "";
+          }
+          return dt;
+        })
       );
-      setNameSender(
-        {
-          name: sender.data.name,
-          image: sender.data.image,
-        }
-      )
+      setNameReceiver({
+        name: receiver.data.name,
+        image: receiver.data.image,
+      });
+      setNameSender({
+        name: sender.data.name,
+        image: sender.data.image,
+      });
     };
     getApiContentChats();
   }, [userId, idChat]);
 
-  useEffect(() => {}, [message]);
+  let handleChangeFile = (e) => {
+    const file = e.target.files[0];
+
+  const reader = new FileReader();
+
+  reader.onload = (readerEvent) => {
+    const buffer = readerEvent.target.result;
+
+    const reactFile = {
+      fieldname: 'image',
+      originalname: file.name,
+      encoding: '7bit',
+      mimetype: file.type,
+      buffer: buffer,
+      size: file.size
+    };
+    console.log(reactFile);
+    // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
+    socket.emit(`Client-Chat-Room-File`, {
+      file: reactFile,
+      sender: userId,
+      receiver: idChat,
+      chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
+    });
+
+    setMessage("");
+    setDisplayIcons(false);
+  
+  };
+
+  reader.readAsArrayBuffer(file);
+  };
 
   return (
     <div className="container-content-chat">
@@ -213,22 +245,44 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
         </div>
       ) : (
         <>
-          <InfoUser setVisible={setIsClickUser} visible={isClickUser} userId={idChat}/>
-          <FormUpdateName setVisible={setIsClickUpdate} visible={isClickUpdate} user={nameReceiver}/>
+          <InfoUser
+            setVisible={setIsClickUser}
+            visible={isClickUser}
+            userId={idChat}
+          />
+          <FormUpdateName
+            setVisible={setIsClickUpdate}
+            visible={isClickUpdate}
+            user={nameReceiver}
+          />
           <div
             className="content-chat"
             style={{ width: isClickInfo ? "70%" : "" }}
           >
             <div className="chat-header">
               <div className="chat-header-left">
-                <div className="chat-header-left-avt" onClick={() => setIsClickUser(true)}>
-                  <img src={nameReceiver.image==null ?"/public/avatardefault.png":nameReceiver.image} style={{width : "60px", height : "60px", borderRadius: "50%"}}/>
+                <div
+                  className="chat-header-left-avt"
+                  onClick={() => setIsClickUser(true)}
+                >
+                  <img
+                    src={
+                      nameReceiver.image == null
+                        ? "/public/avatardefault.png"
+                        : nameReceiver.image
+                    }
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      borderRadius: "50%",
+                    }}
+                  />
                 </div>
                 <div className="chat-header-left-name">
                   <div className="user">
                     <div className="user-name">{nameReceiver.name}</div>
                     <div className="user-edit">
-                      <EditOutlined onClick={() => setIsClickUpdate(true)}/>
+                      <EditOutlined onClick={() => setIsClickUpdate(true)} />
                     </div>
                   </div>
                   <div className="is-active">Active</div>
@@ -263,7 +317,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
             <div className="chat-view">
               {contentMessages.map((message, index) => (
                 <div
-                ref={index === contentMessages.length - 1 ? scrollRef : null}
+                  ref={index === contentMessages.length - 1 ? scrollRef : null}
                   key={index}
                   className="message"
                   style={{
@@ -273,23 +327,34 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                   }}
                 >
                   {message.sender !== userId ? (
-                    <img 
-                      src={nameReceiver.image ==null ?"/public/avatardefault.png": nameReceiver.image} 
-                      className="avatar-user" 
+                    <img
+                      src={
+                        nameReceiver.image == null
+                          ? "/public/avatardefault.png"
+                          : nameReceiver.image
+                      }
+                      className="avatar-user"
                       onClick={() => setIsClickUser(true)}
-                      style={{cursor: 'pointer'}}/>
+                      style={{ cursor: "pointer" }}
+                    />
                   ) : null}
-                  
+
                   <div className="content-message">
-                    {/* {message.sender !== userId ? (
-                      <span className="info name-user">
-                        {nameReceiver.name}
-                      </span>
-                    ) : null} */}
-                    <span className="info mess">{
-                      message.message
-                    }</span>
-                    <span className="info time" style={{fontSize:10, color: "darkgrey"}}>
+                    {message.message ? (
+                      <span className="info mess">{message.message}</span>
+                    ) : (
+                      <img
+                        src={`${message.url}`}
+                        style={{
+                          width: "200px",
+                          height: "200px",
+                        }}
+                      />
+                    )}
+                    <span
+                      className="info time"
+                      style={{ fontSize: 10, color: "darkgrey" }}
+                    >
                       {message.dateTimeSend?.slice(11, 16)}
                     </span>
                   </div>
@@ -308,24 +373,21 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                 <LuSticker className="icon" />
               </div>
               <div className="chat-utilities-icon">
-                <input type="file" style={{display:"none"}} id="image"/>
-                  <label htmlFor="image">
-                    <i className="fa-regular fa-image icon"></i>
-                  </label>             
+                <input
+                  type="file"
+                  style={{ display: "none" }}
+                  id="image"
+                  onChange={(e) => handleChangeFile(e)}
+                />
+                <label htmlFor="image">
+                  <i className="fa-regular fa-image icon"></i>
+                </label>
               </div>
-              <div
-                className="chat-utilities-icon"
-                // onClick={() => setIsClickLink(!isClickLink)}
-                // style={{
-                //   color: isClickLink ? "#0068ff" : "",
-                //   background: isClickLink ? "#d4e4fa" : "",
-                // }}
-              >
-                <input type="file" style={{display:"none"}} id="file"/>
-                  <label htmlFor="file">
-                    <i className="fa-solid fa-paperclip icon"></i>
-                  </label> 
-                
+              <div className="chat-utilities-icon">
+                <input type="file" style={{ display: "none" }} id="file" />
+                <label htmlFor="file">
+                  <i className="fa-solid fa-paperclip icon"></i>
+                </label>
               </div>
               <div className="chat-utilities-icon">
                 <i className="fa-regular fa-address-card icon"></i>
@@ -349,19 +411,30 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
                 />
               </div>
               <div className="chat-text-right">
-                <div className="chat-text-icon" onClick={() => setDisplayIcons(!displayIcons)}>
-                  <i className="fa-regular fa-face-grin" style={{fontSize : '20px', color: displayIcons ? "#0068ff" : ""}} ></i>
-                  <div className="content-icons" style={{display : displayIcons ? "flex" : "none"}}>
-                    <Picker data={data}
-                          onEmojiSelect = {(e) => setMessage(message+e.native)}
-                          />
+                <div
+                  className="chat-text-icon"
+                  onClick={() => setDisplayIcons(!displayIcons)}
+                >
+                  <i
+                    className="fa-regular fa-face-grin"
+                    style={{
+                      fontSize: "20px",
+                      color: displayIcons ? "#0068ff" : "",
+                    }}
+                  ></i>
+                  <div
+                    className="content-icons"
+                    style={{ display: displayIcons ? "flex" : "none" }}
+                  >
+                    <Picker
+                      data={data}
+                      onEmojiSelect={(e) => setMessage(message + e.native)}
+                    />
                   </div>
                 </div>
-                
+
                 {/*Send message*/}
-                <div className="chat-text-icon"
-                onClick={sendMessage}
-                >
+                <div className="chat-text-icon" onClick={sendMessage}>
                   <SendOutlined className="icon" />
                 </div>
               </div>

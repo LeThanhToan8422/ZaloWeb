@@ -1,0 +1,149 @@
+.container-login{
+    width: 100%;
+    height: 97vh;
+    background-image: url("/public/background/bg-zalo.png");
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+
+    .form-login{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        width: 50%;
+        height: 90%;
+
+        .title{
+            font-size: 65px;
+            font-weight: bold;
+            color: #056BFF;
+            height: 10%;
+        }
+
+        .content{
+            margin: 7px;
+            font-size: 21px;
+            text-align: center;
+            line-height: 1.4;
+            height: 10%;
+            color: rgb(48, 47, 47);
+        }
+
+        .form{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            width: 50%;
+            height: 90%;
+            background-color: rgb(255, 255, 255);
+            margin-top: 10px;
+
+            .choose-login{
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                height: 50px;
+                width: 100%;
+
+                span{
+                    width: 50%;
+                    text-align: center;
+                }
+
+                span + span {
+                    border-left: 1px solid black;
+                }
+            }
+            .login-by-phone, .login-by-qrcode{
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+                align-items: center;
+                width: 100%;
+                height: 100%;  
+            }
+            .form-content-gender{
+                width: 80%;
+                height: 10%;
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: end;
+                
+            }
+
+            .form-content{
+                width: 80%;
+                height: 10%;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: end;
+                border-bottom: 1px solid black;
+                padding-bottom: 7px;
+
+                .icon{
+                    font-size: 20px;
+                }
+
+                .select-national{
+                    height: 65%;
+                    width: 60px;
+                    text-align: end;
+                    border: none;
+                    outline: none;
+                }
+                
+                .input-phone{
+                    height: 50%;
+                    width: calc(100% - 85px);
+                    font-size: 15px;
+                    border: none;
+                    outline: none;
+                }
+
+                .input-password{
+                    height: 50%;
+                    width: calc(100% - 35px);
+                    font-size: 15px;
+                    border: none;
+                    outline: none;
+                    width: 100%;
+                }
+            }
+
+            .button-password{
+                width: 80%;
+                height: 12%;
+                background-color: #0190F3;
+                border: none;
+                color: white;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+
+            .button-phone{
+                width: 80%;
+                height: 12%;
+                border: 1px solid #EBEBEB;
+                color: #0190F3;
+                background-color: white;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+            
+            .button-phone:hover{
+                border: 1px solid #0190F3;
+            }
+
+            .forget-password:hover{
+                color: #0190F3;
+                cursor: pointer;
+            }
+        }
+    }
+}

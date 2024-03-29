@@ -1,11 +1,11 @@
 .container-login{
     width: 100%;
-    height: 97vh;
-    background-image: url("/public/background/bg-zalo.png");
+    height: 99.9vh;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
+    background-image: url("/public/background/bg-zalo.png");
 
     .form-login{
         display: flex;
@@ -75,20 +75,19 @@
             }
             .form-content{
                 width: 80%;
-                height: 10%;
+                height: 20%;
                 display: flex;
                 flex-direction: row;
                 justify-content: space-between;
                 align-items: end;
-                border-bottom: 1px solid black;
                 padding-bottom: 10px;
 
                 .icon{
-                    font-size: 20px;
+                    font-size: 25px;
                 }
 
                 .select-national{
-                    height: 65%;
+                    height: 50%;
                     width: 60px;
                     text-align: end;
                     border: none;

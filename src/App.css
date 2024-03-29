@@ -1,8 +1,10 @@
 .app{
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  height: 97vh;
+  height: 99.9vh;
   width: 100%;
 }

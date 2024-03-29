@@ -53,7 +53,7 @@ const Login = () => {
                         />
                     </div>
                     <button className="button-password" onClick={handleClickLogin}>Đăng nhập với mật khẩu</button>
-                    <button className="button-phone" onClick={()=> navigate("/register")}>Chưa có tài khoản</button>
+                    <button className="button-phone" onClick={()=> navigate("/register")}>Tạo tài khoản</button>
                     <span onClick={() => navigate("/forget-password")} className="forget-password">Quên mật khẩu?</span>
                 </div>:
                 <div className="login-by-qrcode">

@@ -5,6 +5,7 @@ import OtpInput from "otp-input-react";
 import { useState } from "react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import "../../sass/register.css"
 import { auth } from "../config/firebase.config";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { toast, Toaster } from "react-hot-toast";
@@ -71,17 +72,19 @@ const Register = () => {
   }
 
   return (
-    <section className="bg-emerald-500 flex items-center justify-center h-screen">
+    <section className="bg-emerald-500 flex items-center justify-center h-screen container-register">
       <div>
         <Toaster toastOptions={{ duration: 4000 }} />
         <div id="recaptcha-container"></div>
         {user ? (
           navigate("/register-formInfoAccount") 
         ) : (
-          <div className="w-80 flex flex-col gap-4 rounded-lg p-4">
-            <h1 className="text-center leading-normal text-white font-medium text-3xl mb-6">
-              Welcome to <br /> CODE A PROGRAM
-            </h1>
+          <div className="w-80 flex flex-col items-center justify-center gap-4 rounded-lg p-4">
+            <span className="title">Zalo</span>
+            <span className="content">
+                Đăng ký tài khoản Zalo <br/>
+                để kết nối với ứng dụng Zalo Web
+            </span>
             {showOTP ? (
               <>
                 <div className="bg-white text-emerald-500 w-fit mx-auto p-4 rounded-full">
@@ -119,7 +122,7 @@ const Register = () => {
                 </div>
                 <label
                   htmlFor=""
-                  className="font-bold text-xl text-white text-center"
+                  className="font-bold text-xl text-black text-center"
                 >
                   Verify your phone number
                 </label>

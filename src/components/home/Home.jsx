@@ -13,6 +13,8 @@ function Home() {
   const [chats, setChats] = useState([])
   const [idChat, setIdChat] = useState("")
   const [messageFinal, setMessageFinal] = useState("")
+  const [searchValue, setSearchValue] = useState("")
+  const [searchFriends, setSearchFriends] = useState([]);
 
     useEffect(() => {
         let getApiChatsByUserId = async() => {
@@ -20,7 +22,7 @@ function Home() {
             setChats(datas.data)
         }
         getApiChatsByUserId()
-    }, [location.state.userId])
+    }, [location.state.userId, idChat])
 
     let handleChangeMessageFinal = (mess) => {
       setMessageFinal(mess)
@@ -29,6 +31,23 @@ function Home() {
   let handleChangeChat = (id) => {
     setIdChat(id)
   }
+
+  let handleChangeSearchValue = async(value) => {
+    let datas = []
+    if(value){
+      datas = await axios.get(
+        `http://localhost:8080/users/friends/${location.state.userId}/${value}`
+      );
+      setSearchFriends(datas.data)
+    }
+    else{
+      datas = await axios.get(`http://localhost:8080/users/get-chats-by-id/${location.state.userId}`)
+      setSearchFriends([])
+      setChats(datas.data)
+    }
+    console.log(datas.data);
+  }
+
   return (
     <div className='app'>
       <NavBar userId={location.state.userId}/>
@@ -36,7 +55,10 @@ function Home() {
         handleChangeChat={handleChangeChat} 
         chats={chats} 
         userId={location.state.userId} 
-        messageFinal={messageFinal}/>
+        messageFinal={messageFinal}
+        handleChangeSearchValue={handleChangeSearchValue}
+        searchFriends={searchFriends}
+        />
       <ContentChat 
         userId={location.state.userId} 
         idChat={idChat} 

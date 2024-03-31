@@ -1,19 +1,20 @@
-import { useEffect, useState } from 'react';
-import '../../sass/Login.scss';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import QRCode from 'qrcode';
+import { useEffect, useState } from "react";
+import "../../sass/Login.scss";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import QRCode from "qrcode";
+import { io } from "socket.io-client";
 
 const Login = () => {
   let navigate = useNavigate();
 
-  const [phone, setPhone] = useState('0329623380');
-  const [password, setPassword] = useState('123456789');
+  const [phone, setPhone] = useState("0329623380");
+  const [password, setPassword] = useState("123456789");
   const [isLoginByPhone, setIsLoginByPhone] = useState(true);
-  const [src, setSrc] = useState('123456789');
+  const [src, setSrc] = useState("123456789");
 
   useEffect(() => {
-    QRCode.toDataURL('Đăng nhập QRCode')
+    QRCode.toDataURL("Đăng nhập QRCode")
       .then((url) => {
         setSrc(url);
       })
@@ -22,13 +23,42 @@ const Login = () => {
       });
   }, []);
 
+  const [socket, setSocket] = useState(null);
+  useEffect(() => {
+    let newSocket = io("http://localhost:8080");
+    // newSocket.emit(`Client-Register-QR-Code`, {
+    //   id: 1,
+    // })
+    setSocket(newSocket);
+  }, [isLoginByPhone]);
+
+  useEffect(() => {
+    if(!isLoginByPhone){
+      console.log("Hello");
+      socket?.on(
+        `Server-Register-QR-Code`,
+        (dataGot) => {
+          navigate("/home", {
+            state: {
+              userId: dataGot.data.id,
+            },
+          });
+        }
+      );
+    } // mỗi khi có tin nhắn thì mess sẽ được render thêm
+
+    return () => {
+      socket?.disconnect();
+    };
+  }, [isLoginByPhone]);
+
   let handleClickLogin = async () => {
-    let datas = await axios.post('http://localhost:8080/login', {
+    let datas = await axios.post("http://localhost:8080/login", {
       phone: phone,
       password: password,
     });
     if (datas.data.id > 0) {
-      navigate('/home', {
+      navigate("/home", {
         state: {
           userId: datas.data.id,
         },
@@ -48,12 +78,14 @@ const Login = () => {
           <div className="choose-login">
             <span
               onClick={() => setIsLoginByPhone(false)}
-              style={{ color: !isLoginByPhone ? '#056BFF' : '' }}>
+              style={{ color: !isLoginByPhone ? "#056BFF" : "" }}
+            >
               VỚI MÃ QR
             </span>
             <span
               onClick={() => setIsLoginByPhone(true)}
-              style={{ color: isLoginByPhone ? '#056BFF' : '' }}>
+              style={{ color: isLoginByPhone ? "#056BFF" : "" }}
+            >
               VỚI SỐ ĐIỆN THOẠI
             </span>
           </div>
@@ -87,12 +119,14 @@ const Login = () => {
               </button>
               <button
                 className="button-register"
-                onClick={() => navigate('/register')}>
+                onClick={() => navigate("/register")}
+              >
                 Tạo tài khoản
               </button>
               <span
-                onClick={() => navigate('/forget-password')}
-                className="forget-password">
+                onClick={() => navigate("/forget-password")}
+                className="forget-password"
+              >
                 Quên mật khẩu?
               </span>
             </div>
@@ -103,8 +137,8 @@ const Login = () => {
                   src={src}
                   alt=""
                   style={{
-                    width: '250px',
-                    height: '250px',
+                    width: "250px",
+                    height: "250px",
                   }}
                 />
               </div>

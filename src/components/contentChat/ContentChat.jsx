@@ -50,8 +50,6 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
   const [displayIcons, setDisplayIcons] = useState(false)
   const [isClickUpdate, setIsClickUpdate] = useState(false);
   
-console.log(image);
-
   const [socket, setSocket] = useState(null);
   useEffect(() => {
     let newSocket = io("http://localhost:8080");

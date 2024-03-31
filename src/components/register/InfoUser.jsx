@@ -7,13 +7,12 @@ import toast, { Toaster } from "react-hot-toast";
 const InfoUser = () => {
   let navigate = useNavigate();
   let location = useLocation();
-  //console.log(location.state.phone);
-  //console.log(location.state.password);
 
   const [name, setname] = useState("");
   const [gender, setGender] = useState(true);
   const [dob, setDob] = useState("");
   const [email, setEmail] = useState("");
+  const currentDate = new Date().toISOString().split("T")[0];
 
   let handleClickRegisterUser = async () => {
     let checkEmail = await axios.get(
@@ -34,10 +33,11 @@ const InfoUser = () => {
         });
         if (dataAccounts.data) {
           navigate("/");
+          toast.success("Đăng ký thành công!");
         }
       }
     } else {
-      toast.error("Email was already!!!");
+      toast.error("Email đã tồn tại!!!");
     }
   };
 
@@ -93,6 +93,7 @@ const InfoUser = () => {
                 type="date"
                 className="input-dob input"
                 placeholder="Chọn ngày sinh"
+                max={currentDate}
                 onChange={(e) => setDob(e.target.value)}
               />
             </div>

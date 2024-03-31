@@ -1,58 +1,55 @@
 import { useState } from "react";
 import "../../sass/InfoAccountAndUser.scss";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { toast, Toaster } from "react-hot-toast";
 
-const InfoAccount = () => {
+const ChangePassword = () => {
   let navigate = useNavigate();
   let location = useLocation();
 
   const [password, setPassword] = useState("");
   const [verifyPassword, setVerifyPassword] = useState("");
 
-  let handleClickRegisterAccount = async () => {
-    // Kiểm tra xem mật khẩu đã nhập đầy đủ không
-  if (password === '' || verifyPassword === '') {
-    toast.error("Vui lòng nhập đầy đủ mật khẩu.");
-    return;
-  }
-
-  // Kiểm tra xem mật khẩu có ít nhất 8 ký tự
-  if (password.length < 8) {
-    toast.error("Mật khẩu phải có ít nhất 8 ký tự.");
-    return;
-  }
-
-  // Kiểm tra xem mật khẩu có chứa chữ thường, chữ hoa, số và ký tự đặc biệt
-  let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
-  if (!passwordRegex.test(password)) {
-    toast.error("Mật khẩu phải chứa ít nhất một chữ thường, một chữ hoa, một số và một ký tự đặc biệt.");
-    return;
-  }
-
-  // Kiểm tra xem mật khẩu và xác nhận mật khẩu có trùng khớp không
-  if (password !== verifyPassword) {
-    toast.error("Mật khẩu không trùng khớp");
-    return;
-  }
-
-  // Tiếp tục với xử lý đăng ký tài khoản nếu mật khẩu đáp ứng các yêu cầu
-  navigate("/register-form-Info-User", {
-    state: {
-      phone: location.state.phone,
-      password: password,
-    },
-  });
+  let handleClickChangePassword = async () => {
+    if (verifyPassword === password) {
+        let datas = await axios.get(`http://localhost:8080/accounts/phone/${location.state.phone}`);
+        console.log(datas.data);
+        if(datas.data){
+            let dataAccount = await axios.put(`http://localhost:8080/accounts`,{
+                phone: location.state.phone,
+                password: password,
+                user: datas.data.user,
+                id: datas.data.id,
+            });
+            console.log(dataAccount);
+            if(dataAccount.data){
+                toast.success("Cập nhật thành công");
+                navigate("/");
+            }
+            else {
+                toast.error("Cập nhật thất bại");
+            }
+        }
+        
+        
+    //   navigate("/register-form-Info-User", {
+    //     state: {
+    //       phone: location.state.phone,
+    //       password: password,
+    //     },
+    //   });
+    }
   };
 
   return (
     <div className="container-login">
-      <Toaster toastOptions={{ duration: 4000 }} />
+        <Toaster toastOptions={{ duration: 4000 }} />
       <div className="form-register">
         <span className="title">Zalo</span>
         <span className="content">
-          Đăng ký tài khoản Zalo <br />
-          để kết nối với bạn bè
+        Đặt lại mật khẩu Zalo <br />
+              để kết nối với ứng dụng Zalo Web
         </span>
         <div className="form-register-account">
           <div className="register-by-phone">
@@ -76,9 +73,9 @@ const InfoAccount = () => {
             </div>
             <button
               className="button-register"
-              onClick={handleClickRegisterAccount}
+              onClick={handleClickChangePassword}
             >
-              Đăng ký
+              Xác nhận
             </button>
             <button className="button-back" onClick={() => navigate(-1)}>
               Quay lại
@@ -91,4 +88,4 @@ const InfoAccount = () => {
   );
 };
 
-export default InfoAccount;
+export default ChangePassword;

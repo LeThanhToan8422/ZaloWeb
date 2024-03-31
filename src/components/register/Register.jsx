@@ -53,14 +53,14 @@ const Register = () => {
           window.confirmationResult = confirmationResult;
           setLoading(false);
           setShowOTP(true);
-          toast.success("OTP sended successfully!");
+          toast.success("Gửi OTP thành công!");
         })
         .catch((error) => {
           console.log(error);
           setLoading(false);
         });
     } else {
-      toast.error("Account was already!!!");
+      toast.error("Tài khoản đã tồn tại!!!");
     }
   };
 
@@ -110,7 +110,7 @@ const Register = () => {
                   htmlFor="otp"
                   className="font-bold text-xl text-black text-center"
                 >
-                  Enter your OTP
+                  Nhập mã OTP
                 </label>
                 <OtpInput
                   value={otp}
@@ -134,7 +134,7 @@ const Register = () => {
                   {loading && (
                     <CgSpinner size={20} className="mt-1 animate-spin" />
                   )}
-                  <span>Verify OTP</span>
+                  <span>Xác thực OTP</span>
                 </button>
               </div>
             ) : (
@@ -150,7 +150,7 @@ const Register = () => {
                   htmlFor=""
                   className="font-bold text-xl text-black text-center"
                 >
-                  Verify your phone number
+                  Nhập số điện thoại của bạn
                 </label>
                 <PhoneInput country={"vn"} value={ph} onChange={setPh} />
                 <button
@@ -163,7 +163,7 @@ const Register = () => {
                   {loading && (
                     <CgSpinner size={20} className="mt-1 animate-spin" />
                   )}
-                  <span>Send code via SMS</span>
+                  <span>Gửi mã OTP</span>
                 </button>
                 <button className="button-back" onClick={() => navigate(-1)}>
                   Quay lại

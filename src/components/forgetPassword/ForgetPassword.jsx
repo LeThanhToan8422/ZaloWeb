@@ -1,117 +1,180 @@
-import React, { useState } from "react";
-import "../../sass/ForgetPassword.scss";
-import "../../sass/Login.scss";
-import "react-phone-input-2/lib/style.css";
+import { BsFillShieldLockFill, BsTelephoneFill } from "react-icons/bs";
+import { CgSpinner } from "react-icons/cg";
+
+import OtpInput from "otp-input-react";
+import { useState } from "react";
 import PhoneInput from "react-phone-input-2";
-import OtpInput from "react-otp-input";
+import "react-phone-input-2/lib/style.css";
+import "../../sass/register.css";
+import { auth } from "../config/firebase.config";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { toast, Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-export default function ForgetPassword() {
-  var history = useNavigate();
-  const [phone, setPhone] = useState("");
+const ForgetPassword = () => {
+  let navigate = useNavigate();
   const [otp, setOtp] = useState("");
+  const [ph, setPh] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showOTP, setShowOTP] = useState(false);
+  const [user, setUser] = useState(null);
 
-  const [isCheckPhone, setIsCheckPhone] = useState(false);
+  function onCaptchVerify() {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "recaptcha-container",
+        {
+          size: "invisible",
+          callback: (response) => {
+            onForgetPassword();
+          },
+          "expired-callback": () => {},
+        }
+      );
+    }
+  }
 
-  const [isVertifi, setIsVertifi] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  let onForgetPassword = async () => {
+    let datas = await axios.get(
+      `http://localhost:8080/accounts/phone/0${ph.slice(2, 11)}`
+    );
+    if (datas.data) {
+      setLoading(true);
+      onCaptchVerify();
 
-  const [country, setCountry] = useState("");
-  const handleGetOTP = (phone) => {
-    console.log(phone);
-    setIsLoading(true);
-    setIsVertifi(false);
+      const appVerifier = window.recaptchaVerifier;
 
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsVertifi(true);
-    }, 1000);
+      const formatPh = "+" + ph;
+
+      signInWithPhoneNumber(auth, formatPh, appVerifier)
+        .then((confirmationResult) => {
+          window.confirmationResult = confirmationResult;
+          setLoading(false);
+          setShowOTP(true);
+          toast.success("Gửi OTP thành công!");
+        })
+        .catch((error) => {
+          console.log(error);
+          setLoading(false);
+        });
+    } else {
+      toast.error("Tài khoản không tồn tại!!!");
+    }
   };
-  return (
-    <div className="container-login">
-      <div className="form-forget">
-        <span className="title_Zalo">Zalo</span>
-        <span className="content">
-          Đăng nhập tài khoản Zalo <br />
-          để kết nối với ứng dụng Zalo Web
-        </span>
-        <div className="form">
-          <p className="title">Nhập số điện thoại của bạn</p>
-          <div className="form-content">
-            <div className="container_icon">
-              <i className="fa-solid fa-mobile-screen-button icon"></i>
-            </div>
-            <div style={{ width: "100%" }}>
-              <PhoneInput
-                inputStyle={{
-                  height: "40px",
-                  width: "100%",
-                  borderWidth: "0px",
-                  borderBottomWidth: "1px",
-                  borderRadius: "0px",
-                }}
-                buttonStyle={{
-                  borderWidth: "0px",
-                  borderBottomWidth: "1px",
-                  backgroundColor: "white",
-                }}
-                country={"vn"}
-                value={phone}
-                onChange={(e, country) => {
-                  setCountry(country.dialCode);
-                  setPhone(e);
-                }}
-              />
-            </div>
-          </div>
-          <div className="check">
-            {isCheckPhone && <span>Vui lòng nhập số điện thoại</span>}
-          </div>
 
-          {isLoading && <div className="loading"></div>}
-          {isVertifi && (
-            <div className="OTP">
-              <span className="title_otp">Nhập mã OTP:</span>
-              <div>
+  function onOTPVerify() {
+    setLoading(true);
+    window.confirmationResult
+      .confirm(otp)
+      .then(async (res) => {
+        console.log(res);
+        setUser(res.user);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
+  }
+
+  return (
+    <section className="bg-emerald-500 flex items-center justify-center h-screen container-register">
+      <div>
+        <Toaster toastOptions={{ duration: 4000 }} />
+        <div id="recaptcha-container"></div>
+        {user ? (
+          navigate("/forget-password-change", {
+            state: {
+              phone: `0${ph.slice(2, 11)}`,
+            },
+          })
+        ) : (
+          <div className="w-80 flex flex-col items-center justify-center gap-4 rounded-lg p-4">
+            <span className="title">Zalo</span>
+            <span className="content">
+              Khôi phục mật khẩu Zalo <br />
+              để kết nối với ứng dụng Zalo Web
+            </span>
+            {showOTP ? (
+              <div className="content-otp-register">
+                <div className="bg-white text-emerald-500 w-fit mx-auto p-4 rounded-full">
+                  <BsFillShieldLockFill
+                    size={30}
+                    color="#0190F3"
+                    className="icon-lock-register"
+                  />
+                </div>
+                <label
+                  htmlFor="otp"
+                  className="font-bold text-xl text-black text-center"
+                >
+                  Nhập mã OTP
+                </label>
                 <OtpInput
-                  containerStyle={{ margin: "0px 5px" }}
-                  inputStyle={{
-                    height: "22px",
-                    margin: "0px 3px",
-                  }}
                   value={otp}
                   onChange={setOtp}
-                  numInputs={6}
-                  renderSeparator={<span> - </span>}
-                  renderInput={(props) => <input {...props} />}
-                />
+                  OTPLength={6}
+                  otpType="number"
+                  disabled={false}
+                  autoFocus
+                  className="opt-container"
+                  inputStyles={{
+                    border: "1px solid black",
+                  }}
+                ></OtpInput>
+                <button
+                  onClick={onOTPVerify}
+                  className="bg-emerald-600 w-full flex gap-1 items-center justify-center py-2.5 text-white rounded"
+                  style={{
+                    backgroundColor: "#0190F3",
+                  }}
+                >
+                  {loading && (
+                    <CgSpinner size={20} className="mt-1 animate-spin" />
+                  )}
+                  <span>Xác thực OTP</span>
+                </button>
               </div>
-            </div>
-          )}
-          <button
-            className="button-Submit"
-            onClick={() => {
-              if (phone.trim() !== country.trim()) {
-                handleGetOTP(phone);
-              }
-            }}
-          >
-            Tiếp tục
-          </button>
-          <button
-            className="button-back"
-            onClick={() => {
-              history(-1)
-            }}
-          >
-            Quay lại
-          </button>
-        </div>
+            ) : (
+              <div className="content-form-number">
+                <div className="bg-white text-emerald-500 w-fit mx-auto p-4 rounded-full">
+                  <BsTelephoneFill
+                    size={30}
+                    color="#0190F3"
+                    className="icon-phone-register"
+                  />
+                </div>
+                <label
+                  htmlFor=""
+                  className="font-bold text-xl text-black text-center"
+                >
+                  Nhập số điện thoại của bạn
+                </label>
+                <PhoneInput country={"vn"} value={ph} onChange={setPh} />
+                <button
+                  onClick={onForgetPassword}
+                  className="bg-emerald-600 w-full flex gap-1 items-center justify-center py-2.5 text-white rounded"
+                  style={{
+                    backgroundColor: "#0190F3",
+                  }}
+                >
+                  {loading && (
+                    <CgSpinner size={20} className="mt-1 animate-spin" />
+                  )}
+                  <span>Gửi mã OTP</span>
+                </button>
+                <button className="button-back" onClick={() => navigate(-1)}>
+                  Quay lại
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-      <div className="language">
-        <span>Tiếng Việt</span>
-        <span>English</span>
-      </div>
-    </div>
+    </section>
   );
-}
+};
+
+export default ForgetPassword;

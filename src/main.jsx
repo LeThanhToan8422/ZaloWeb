@@ -8,6 +8,7 @@ import ForgetPassword from "./components//forgetPassword/ForgetPassword.jsx"
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './index.css'
 import InfoUser from './components/register/InfoUser.jsx'
+import ChangePassword from './components/forgetPassword/ChangePassword.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -19,6 +20,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path='/register-form-Info-User' element={<InfoUser />}/>
         <Route path='/home' element={<Home/>}/>
         <Route path='/forget-password' element={<ForgetPassword />}/>
+        <Route path='/forget-password-change' element={<ChangePassword />}/>
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,

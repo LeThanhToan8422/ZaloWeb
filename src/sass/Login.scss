@@ -13,7 +13,7 @@
         justify-content: space-around;
         align-items: center;
         width: 50%;
-        height: 70%;
+        height: 75%;
 
         .title{
             font-size: 65px;
@@ -27,6 +27,7 @@
             text-align: center;
             line-height: 1.5;
             height: 10%;
+            margin: 40px 0px 30px;
         }
 
         .form{
@@ -81,6 +82,7 @@
                 justify-content: space-between;
                 align-items: end;
                 padding-bottom: 10px;
+                border-bottom: 1px solid black;
 
                 .icon{
                     font-size: 25px;
@@ -111,9 +113,9 @@
                 }
             }
 
-            .button-password{
+            .button-login{
                 width: 80%;
-                height: 12%;
+                height: 15%;
                 background-color: #0190F3;
                 border: none;
                 color: white;
@@ -121,9 +123,9 @@
                 border-radius: 5px;
             }
 
-            .button-phone{
+            .button-register{
                 width: 80%;
-                height: 12%;
+                height: 15%;
                 border: 1px solid #EBEBEB;
                 color: #0190F3;
                 background-color: white;

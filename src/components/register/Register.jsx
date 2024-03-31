@@ -5,11 +5,12 @@ import OtpInput from "otp-input-react";
 import { useState } from "react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import "../../sass/register.css"
+import "../../sass/register.css";
 import { auth } from "../config/firebase.config";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { toast, Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Register = () => {
   let navigate = useNavigate();
@@ -35,26 +36,33 @@ const Register = () => {
     }
   }
 
-  function onSignup() {
-    setLoading(true);
-    onCaptchVerify();
+  let onSignup = async () => {
+    let datas = await axios.get(
+      `http://localhost:8080/accounts/phone/0${ph.slice(2, 11)}`
+    );
+    if (!datas.data) {
+      setLoading(true);
+      onCaptchVerify();
 
-    const appVerifier = window.recaptchaVerifier;
+      const appVerifier = window.recaptchaVerifier;
 
-    const formatPh = "+" + ph;
+      const formatPh = "+" + ph;
 
-    signInWithPhoneNumber(auth, formatPh, appVerifier)
-      .then((confirmationResult) => {
-        window.confirmationResult = confirmationResult;
-        setLoading(false);
-        setShowOTP(true);
-        toast.success("OTP sended successfully!");
-      })
-      .catch((error) => {
-        console.log(error);
-        setLoading(false);
-      });
-  }
+      signInWithPhoneNumber(auth, formatPh, appVerifier)
+        .then((confirmationResult) => {
+          window.confirmationResult = confirmationResult;
+          setLoading(false);
+          setShowOTP(true);
+          toast.success("OTP sended successfully!");
+        })
+        .catch((error) => {
+          console.log(error);
+          setLoading(false);
+        });
+    } else {
+      toast.error("Account was already!!!");
+    }
+  };
 
   function onOTPVerify() {
     setLoading(true);
@@ -77,22 +85,30 @@ const Register = () => {
         <Toaster toastOptions={{ duration: 4000 }} />
         <div id="recaptcha-container"></div>
         {user ? (
-          navigate("/register-formInfoAccount") 
+          navigate("/register-form-Info-Account", {
+            state: {
+              phone: `0${ph.slice(2, 11)}`,
+            },
+          })
         ) : (
           <div className="w-80 flex flex-col items-center justify-center gap-4 rounded-lg p-4">
             <span className="title">Zalo</span>
             <span className="content">
-                Đăng ký tài khoản Zalo <br/>
-                để kết nối với ứng dụng Zalo Web
+              Đăng ký tài khoản Zalo <br />
+              để kết nối với bạn bè
             </span>
             {showOTP ? (
-              <>
+              <div className="content-otp-register">
                 <div className="bg-white text-emerald-500 w-fit mx-auto p-4 rounded-full">
-                  <BsFillShieldLockFill size={30} />
+                  <BsFillShieldLockFill
+                    size={30}
+                    color="#0190F3"
+                    className="icon-lock-register"
+                  />
                 </div>
                 <label
                   htmlFor="otp"
-                  className="font-bold text-xl text-white text-center"
+                  className="font-bold text-xl text-black text-center"
                 >
                   Enter your OTP
                 </label>
@@ -103,22 +119,32 @@ const Register = () => {
                   otpType="number"
                   disabled={false}
                   autoFocus
-                  className="opt-container "
+                  className="opt-container"
+                  inputStyles={{
+                    border: "1px solid black",
+                  }}
                 ></OtpInput>
                 <button
                   onClick={onOTPVerify}
                   className="bg-emerald-600 w-full flex gap-1 items-center justify-center py-2.5 text-white rounded"
+                  style={{
+                    backgroundColor: "#0190F3",
+                  }}
                 >
                   {loading && (
                     <CgSpinner size={20} className="mt-1 animate-spin" />
                   )}
                   <span>Verify OTP</span>
                 </button>
-              </>
+              </div>
             ) : (
-              <>
+              <div className="content-form-number">
                 <div className="bg-white text-emerald-500 w-fit mx-auto p-4 rounded-full">
-                  <BsTelephoneFill size={30} />
+                  <BsTelephoneFill
+                    size={30}
+                    color="#0190F3"
+                    className="icon-phone-register"
+                  />
                 </div>
                 <label
                   htmlFor=""
@@ -130,13 +156,19 @@ const Register = () => {
                 <button
                   onClick={onSignup}
                   className="bg-emerald-600 w-full flex gap-1 items-center justify-center py-2.5 text-white rounded"
+                  style={{
+                    backgroundColor: "#0190F3",
+                  }}
                 >
                   {loading && (
                     <CgSpinner size={20} className="mt-1 animate-spin" />
                   )}
                   <span>Send code via SMS</span>
                 </button>
-              </>
+                <button className="button-back" onClick={() => navigate(-1)}>
+                  Quay lại
+                </button>
+              </div>
             )}
           </div>
         )}

@@ -7,6 +7,7 @@ import InfoAccount from './components/register/InfoAccount.jsx'
 import ForgetPassword from "./components//forgetPassword/ForgetPassword.jsx"
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './index.css'
+import InfoUser from './components/register/InfoUser.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -14,7 +15,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path='/' element={<App />}/>
         <Route path='/register' element={<Register />}/>
-        <Route path='/register-formInfoAccount' element={<InfoAccount />}/>
+        <Route path='/register-form-Info-Account' element={<InfoAccount />}/>
+        <Route path='/register-form-Info-User' element={<InfoUser />}/>
         <Route path='/home' element={<Home/>}/>
         <Route path='/forget-password' element={<ForgetPassword />}/>
       </Routes>

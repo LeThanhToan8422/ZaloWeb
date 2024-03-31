@@ -1,0 +1,193 @@
+.container-login {
+  width: 100%;
+  height: 99.9vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  background-image: url("/public/background/bg-zalo.png");
+
+  .form-register {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    width: 50%;
+    height: 70%;
+
+    .title {
+      font-size: 65px;
+      font-weight: bold;
+      color: #056bff;
+    }
+
+    .content {
+      font-size: 20px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .form-register-account {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      width: 50%;
+      height: 50%;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px 0px;
+
+      .register-by-phone {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+
+        .form-content {
+          width: 80%;
+          height: 20%;
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 10px;
+          border-bottom: 1px solid black;
+
+          .icon {
+            font-size: 25px;
+          }
+
+          .input {
+            width: 90%;
+            height: 100%;
+            padding-left: 10px;
+            border: none;
+            outline: none;
+          }
+        }
+
+        .button-register {
+          width: 80%;
+          height: 20%;
+          background-color: #0190f3;
+          border: none;
+          color: white;
+          cursor: pointer;
+          border-radius: 5px;
+        }
+
+        .button-back {
+          width: 80%;
+          height: 20%;
+          border: 1px solid #ebebeb;
+          color: #0190f3;
+          background-color: white;
+          cursor: pointer;
+          border-radius: 5px;
+        }
+
+        .button-back:hover {
+          border: 1px solid #0190f3;
+        }
+      }
+    }
+
+    .form-register-user {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      width: 50%;
+      height: 60%;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px 0px;
+
+      .register-infor-user {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+      }
+      .form-content {
+        width: 80%;
+        height: 15%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 10px;
+        border-bottom: 1px solid black;
+
+        .icon {
+          font-size: 25px;
+        }
+
+        .select-national {
+          height: 50%;
+          width: 60px;
+          text-align: end;
+          border: none;
+          outline: none;
+        }
+
+        .content-gender {
+          width: 40%;
+          height: 100%;
+          display: flex;
+          flex-direction: row;
+          justify-content: flex-start;
+          align-items: center;
+
+          .input {
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+          }
+        }
+
+        .input {
+          width: 85%;
+          height: 100%;
+          padding-left: 10px;
+          border: none;
+          outline: none;
+        }
+      }
+
+      .button-register {
+        width: 80%;
+        height: 15%;
+        background-color: #0190f3;
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+
+      .button-back {
+        width: 80%;
+        height: 15%;
+        border: 1px solid #ebebeb;
+        color: #0190f3;
+        background-color: white;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+
+      .button-back:hover {
+        border: 1px solid #0190f3;
+      }
+
+      .forget-password:hover {
+        color: #0190f3;
+        cursor: pointer;
+      }
+    }
+  }
+}

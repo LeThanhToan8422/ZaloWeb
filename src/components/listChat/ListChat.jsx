@@ -2,11 +2,26 @@ import { useEffect, useState } from "react";
 import "../../sass/ListChat.scss";
 import axios from "axios";
 
-const ListChat = ({ handleChangeChat, chats, userId, messageFinal }) => {
+const ListChat = ({
+  handleChangeChat,
+  chats,
+  userId,
+  messageFinal,
+  handleChangeSearchValue,
+  searchFriends,
+}) => {
   const [isPrioritize, setIsPrioritize] = useState(true);
   const [chatSelected, setChatsSelected] = useState(0);
   const [rerender, setRerender] = useState(false);
   const [search, setSearch] = useState("");
+  const [listChat, setListChat] = useState([]);
+
+  useEffect(() => {
+    console.log("Into Chats");
+    setListChat([...chats]);
+    setSearch("")
+    handleChangeSearchValue("")
+  }, [JSON.stringify(chats), messageFinal])
 
   useEffect(() => {
     if (messageFinal !== "") {
@@ -18,9 +33,12 @@ const ListChat = ({ handleChangeChat, chats, userId, messageFinal }) => {
             c.receiver === messageFinal.receiver)
       );
 
-      findMessage.sender = messageFinal.sender;
-      findMessage.receiver = messageFinal.receiver;
-      findMessage.message = messageFinal.message;
+      if(findMessage){
+        findMessage.sender = messageFinal.sender;
+        findMessage.receiver = messageFinal.receiver;
+        findMessage.message = messageFinal.message;
+      }
+      handleChangeSearchValue("")
     }
     setRerender(!rerender);
   }, [JSON.stringify(messageFinal)]);
@@ -31,10 +49,8 @@ const ListChat = ({ handleChangeChat, chats, userId, messageFinal }) => {
   };
 
   let handleChangeSearch = async (value) => {
-    let datas = await axios.get(
-      `http://localhost:8080/relationship/get-friends-of-${userId}/${value}`
-    );
     setSearch(value);
+    handleChangeSearchValue(value);
   };
 
   return (
@@ -94,46 +110,81 @@ const ListChat = ({ handleChangeChat, chats, userId, messageFinal }) => {
       </div>
 
       <div className="contents-chats">
-        {chats.map((chat) => (
-          <div
-            className="user-chat"
-            key={chat.id}
-            onClick={() => handleClickChat(chat.id)}
-            style={{
-              backgroundColor: chatSelected === chat.id ? "#e5efff" : "white",
-            }}
-          >
-            <img
-              src={chat.image=="null" ?"/public/avatardefault.png":chat.image}
-              style={{
-                height: 45,
-                width: 45,
-                borderRadius: 50,
-                marginTop: 10,
-                marginLeft: 20,
-              }}
-            />
-            <div style={{ flexDirection: "row", marginLeft: 10 }}>
-              <div style={{ marginTop: 10, fontSize: 18, marginLeft: 5 }}>
-                {chat.name}
-              </div>
+        {searchFriends?.length > 0
+          ? searchFriends.map((chat) => (
               <div
+                className="user-chat"
+                key={chat.id}
+                onClick={() => handleClickChat(chat.id)}
                 style={{
-                  fontSize: 15,
-                  marginTop: 7,
-                  color: "gray",
-                  marginLeft: 5,
+                  backgroundColor:
+                    chatSelected === chat.id ? "#e5efff" : "white",
                 }}
               >
-                <span>{chat.sender == userId ? "Bạn: " : ""}</span>
-                <span>
-                  {chat.message}
-                </span>
-                <span>{chat.message?.length > 35 ? "..." : null}</span>
+                <img
+                  src={
+                    chat.image == "null"
+                      ? "/public/avatardefault.png"
+                      : chat.image
+                  }
+                  style={{
+                    height: 45,
+                    width: 45,
+                    borderRadius: 50,
+                    marginTop: 10,
+                    marginLeft: 20,
+                  }}
+                />
+                <div style={{ flexDirection: "row", marginLeft: 10 }}>
+                  <div style={{ marginTop: 10, fontSize: 18, marginLeft: 5 }}>
+                    {chat.name}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
+            ))
+          : listChat.map((chat) => (
+              <div
+                className="user-chat"
+                key={chat.id}
+                onClick={() => handleClickChat(chat.id)}
+                style={{
+                  backgroundColor:
+                    chatSelected === chat.id ? "#e5efff" : "white",
+                }}
+              >
+                <img
+                  src={
+                    chat.image == "null"
+                      ? "/public/avatardefault.png"
+                      : chat.image
+                  }
+                  style={{
+                    height: 45,
+                    width: 45,
+                    borderRadius: 50,
+                    marginTop: 10,
+                    marginLeft: 20,
+                  }}
+                />
+                <div style={{ flexDirection: "row", marginLeft: 10 }}>
+                  <div style={{ marginTop: 10, fontSize: 18, marginLeft: 5 }}>
+                    {chat.name}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 15,
+                      marginTop: 7,
+                      color: "gray",
+                      marginLeft: 5,
+                    }}
+                  >
+                    <span>{chat.sender == userId ? "Bạn: " : ""}</span>
+                    <span>{chat.message}</span>
+                    <span>{chat.message?.length > 35 ? "..." : null}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
       </div>
     </div>
   );

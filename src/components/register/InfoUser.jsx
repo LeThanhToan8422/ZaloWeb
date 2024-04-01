@@ -3,8 +3,10 @@ import "../../sass/Login.scss";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import bcrypt from "bcryptjs"
 
 const InfoUser = () => {
+  let salt = bcrypt.genSaltSync(10);
   let navigate = useNavigate();
   let location = useLocation();
 
@@ -26,9 +28,10 @@ const InfoUser = () => {
         email: email,
       });
       if (dataUsers.data !== null) {
+        let hashPassword = bcrypt.hashSync(location.state.password, salt);
         let dataAccounts = await axios.post(`http://localhost:8080/accounts`, {
           phone: location.state.phone,
-          password: location.state.password,
+          password: hashPassword,
           user: dataUsers.data.id,
         });
         if (dataAccounts.data) {

@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import QRCode from "qrcode";
 import { io } from "socket.io-client";
+import bcrypt from "bcryptjs";
 
 const Login = () => {
   let navigate = useNavigate();
@@ -33,18 +34,15 @@ const Login = () => {
   }, [isLoginByPhone]);
 
   useEffect(() => {
-    if(!isLoginByPhone){
+    if (!isLoginByPhone) {
       console.log("Hello");
-      socket?.on(
-        `Server-Register-QR-Code`,
-        (dataGot) => {
-          navigate("/home", {
-            state: {
-              userId: dataGot.data.id,
-            },
-          });
-        }
-      );
+      socket?.on(`Server-Register-QR-Code`, (dataGot) => {
+        navigate("/home", {
+          state: {
+            userId: dataGot.data.id,
+          },
+        });
+      });
     } // mỗi khi có tin nhắn thì mess sẽ được render thêm
 
     return () => {
@@ -53,16 +51,17 @@ const Login = () => {
   }, [isLoginByPhone]);
 
   let handleClickLogin = async () => {
-    let datas = await axios.post("http://localhost:8080/login", {
-      phone: phone,
-      password: password,
-    });
-    if (datas.data.id > 0) {
-      navigate("/home", {
-        state: {
-          userId: datas.data.id,
-        },
-      });
+    let datas = await axios.get(
+      `http://localhost:8080/accounts/phone/${phone}`
+    );
+    if (datas.data.user > 0) {
+      if (bcrypt.compareSync(password, datas.data.password)) {
+        navigate("/home", {
+          state: {
+            userId: datas.data.user,
+          },
+        });
+      }
     }
   };
 

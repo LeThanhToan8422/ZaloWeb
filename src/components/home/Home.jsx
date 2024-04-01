@@ -15,6 +15,7 @@ function Home() {
   const [messageFinal, setMessageFinal] = useState("")
   const [searchValue, setSearchValue] = useState("")
   const [searchFriends, setSearchFriends] = useState([]);
+  const [chatSelected, setChatsSelected] = useState(0);
 
     useEffect(() => {
         let getApiChatsByUserId = async() => {
@@ -25,6 +26,7 @@ function Home() {
     }, [location.state.userId, idChat])
 
     let handleChangeMessageFinal = (mess) => {
+      console.log(mess);
       setMessageFinal(mess)
     }
 
@@ -48,6 +50,10 @@ function Home() {
     console.log(datas.data);
   }
 
+  let handleClickChatSeleted = (id) => {
+    setChatsSelected(id)
+  }
+
   return (
     <div className='app'>
       <NavBar userId={location.state.userId}/>
@@ -58,11 +64,14 @@ function Home() {
         messageFinal={messageFinal}
         handleChangeSearchValue={handleChangeSearchValue}
         searchFriends={searchFriends}
+        handleClickChatSeleted={handleClickChatSeleted}
         />
       <ContentChat 
         userId={location.state.userId} 
         idChat={idChat} 
-        handleChangeMessageFinal={handleChangeMessageFinal}/>
+        handleChangeMessageFinal={handleChangeMessageFinal}
+        chatSelected={chatSelected}
+        />
     </div>
   )
 }

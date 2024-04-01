@@ -9,6 +9,7 @@ const ListChat = ({
   messageFinal,
   handleChangeSearchValue,
   searchFriends,
+  handleClickChatSeleted
 }) => {
   const [isPrioritize, setIsPrioritize] = useState(true);
   const [chatSelected, setChatsSelected] = useState(0);
@@ -17,7 +18,6 @@ const ListChat = ({
   const [listChat, setListChat] = useState([]);
 
   useEffect(() => {
-    console.log("Into Chats");
     setListChat([...chats]);
     setSearch("")
     handleChangeSearchValue("")
@@ -46,6 +46,7 @@ const ListChat = ({
   let handleClickChat = (id) => {
     handleChangeChat(id);
     setChatsSelected(id);
+    handleClickChatSeleted(id)
   };
 
   let handleChangeSearch = async (value) => {

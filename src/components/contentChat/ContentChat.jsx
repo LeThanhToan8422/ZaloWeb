@@ -35,7 +35,7 @@ import data from "@emoji-mart/data";
 import InfoUser from "./components/InfoUser";
 import FormUpdateName from "./components/formUpdateName";
 
-const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
+const ContentChat = ({ userId, idChat, handleChangeMessageFinal, chatSelected }) => {
   let scrollRef = useRef(null);
 
   const [isClickInfo, setIsClickInfo] = useState(false);
@@ -58,9 +58,12 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
       chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
     });
     setSocket(newSocket);
-  }, [JSON.stringify(contentMessages)]);
+  }, [JSON.stringify(contentMessages), chatSelected]);
+
+  console.log(contentMessages);
 
   useEffect(() => {
+    console.log(userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`);
     socket?.on(
       `Server-Chat-Room-${
         userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`
@@ -74,7 +77,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal }) => {
     return () => {
       socket?.disconnect();
     };
-  }, [JSON.stringify(contentMessages)]);
+  }, [JSON.stringify(contentMessages), chatSelected]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });

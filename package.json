@@ -16,6 +16,7 @@
     "@stomp/stompjs": "^7.0.0",
     "antd": "^5.14.2",
     "axios": "^1.6.5",
+    "bcryptjs": "^2.4.3",
     "classnames": "^2.5.1",
     "emoji-mart": "^5.5.2",
     "firebase": "^10.10.0",

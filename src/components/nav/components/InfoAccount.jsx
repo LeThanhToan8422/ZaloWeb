@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import FormChangePassword from "./FormUpdatePassword";
 
 function InfoAccount({ visible, setVisible, userId }) {
-    let navigate = useNavigate();
+  let navigate = useNavigate();
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
   const [user, setUser] = useState({});

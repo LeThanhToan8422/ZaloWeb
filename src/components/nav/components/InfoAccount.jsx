@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import FormChangePassword from "./FormUpdatePassword";
 
 function InfoAccount({ visible, setVisible, userId }) {
-    let navigate = useNavigate();
+  let navigate = useNavigate();
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
   const [user, setUser] = useState({});
@@ -38,6 +38,38 @@ function InfoAccount({ visible, setVisible, userId }) {
     }
   };
 
+  let handleChangeFile = async (e) => {
+    const file = e.target.files[0];
+    console.log(file);
+    const reader = new FileReader();
+
+    reader.onload = async (readerEvent) => {
+      const buffer = readerEvent.target.result;
+
+      const reactFile = {
+        fieldname: "image",
+        originalname: file.name,
+        encoding: "7bit",
+        mimetype: file.type,
+        buffer: buffer,
+        size: file.size,
+      };
+      // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
+      console.log(reactFile);
+
+      let datas = await axios.put(
+        //`http://localhost:8080/users/background`
+        `http://localhost:8080/users/avatar`,
+        {
+          id: userId,
+          file: reactFile,
+        },
+      );
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
   return (
     <div>
       <Modal
@@ -46,7 +78,9 @@ function InfoAccount({ visible, setVisible, userId }) {
         onOk={() => handleCancel()}
         onCancel={() => handleCancel()}
         width="30%"
-        style={{ display: isClickUpdate || isClickChangePassword ? "none" : "block" }}
+        style={{
+          display: isClickUpdate || isClickChangePassword ? "none" : "block",
+        }}
         footer={null}
       >
         <Form
@@ -70,18 +104,38 @@ function InfoAccount({ visible, setVisible, userId }) {
             </Col>
           </Row>
           <Row>
-            <Col lg={5}>
+            <Col lg={6}>
               <Form.Item>
-                <img
-                  src={
-                    user.image == "null"
-                      ? "/public/avatardefault.png"
-                      : user.image
-                  }
-                  style={{ width: "60px", height: "60px" }}
-                  alt="Ảnh đại diện"
-                />
-                <IoCameraOutline style={{ cursor: "pointer" }} />
+                <div style={{ display: "flex" }}>
+                  <img
+                    src={
+                      user.image == "null"
+                        ? "/public/avatardefault.png"
+                        : user.image
+                    }
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      borderRadius: "50%",
+                    }}
+                    alt="Ảnh đại diện"
+                  />
+
+                  <label
+                    htmlFor="image"
+                    style={{ marginLeft: "-15px", marginTop: "45px" }}
+                  >
+                    <IoCameraOutline style={{ cursor: "pointer" }} />
+                  </label>
+                  <input
+                    type="file"
+                    accept=".png, .jpg, .jpeg, .gif, .bmp, .tiff"
+                    multiple
+                    style={{ display: "none" }}
+                    id="image"
+                    onChange={(e) => handleChangeFile(e)}
+                  />
+                </div>
               </Form.Item>
             </Col>
             <Col lg={12}>
@@ -163,10 +217,10 @@ function InfoAccount({ visible, setVisible, userId }) {
         visible={isClickUpdate}
         user={user}
       />
-      <FormChangePassword 
+      <FormChangePassword
         setVisible={setIsClickChangePassword}
         visible={isClickChangePassword}
-        userId={userId}  
+        userId={userId}
       />
     </div>
   );

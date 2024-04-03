@@ -5,14 +5,15 @@ import { useNavigate } from "react-router-dom";
 import QRCode from "qrcode";
 import { io } from "socket.io-client";
 import bcrypt from "bcryptjs";
+import toast, { Toaster } from "react-hot-toast";
 
 const Login = () => {
   let navigate = useNavigate();
 
-  const [phone, setPhone] = useState("0329623380");
-  const [password, setPassword] = useState("123456789");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoginByPhone, setIsLoginByPhone] = useState(true);
-  const [src, setSrc] = useState("123456789");
+  const [src, setSrc] = useState("");
 
   useEffect(() => {
     QRCode.toDataURL("Đăng nhập QRCode")
@@ -61,12 +62,20 @@ const Login = () => {
             userId: datas.data.user,
           },
         });
+        toast.success("Đăng nhập thành công!!!");
       }
+      else{
+        toast.error("Mật khẩu không chính xác!!!");
+      }
+    }
+    else{
+      toast.error("Thông tin không chính xác!!!");
     }
   };
 
   return (
     <div className="container-login">
+      <Toaster toastOptions={{ duration: 4000 }} />
       <div className="form-login">
         <span className="title">Zalo</span>
         <span className="content">

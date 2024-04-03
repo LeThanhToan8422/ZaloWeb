@@ -26,13 +26,23 @@ const firebaseConfig = {
   measurementId: "G-EBR6M1KL1X"
 };*/
 
-const firebaseConfig = {
+/*const firebaseConfig = {
   apiKey: "AIzaSyBLcU4__4soEBO9z_l8Ts58FtoupixjX_Q",
   authDomain: "otpzalo-e2f08.firebaseapp.com",
   projectId: "otpzalo-e2f08",
   storageBucket: "otpzalo-e2f08.appspot.com",
   messagingSenderId: "703071336158",
   appId: "1:703071336158:web:306553573406af65c6f44f"
+};*/
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCOnAT0Dblm7SAKks1ahZiQIEkiORuLH9w",
+  authDomain: "otp-app-zalo.firebaseapp.com",
+  projectId: "otp-app-zalo",
+  storageBucket: "otp-app-zalo.appspot.com",
+  messagingSenderId: "30201404335",
+  appId: "1:30201404335:web:846ea4327c3f4f04b9ad5a",
+  measurementId: "G-C4502D7JVC"
 };
 
 // Initialize Firebase

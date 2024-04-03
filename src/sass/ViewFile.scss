@@ -1,0 +1,12 @@
+.container-view-file{
+    min-height: 100px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    .icon-file{
+        font-size: 50px;
+    }
+}

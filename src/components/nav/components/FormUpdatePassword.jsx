@@ -1,19 +1,21 @@
 import { useState } from "react";
-import "../../sass/InfoAccountAndUser.scss";
+import "../../../sass/InfoAccountAndUser.scss";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast, Toaster } from "react-hot-toast";
+import axios from "axios";
 import bcrypt from "bcryptjs";
 
-const ChangePassword = () => {
-  let salt = bcrypt.genSaltSync(10);
+const FormUpdatePassword = () => {
   let navigate = useNavigate();
   let location = useLocation();
+  let salt = bcrypt.genSaltSync(10);
 
+  const [oldPassword, setOldPassword] = useState("");
   const [password, setPassword] = useState("");
   const [verifyPassword, setVerifyPassword] = useState("");
 
-  let handleClickChangePassword = async () => {
+  let handleClickUpdatePassword = async () => {
+    // Kiểm tra xem mật khẩu đã nhập đầy đủ không
     if (password === "" || verifyPassword === "") {
       toast.error("Vui lòng nhập đầy đủ mật khẩu.");
       return;
@@ -40,25 +42,22 @@ const ChangePassword = () => {
       toast.error("Mật khẩu không trùng khớp");
       return;
     }
-    if (verifyPassword === password) {
-      let datas = await axios.get(
-        `http://localhost:8080/accounts/phone/${location.state.phone}`
-      );
-      if (datas.data) {
+
+    let datas = await axios.get(
+      `http://localhost:8080/accounts/user/${location.state.userId}`
+    );
+    if (datas.data) {
+      if (bcrypt.compareSync(oldPassword, datas.data.password)) {
         let hashPassword = bcrypt.hashSync(password, salt);
-        let dataAccount = await axios.put(`http://localhost:8080/accounts`, {
-          phone: location.state.phone,
-          password: hashPassword,
-          user: datas.data.user,
+        await axios.put(`http://localhost:8080/accounts`, {
           id: datas.data.id,
+          phone: datas.data.phone,
+          password: hashPassword,
         });
-        console.log(dataAccount);
-        if (dataAccount.data) {
-          toast.success("Cập nhật thành công");
-          navigate("/");
-        } else {
-          toast.error("Cập nhật thất bại");
-        }
+        navigate("/");
+      }
+      else{
+        toast.error("Mật khẩu cũ không chính xác!!!")
       }
     }
   };
@@ -69,34 +68,46 @@ const ChangePassword = () => {
       <div className="form-register">
         <span className="title">Zalo</span>
         <span className="content">
-          Đặt lại mật khẩu Zalo <br />
-          để kết nối với ứng dụng Zalo Web
+          Cập nhật mật khẩu Zalo <br />
+          để kết nối với bạn bè
         </span>
         <div className="form-register-account">
           <div className="register-by-phone">
             <div className="form-content">
               <i className="fa-solid fa-lock icon"></i>
               <input
+                value={oldPassword}
                 type="password"
                 className="input"
-                placeholder="Mật khẩu"
+                placeholder="Mật khẩu cũ"
+                onChange={(e) => setOldPassword(e.target.value)}
+              />
+            </div>
+            <div className="form-content">
+              <i className="fa-solid fa-lock icon"></i>
+              <input
+                value={password}
+                type="password"
+                className="input"
+                placeholder="Mật khẩu mới"
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <div className="form-content">
               <i className="fa-solid fa-lock icon"></i>
               <input
+                value={verifyPassword}
                 type="password"
                 className="input"
-                placeholder="Xác nhận mật khẩu"
+                placeholder="Xác nhận mật khẩu mới"
                 onChange={(e) => setVerifyPassword(e.target.value)}
               />
             </div>
             <button
               className="button-register"
-              onClick={handleClickChangePassword}
+              onClick={handleClickUpdatePassword}
             >
-              Xác nhận
+              Cập nhật
             </button>
             <button className="button-back" onClick={() => navigate(-1)}>
               Quay lại
@@ -109,4 +120,4 @@ const ChangePassword = () => {
   );
 };
 
-export default ChangePassword;
+export default FormUpdatePassword;

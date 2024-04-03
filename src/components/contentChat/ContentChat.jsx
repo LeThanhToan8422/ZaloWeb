@@ -34,9 +34,17 @@ import data from "@emoji-mart/data";
 //form
 import InfoUser from "./components/InfoUser";
 import FormUpdateName from "./components/formUpdateName";
+import { useNavigate } from "react-router-dom";
+import ViewFile from "./components/ViewFile";
 
-const ContentChat = ({ userId, idChat, handleChangeMessageFinal, chatSelected }) => {
+const ContentChat = ({
+  userId,
+  idChat,
+  handleChangeMessageFinal,
+  chatSelected,
+}) => {
   let scrollRef = useRef(null);
+  let navigate = useNavigate();
 
   const [isClickInfo, setIsClickInfo] = useState(false);
   const [isClickSticker, setIsClickSticker] = useState(false);
@@ -46,10 +54,10 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal, chatSelected })
   const [contentMessages, setContentMessages] = useState([]);
 
   const [image, setImage] = useState(null);
-  const [message, setMessage] = useState("")
-  const [displayIcons, setDisplayIcons] = useState(false)
+  const [message, setMessage] = useState("");
+  const [displayIcons, setDisplayIcons] = useState(false);
   const [isClickUpdate, setIsClickUpdate] = useState(false);
-  
+
   const [socket, setSocket] = useState(null);
   useEffect(() => {
     let newSocket = io("http://localhost:8080");
@@ -59,8 +67,6 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal, chatSelected })
     });
     setSocket(newSocket);
   }, [JSON.stringify(contentMessages), chatSelected]);
-
-  console.log(contentMessages);
 
   useEffect(() => {
     console.log(userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`);
@@ -127,37 +133,37 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal, chatSelected })
     getApiContentChats();
   }, [userId, idChat]);
 
-  let handleChangeFile = (e) => {
-    const file = e.target.files[0];
+  let handleChangeFile = async(e) => {
+    for (let i = 0; i < e.target.files.length; i++) {
+      const file = e.target.files[i];
+      console.log(file);
+      const reader = new FileReader();
 
-  const reader = new FileReader();
+      reader.onload = (readerEvent) => {
+        const buffer = readerEvent.target.result;
 
-  reader.onload = (readerEvent) => {
-    const buffer = readerEvent.target.result;
+        const reactFile = {
+          fieldname: "image",
+          originalname: file.name,
+          encoding: "7bit",
+          mimetype: file.type,
+          buffer: buffer,
+          size: file.size,
+        };
+        // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
+        socket.emit(`Client-Chat-Room-File`, {
+          file: reactFile,
+          sender: userId,
+          receiver: idChat,
+          chatRoom:
+            userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
+        });
+      };
 
-    const reactFile = {
-      fieldname: 'image',
-      originalname: file.name,
-      encoding: '7bit',
-      mimetype: file.type,
-      buffer: buffer,
-      size: file.size
-    };
-    console.log(reactFile);
-    // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
-    socket.emit(`Client-Chat-Room-File`, {
-      file: reactFile,
-      sender: userId,
-      receiver: idChat,
-      chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
-    });
-
+      reader.readAsArrayBuffer(file);
+    }
     setMessage("");
     setDisplayIcons(false);
-  
-  };
-
-  reader.readAsArrayBuffer(file);
   };
 
   return (
@@ -346,13 +352,8 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal, chatSelected })
                     {message.message ? (
                       <span className="info mess">{message.message}</span>
                     ) : (
-                      <img
-                        src={`${message.url}`}
-                        style={{
-                          width: "200px",
-                          height: "200px",
-                        }}
-                      />
+                      
+                      <ViewFile url={message.url}/>
                     )}
                     <span
                       className="info time"
@@ -381,6 +382,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal, chatSelected })
               <div className="chat-utilities-icon">
                 <input
                   type="file"
+                  multiple
                   style={{ display: "none" }}
                   id="image"
                   onChange={(e) => handleChangeFile(e)}
@@ -415,7 +417,7 @@ const ContentChat = ({ userId, idChat, handleChangeMessageFinal, chatSelected })
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                 />
-                {image? <img src={image}/>:""}
+                {image ? <img src={image} /> : ""}
               </div>
               <div className="chat-text-right">
                 <div

@@ -22,6 +22,10 @@ import {
 } from "react-icons/vsc";
 import { BsBell, BsPinAngle } from "react-icons/bs";
 import { HiOutlineUsers } from "react-icons/hi2";
+import { CiTrash } from "react-icons/ci";
+import { MdOutlineSettingsBackupRestore } from "react-icons/md";
+
+
 import axios from "axios";
 // import { Stomp } from "@stomp/stompjs";
 // import SockJS from "sockjs-client";
@@ -52,6 +56,7 @@ const ContentChat = ({
   const [nameReceiver, setNameReceiver] = useState({});
   const [nameSender, setNameSender] = useState({});
   const [contentMessages, setContentMessages] = useState([]);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
@@ -164,6 +169,18 @@ const ContentChat = ({
     }
     setMessage("");
     setDisplayIcons(false);
+  };
+
+  const handleMouseEnter = (index) => {
+    const updatedShowUtils = [...showUtils];
+    updatedShowUtils[index] = true;
+    setShowUtils(updatedShowUtils);
+  };
+  
+  const handleMouseLeave = (index) => {
+    const updatedShowUtils = [...showUtils];
+    updatedShowUtils[index] = false;
+    setShowUtils(updatedShowUtils);
   };
 
   return (
@@ -329,6 +346,8 @@ const ContentChat = ({
                   ref={index === contentMessages.length - 1 ? scrollRef : null}
                   key={index}
                   className="message"
+                  onMouseEnter={() => setHoveredIndex(index)}
+  onMouseLeave={() => setHoveredIndex(null)}
                   style={{
                     justifyContent:
                       message.sender !== userId ? "flex-start" : "flex-end",
@@ -347,8 +366,14 @@ const ContentChat = ({
                       style={{ cursor: "pointer" }}
                     />
                   ) : null}
-
-                  <div className="content-message">
+                  {index === hoveredIndex &&  message.sender === userId ?
+                    <div className="utils-message" style={{marginRight: "7px", marginTop: "5px"}}>
+                      <MdOutlineSettingsBackupRestore />
+                      <CiTrash />
+                    </div>:""
+                  }
+                  <div className="content-message" 
+                    >
                     {message.message ? (
                       <span className="info mess">{message.message}</span>
                     ) : (
@@ -362,6 +387,11 @@ const ContentChat = ({
                       {message.dateTimeSend?.slice(11, 16)}
                     </span>
                   </div>
+                  {index === hoveredIndex &&  message.sender !== userId ?
+                    <div className="utils-message" style={{marginLeft: "7px", marginTop: "5px"}}>
+                      <CiTrash />
+                    </div> : ""
+                  }
                 </div>
               ))}
             </div>

@@ -13,19 +13,18 @@ const InfoUser = () => {
   const [name, setname] = useState("");
   const [gender, setGender] = useState(true);
   const [dob, setDob] = useState("");
-  const [email, setEmail] = useState("");
   const currentDate = new Date().toISOString().split("T")[0];
 
   let handleClickRegisterUser = async () => {
-    let checkEmail = await axios.get(
-      `http://localhost:8080/users/email/${email}`
+    let checkPhone = await axios.get(
+      `http://localhost:8080/users/phone/${location.state.phone}`
     );
-    if (!checkEmail.data) {
+    if (!checkPhone.data) {
       let dataUsers = await axios.post(`http://localhost:8080/users`, {
         name: name,
         gender: gender,
         dob: dob,
-        email: email,
+        phone: location.state.phone,
       });
       if (dataUsers.data !== null) {
         let hashPassword = bcrypt.hashSync(location.state.password, salt);
@@ -40,7 +39,7 @@ const InfoUser = () => {
         }
       }
     } else {
-      toast.error("Email đã tồn tại!!!");
+      toast.error("Phone đã tồn tại!!!");
     }
   };
 
@@ -98,15 +97,6 @@ const InfoUser = () => {
                 placeholder="Chọn ngày sinh"
                 max={currentDate}
                 onChange={(e) => setDob(e.target.value)}
-              />
-            </div>
-            <div className="form-content">
-              <i className="fa-regular fa-envelope icon"></i>
-              <input
-                type="email"
-                className="input-email input"
-                placeholder="Email..."
-                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <button

@@ -26,7 +26,6 @@ function Home() {
     }, [location.state.userId, idChat])
 
     let handleChangeMessageFinal = (mess) => {
-      console.log(mess);
       setMessageFinal(mess)
     }
 
@@ -47,7 +46,6 @@ function Home() {
       setSearchFriends([])
       setChats(datas.data)
     }
-    console.log(datas.data);
   }
 
   let handleClickChatSeleted = (id) => {

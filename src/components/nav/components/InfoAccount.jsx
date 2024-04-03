@@ -8,6 +8,7 @@ import FormUpdate from "./formUpdate";
 import { IoCameraOutline } from "react-icons/io5";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
+import FormChangePassword from "./FormUpdatePassword";
 
 function InfoAccount({ visible, setVisible, userId }) {
     let navigate = useNavigate();
@@ -15,6 +16,7 @@ function InfoAccount({ visible, setVisible, userId }) {
   const [visibleModal, setVisibleModal] = useState(false);
   const [user, setUser] = useState({});
   const [isClickUpdate, setIsClickUpdate] = useState(false);
+  const [isClickChangePassword, setIsClickChangePassword] = useState(false);
 
   useEffect(() => {
     setVisibleModal(visible);
@@ -36,12 +38,6 @@ function InfoAccount({ visible, setVisible, userId }) {
     }
   };
 
-  let handleClickUpdatePassword = () => {
-    navigate("/update-password", {state : {
-        userId : userId
-    }})
-  }
-
   return (
     <div>
       <Modal
@@ -50,7 +46,7 @@ function InfoAccount({ visible, setVisible, userId }) {
         onOk={() => handleCancel()}
         onCancel={() => handleCancel()}
         width="30%"
-        style={{ display: isClickUpdate ? "none" : "block" }}
+        style={{ display: isClickUpdate || isClickChangePassword ? "none" : "block" }}
         footer={null}
       >
         <Form
@@ -155,7 +151,7 @@ function InfoAccount({ visible, setVisible, userId }) {
               type="default"
               size="large"
               block="true"
-              onClick={handleClickUpdatePassword}
+              onClick={() => setIsClickChangePassword(true)}
             >
               <EditOutlined /> Đổi mật khẩu
             </Button>
@@ -166,6 +162,11 @@ function InfoAccount({ visible, setVisible, userId }) {
         setVisible={setIsClickUpdate}
         visible={isClickUpdate}
         user={user}
+      />
+      <FormChangePassword 
+        setVisible={setIsClickChangePassword}
+        visible={isClickChangePassword}
+        userId={userId}  
       />
     </div>
   );

@@ -382,6 +382,7 @@ const ContentChat = ({
               <div className="chat-utilities-icon">
                 <input
                   type="file"
+                  accept=".png, .jpg, .jpeg, .gif, .bmp, .tiff"
                   multiple
                   style={{ display: "none" }}
                   id="image"
@@ -392,7 +393,12 @@ const ContentChat = ({
                 </label>
               </div>
               <div className="chat-utilities-icon">
-                <input type="file" style={{ display: "none" }} id="file" />
+                <input 
+                  type="file" 
+                  accept=".xls, .xlsx, .doc, .docx, .csv, .txt, .ppt, .pptx, .mp3, .mp4, .rar, .zip, .fa-file"
+                  style={{ display: "none" }} 
+                  id="file" 
+                  onChange={(e) => handleChangeFile(e)}/>
                 <label htmlFor="file">
                   <i className="fa-solid fa-paperclip icon"></i>
                 </label>

@@ -184,6 +184,15 @@
             border-radius: 50%;
             margin-right: 15px;
           }
+          .utils-message{
+            cursor: pointer;
+            display: flex;
+            background-color: #c3c1c1;
+            border-radius: 5px;
+            padding: 5px;
+            justify-content: space-around;
+            align-items: center;
+          }
 
           .content-message{
             height: 100%;
@@ -194,7 +203,7 @@
             border-radius: 10px;
             padding: 5px 15px;
             background-color: white;
-
+            
             .mess{
               display: flex;
               flex-direction: row;

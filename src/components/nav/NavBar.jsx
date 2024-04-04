@@ -5,18 +5,10 @@ import InfoAccount from "./components/InfoAccount";
 import { useNavigate } from "react-router-dom";
 
 
-const NavBar = ({ userId }) => {
+const NavBar = ({ user }) => {
   let navigate = useNavigate();
-  const [user, setUser] = useState({});
   const [isClickAvt, setIsClickAvt]= useState(false); 
   const [visibleInfoAccount, setVisibleInfoAccount] = useState(false);
-  useEffect(() => {
-    let getApiUserById = async () => {
-      let datas = await axios.get(`http://localhost:8080/users/${userId}`);
-      setUser(datas.data);
-    };
-    getApiUserById();
-  }, [userId]);
 
   return (
     <div className="container-nav-bar">

@@ -60,6 +60,7 @@ const Login = () => {
         navigate('/home', {
           state: {
             userId: datas.data.user,
+            rerender : ""
           },
         });
         toast.success('Đăng nhập thành công!!!');

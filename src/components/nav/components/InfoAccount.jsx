@@ -9,6 +9,7 @@ import { IoCameraOutline } from "react-icons/io5";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import FormChangePassword from "./FormUpdatePassword";
+import { io } from "socket.io-client";
 
 function InfoAccount({ visible, setVisible, userId }) {
   let navigate = useNavigate();
@@ -17,6 +18,29 @@ function InfoAccount({ visible, setVisible, userId }) {
   const [user, setUser] = useState({});
   const [isClickUpdate, setIsClickUpdate] = useState(false);
   const [isClickChangePassword, setIsClickChangePassword] = useState(false);
+
+  const [socket, setSocket] = useState(null);
+  useEffect(() => {
+    let newSocket = io("http://localhost:8080");
+    setSocket(newSocket);
+  }, [JSON.stringify(user), userId]);
+
+  useEffect(() => {
+    socket?.on(`Server-update-avatar-${userId}`, (dataGot) => {
+      setUser(dataGot.data);
+      setVisible(false)
+      navigate("/home", {
+        state: {
+          userId: dataGot.data.id,
+          rerender : dataGot.data.image
+        },
+      });
+    }); // mỗi khi có tin nhắn thì mess sẽ được render thêm
+
+    return () => {
+      socket?.disconnect();
+    };
+  }, [JSON.stringify(user), userId]);
 
   useEffect(() => {
     setVisibleModal(visible);
@@ -38,12 +62,11 @@ function InfoAccount({ visible, setVisible, userId }) {
     }
   };
 
-  let handleChangeFile = async (e) => {
+  let handleChangeFileAvatar = async (e) => {
     const file = e.target.files[0];
-    console.log(file);
     const reader = new FileReader();
 
-    reader.onload = async (readerEvent) => {
+    reader.onload = (readerEvent) => {
       const buffer = readerEvent.target.result;
 
       const reactFile = {
@@ -55,16 +78,10 @@ function InfoAccount({ visible, setVisible, userId }) {
         size: file.size,
       };
       // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
-      console.log(reactFile);
-
-      let datas = await axios.put(
-        //`http://localhost:8080/users/background`
-        `http://localhost:8080/users/avatar`,
-        {
-          id: userId,
-          file: reactFile,
-        },
-      );
+      socket.emit(`Client-update-avatar`, {
+        file: reactFile,
+        id: userId,
+      });
     };
 
     reader.readAsArrayBuffer(file);
@@ -133,7 +150,7 @@ function InfoAccount({ visible, setVisible, userId }) {
                     multiple
                     style={{ display: "none" }}
                     id="image"
-                    onChange={(e) => handleChangeFile(e)}
+                    onChange={(e) => handleChangeFileAvatar(e)}
                   />
                 </div>
               </Form.Item>

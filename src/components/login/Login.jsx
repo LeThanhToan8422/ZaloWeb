@@ -1,22 +1,22 @@
-import { useEffect, useState } from "react";
-import "../../sass/Login.scss";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import QRCode from "qrcode";
-import { io } from "socket.io-client";
-import bcrypt from "bcryptjs";
-import toast, { Toaster } from "react-hot-toast";
+import { useEffect, useState } from 'react';
+import '../../sass/Login.scss';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import QRCode from 'qrcode';
+import { io } from 'socket.io-client';
+import bcrypt from 'bcryptjs';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Login = () => {
   let navigate = useNavigate();
 
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoginByPhone, setIsLoginByPhone] = useState(true);
-  const [src, setSrc] = useState("");
+  const [src, setSrc] = useState('');
 
   useEffect(() => {
-    QRCode.toDataURL("Đăng nhập QRCode")
+    QRCode.toDataURL('Đăng nhập QRCode')
       .then((url) => {
         setSrc(url);
       })
@@ -27,7 +27,7 @@ const Login = () => {
 
   const [socket, setSocket] = useState(null);
   useEffect(() => {
-    let newSocket = io("http://localhost:8080");
+    let newSocket = io('http://localhost:8080');
     // newSocket.emit(`Client-Register-QR-Code`, {
     //   id: 1,
     // })
@@ -37,7 +37,7 @@ const Login = () => {
   useEffect(() => {
     if (!isLoginByPhone) {
       socket?.on(`Server-Register-QR-Code`, (dataGot) => {
-        navigate("/home", {
+        navigate('/home', {
           state: {
             userId: dataGot.data.id,
           },
@@ -56,20 +56,18 @@ const Login = () => {
     );
     if (datas.data.user > 0) {
       if (bcrypt.compareSync(password, datas.data.password)) {
-        navigate("/home", {
+        navigate('/home', {
           state: {
             userId: datas.data.user,
             rerender : ""
           },
         });
-        toast.success("Đăng nhập thành công!!!");
+        toast.success('Đăng nhập thành công!!!');
+      } else {
+        toast.error('Mật khẩu không chính xác!!!');
       }
-      else{
-        toast.error("Mật khẩu không chính xác!!!");
-      }
-    }
-    else{
-      toast.error("Thông tin không chính xác!!!");
+    } else {
+      toast.error('Thông tin không chính xác!!!');
     }
   };
 
@@ -86,14 +84,12 @@ const Login = () => {
           <div className="choose-login">
             <span
               onClick={() => setIsLoginByPhone(false)}
-              style={{ color: !isLoginByPhone ? "#056BFF" : "" }}
-            >
+              style={{ color: !isLoginByPhone ? '#056BFF' : '' }}>
               VỚI MÃ QR
             </span>
             <span
               onClick={() => setIsLoginByPhone(true)}
-              style={{ color: isLoginByPhone ? "#056BFF" : "" }}
-            >
+              style={{ color: isLoginByPhone ? '#056BFF' : '' }}>
               VỚI SỐ ĐIỆN THOẠI
             </span>
           </div>
@@ -127,14 +123,12 @@ const Login = () => {
               </button>
               <button
                 className="button-register"
-                onClick={() => navigate("/register")}
-              >
+                onClick={() => navigate('/register')}>
                 Tạo tài khoản
               </button>
               <span
-                onClick={() => navigate("/forget-password")}
-                className="forget-password"
-              >
+                onClick={() => navigate('/forget-password')}
+                className="forget-password">
                 Quên mật khẩu?
               </span>
             </div>
@@ -145,10 +139,13 @@ const Login = () => {
                   src={src}
                   alt=""
                   style={{
-                    width: "250px",
-                    height: "250px",
+                    marginTop: -20,
+                    width: '250px',
+                    height: '250px',
                   }}
                 />
+                <div style={{fontSize: 14,color: '#4692dd', fontWeight: "bold"}} className="textUnder">Chỉ dùng để đăng nhập</div>
+                <div style={{marginTop: 23, color: "#8b9196", fontWeight: "bold", fontSize: 14}} className="textUnder">Zalo trên máy tính</div>
               </div>
               <span>Sử dụng ứng dụng Zalo để quét mã QR</span>
             </div>

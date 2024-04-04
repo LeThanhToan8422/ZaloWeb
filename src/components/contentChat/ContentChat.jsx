@@ -57,6 +57,7 @@ const ContentChat = ({
   const [nameSender, setNameSender] = useState({});
   const [contentMessages, setContentMessages] = useState([]);
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [hoverText, setHoverText] = useState("");
 
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
@@ -168,19 +169,6 @@ const ContentChat = ({
     setMessage("");
     setDisplayIcons(false);
   };
-
-  const handleMouseEnter = (index) => {
-    const updatedShowUtils = [...showUtils];
-    updatedShowUtils[index] = true;
-    setShowUtils(updatedShowUtils);
-  };
-  
-  const handleMouseLeave = (index) => {
-    const updatedShowUtils = [...showUtils];
-    updatedShowUtils[index] = false;
-    setShowUtils(updatedShowUtils);
-  };
-
   return (
     <div className="container-content-chat">
       {/* slide */}
@@ -345,7 +333,7 @@ const ContentChat = ({
                   key={index}
                   className="message"
                   onMouseEnter={() => setHoveredIndex(index)}
-  onMouseLeave={() => setHoveredIndex(null)}
+                  onMouseLeave={() => setHoveredIndex(null)}
                   style={{
                     justifyContent:
                       message.sender !== userId ? "flex-start" : "flex-end",
@@ -364,11 +352,21 @@ const ContentChat = ({
                       style={{ cursor: "pointer" }}
                     />
                   ) : null}
-                  {index === hoveredIndex &&  message.sender === userId ?
-                    <div className="utils-message" style={{marginRight: "7px", marginTop: "5px"}}>
-                      <MdOutlineSettingsBackupRestore />
-                      <CiTrash />
-                    </div>:""
+                  {index === hoveredIndex &&  message.sender === userId ? 
+                    <div style={{width: "100px"}}>                  
+                      <div className="utils-message" style={{marginRight: "7px", marginTop: "5px"}}>                        
+                        <MdOutlineSettingsBackupRestore 
+                          style={{color: hoverText =="Thu hồi"? "#005ae0":""}}
+                          onMouseEnter={() => setHoverText("Thu hồi")}
+                          onMouseLeave={() => setHoverText("")}/>
+                        <CiTrash 
+                          style={{color: hoverText =="Xóa chỉ ở phía tôi"? "#005ae0":""}}
+                          onMouseEnter={() => setHoverText("Xóa chỉ ở phía tôi")}
+                          onMouseLeave={() => setHoverText("")}/>                       
+                      </div>
+                      <span style={{ fontSize: "12px", backgroundColor: "#261e1e", color: "#c3c1c1"}}>{hoverText}</span>
+                    </div>
+                    :""
                   }
                   <div className="content-message" 
                     >
@@ -386,9 +384,16 @@ const ContentChat = ({
                     </span>
                   </div>
                   {index === hoveredIndex &&  message.sender !== userId ?
-                    <div className="utils-message" style={{marginLeft: "7px", marginTop: "5px"}}>
-                      <CiTrash />
-                    </div> : ""
+                    <div style={{width: "100px", height: "20px"}}>
+                      <div className="utils-message" style={{marginLeft: "7px", marginTop: "5px", width:"40px"}}>
+                        <CiTrash 
+                          style={{color: hoverText =="Xóa chỉ ở phía tôi"? "#005ae0":""}}
+                          onMouseEnter={() => setHoverText("Xóa chỉ ở phía tôi")}
+                          onMouseLeave={() => setHoverText("")}/>
+                      </div>
+                      <span style={{ fontSize: "12px", backgroundColor: "#261e1e", color: "#c3c1c1"}}>{hoverText}</span>
+                    </div>
+                    : ""
                   }
                 </div>
               ))}

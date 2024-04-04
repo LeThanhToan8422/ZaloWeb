@@ -13,7 +13,7 @@
         justify-content: space-around;
         align-items: center;
         width: 50%;
-        height: 75%;
+        height: 80%;
 
         .title{
             font-size: 65px;
@@ -64,6 +64,28 @@
                 align-items: center;
                 width: 100%;
                 height: 100%;  
+                .qrcode {
+                    width: 260px;
+                    height: 280px;
+                    margin-bottom: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 18px;
+                    padding-top: 25px; /* Tạo khoảng cách giữa viền và mã QR code */
+                    padding-bottom: 20px;
+               display: flex;
+               flex-direction: column;
+               align-items: center;
+               .textUnder{
+                margin: -23px;
+               }
+                }
+                span {
+        font-size: 15px;
+        color: #6d6c6c;
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 0px;
+    }
             }
             .form-content-gender{
                 width: 80%;

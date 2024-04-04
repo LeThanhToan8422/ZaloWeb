@@ -36,7 +36,6 @@ const Login = () => {
 
   useEffect(() => {
     if (!isLoginByPhone) {
-      console.log("Hello");
       socket?.on(`Server-Register-QR-Code`, (dataGot) => {
         navigate("/home", {
           state: {

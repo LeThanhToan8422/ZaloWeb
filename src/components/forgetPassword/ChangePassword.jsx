@@ -52,7 +52,6 @@ const ChangePassword = () => {
           user: datas.data.user,
           id: datas.data.id,
         });
-        console.log(dataAccount);
         if (dataAccount.data) {
           toast.success("Cập nhật thành công");
           navigate("/");

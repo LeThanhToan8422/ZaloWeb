@@ -75,7 +75,6 @@ const ContentChat = ({
   }, [JSON.stringify(contentMessages), chatSelected]);
 
   useEffect(() => {
-    console.log(userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`);
     socket?.on(
       `Server-Chat-Room-${
         userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`
@@ -142,7 +141,6 @@ const ContentChat = ({
   let handleChangeFile = async(e) => {
     for (let i = 0; i < e.target.files.length; i++) {
       const file = e.target.files[i];
-      console.log(file);
       const reader = new FileReader();
 
       reader.onload = (readerEvent) => {

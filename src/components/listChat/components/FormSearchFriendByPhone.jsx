@@ -10,9 +10,19 @@ import FormInfoUserByPhone from "./FormInfoUserByPhone";
 function FormSearchFriendByPhone({ visible, setVisible, userId }) {
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
-  const [user, setUser] = useState({});
+  const [friend, setFriend] = useState({});
   const [isClickSearch, setIsClickSearch] = useState(false);
+  const [phone, setPhone] = useState("");
 
+  let handleSearch = async () => {
+    let datas = await axios.get(`http://localhost:8080/accounts/phone/0${phone.slice(2, 11)}`);
+    if(datas.data){
+      setFriend(datas.data.user);
+      setIsClickSearch(true);
+    } else {
+      message.error("Số điện thoại chưa được đăng ký!");
+    }
+  }
 
   useEffect(() => {
     setVisibleModal(visible);
@@ -48,7 +58,7 @@ function FormSearchFriendByPhone({ visible, setVisible, userId }) {
           <Row>
             <Col lg={24} xs={24}>
               <Form.Item name="phone">
-                <PhoneInput country={"vn"}  />
+                <PhoneInput country={"vn"}  value={phone} onChange={setPhone}/>
               </Form.Item>
             </Col>
           </Row>
@@ -67,7 +77,7 @@ function FormSearchFriendByPhone({ visible, setVisible, userId }) {
                 <Button
                   type="primary"
                   size="large"
-                  onClick={() => setIsClickSearch(true)}
+                  onClick={handleSearch}
                 >
                    Tìm kiếm
                 </Button>
@@ -78,7 +88,8 @@ function FormSearchFriendByPhone({ visible, setVisible, userId }) {
       <FormInfoUserByPhone 
         setVisible={setIsClickSearch}
         visible={isClickSearch}
-        userId={userId}/>
+        userId={userId}
+        friendId={friend}/>
     </div>
   );
 }

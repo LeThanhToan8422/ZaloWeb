@@ -38,7 +38,6 @@ import data from "@emoji-mart/data";
 //form
 import InfoUser from "./components/InfoUser";
 import FormUpdateName from "./components/formUpdateName";
-import { useNavigate } from "react-router-dom";
 import ViewFile from "./components/ViewFile";
 
 const ContentChat = ({
@@ -48,7 +47,6 @@ const ContentChat = ({
   chatSelected,
 }) => {
   let scrollRef = useRef(null);
-  let navigate = useNavigate();
 
   const [isClickInfo, setIsClickInfo] = useState(false);
   const [isClickSticker, setIsClickSticker] = useState(false);
@@ -63,16 +61,13 @@ const ContentChat = ({
   const [message, setMessage] = useState("");
   const [displayIcons, setDisplayIcons] = useState(false);
   const [isClickUpdate, setIsClickUpdate] = useState(false);
-
+  const [regexUrl] = useState("https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/");
+  const [isRerenderStatusChat, setIsRerenderStatusChat] = useState(false);
   const [socket, setSocket] = useState(null);
   useEffect(() => {
     let newSocket = io("http://localhost:8080");
-    newSocket.emit(`Client-Chat-Room`, {
-      message: "",
-      chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
-    });
     setSocket(newSocket);
-  }, [JSON.stringify(contentMessages), chatSelected]);
+  }, [JSON.stringify(contentMessages), chatSelected, isRerenderStatusChat]);
 
   useEffect(() => {
     socket?.on(
@@ -83,12 +78,28 @@ const ContentChat = ({
         handleChangeMessageFinal(dataGot.data);
         setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
       }
-    ); // mỗi khi có tin nhắn thì mess sẽ được render thêm
+    );
 
     return () => {
       socket?.disconnect();
     };
-  }, [JSON.stringify(contentMessages), chatSelected]);
+  }, [JSON.stringify(contentMessages), chatSelected, isRerenderStatusChat]);
+
+  useEffect(() => {
+    socket?.on(
+      `Server-Status-Chat-${
+        userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`
+      }`,
+      (dataGot) => {
+        handleChangeMessageFinal(dataGot.data);
+        setIsRerenderStatusChat(!isRerenderStatusChat)
+      }
+    );
+
+    return () => {
+      socket?.disconnect();
+    };
+  }, [JSON.stringify(contentMessages), isRerenderStatusChat]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -116,16 +127,7 @@ const ContentChat = ({
       let sender = await axios.get(`http://localhost:8080/users/${userId}`);
       let receiver = await axios.get(`http://localhost:8080/users/${idChat}`);
 
-      setContentMessages(
-        datas.data.map((dt) => {
-          const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/;
-          if (urlRegex.test(dt.message)) {
-            dt.url = dt.message;
-            dt.message = "";
-          }
-          return dt;
-        })
-      );
+      setContentMessages(datas.data);
       setNameReceiver({
         name: receiver.data.name,
         image: receiver.data.image,
@@ -136,7 +138,7 @@ const ContentChat = ({
       });
     };
     getApiContentChats();
-  }, [userId, idChat]);
+  }, [userId, idChat, isRerenderStatusChat]);
 
   let handleChangeFile = async(e) => {
     for (let i = 0; i < e.target.files.length; i++) {
@@ -147,7 +149,6 @@ const ContentChat = ({
         const buffer = readerEvent.target.result;
 
         const reactFile = {
-          fieldname: "image",
           originalname: file.name,
           encoding: "7bit",
           mimetype: file.type,
@@ -155,7 +156,7 @@ const ContentChat = ({
           size: file.size,
         };
         // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
-        socket.emit(`Client-Chat-Room-File`, {
+        socket.emit(`Client-Chat-Room`, {
           file: reactFile,
           sender: userId,
           receiver: idChat,
@@ -169,6 +170,18 @@ const ContentChat = ({
     setMessage("");
     setDisplayIcons(false);
   };
+
+  let handleClickStatusChat = (status, userId, chat) => {
+    socket.emit(`Client-Status-Chat`, {
+      status: status,
+      implementer: userId,
+      chat: chat,
+      chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
+      objectId : idChat
+    });
+    setIsRerenderStatusChat(!isRerenderStatusChat)
+  }
+
   return (
     <div className="container-content-chat">
       {/* slide */}
@@ -358,11 +371,15 @@ const ContentChat = ({
                         <MdOutlineSettingsBackupRestore 
                           style={{color: hoverText =="Thu hồi"? "#005ae0":""}}
                           onMouseEnter={() => setHoverText("Thu hồi")}
-                          onMouseLeave={() => setHoverText("")}/>
+                          onMouseLeave={() => setHoverText("")}
+                          onClick={() => handleClickStatusChat("recalls", userId, message.id)}
+                          />
                         <CiTrash 
                           style={{color: hoverText =="Xóa chỉ ở phía tôi"? "#005ae0":""}}
                           onMouseEnter={() => setHoverText("Xóa chỉ ở phía tôi")}
-                          onMouseLeave={() => setHoverText("")}/>                       
+                          onMouseLeave={() => setHoverText("")}
+                          onClick={() => handleClickStatusChat("delete", userId, message.id)}
+                          />                       
                       </div>
                       <span style={{ fontSize: "12px", backgroundColor: "#261e1e", color: "#c3c1c1"}}>{hoverText}</span>
                     </div>
@@ -370,11 +387,10 @@ const ContentChat = ({
                   }
                   <div className="content-message" 
                     >
-                    {message.message ? (
-                      <span className="info mess">{message.message}</span>
+                    {message.message.includes(regexUrl) ? (
+                      <ViewFile url={message.message}/>
                     ) : (
-                      
-                      <ViewFile url={message.url}/>
+                      <span className="info mess">{message.message}</span>
                     )}
                     <span
                       className="info time"

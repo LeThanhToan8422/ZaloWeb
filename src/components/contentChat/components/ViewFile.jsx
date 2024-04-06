@@ -10,12 +10,12 @@ const ViewFile = ({ url }) => {
     "bmp",
     "tiff",
   ]);
-  const [excels, setExcels] = useState(["xls", "xlsx"]);
-  const [words, setWords] = useState(["doc", "docx"]);
-  const [texts, setTexts] = useState(["csv", "txt"]);
-  const [powerPoints, setPowerPoints] = useState(["ppt", "pptx"]);
-  const [videos, setVideos] = useState(["mp3", "mp4"]);
-  const [zips, setZips] = useState(["rar", "zip"]);
+  const [excels] = useState(["xls", "xlsx"]);
+  const [words] = useState(["doc", "docx"]);
+  const [texts] = useState(["csv", "txt"]);
+  const [powerPoints] = useState(["ppt", "pptx"]);
+  const [videos] = useState(["mp3", "mp4"]);
+  const [zips] = useState(["rar", "zip"]);
   const [file, setFile] = useState("fa-file");
 
 

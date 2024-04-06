@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "../../sass/ListChat.scss";
-import axios from "axios";
+import moment from "moment/moment";
+import 'moment/locale/vi';
 
 const ListChat = ({
   handleChangeChat,
@@ -16,6 +17,7 @@ const ListChat = ({
   const [rerender, setRerender] = useState(false);
   const [search, setSearch] = useState("");
   const [listChat, setListChat] = useState([]);
+  const [regexUrl] = useState("https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/");
 
   useEffect(() => {
     setListChat([...chats]);
@@ -167,7 +169,7 @@ const ListChat = ({
                     marginLeft: 20,
                   }}
                 />
-                <div style={{ flexDirection: "row", marginLeft: 10 }}>
+                <div style={{width : "40%", flexDirection: "row", marginLeft: 10 }}>
                   <div style={{ marginTop: 10, fontSize: 18, marginLeft: 5 }}>
                     {chat.name}
                   </div>
@@ -180,9 +182,23 @@ const ListChat = ({
                     }}
                   >
                     <span>{chat.sender == userId ? "Bạn: " : ""}</span>
-                    <span>{chat.message}</span>
-                    <span>{chat.message?.length > 35 ? "..." : null}</span>
+                    <span>{
+                      chat.message?.length > 15
+                      ?
+                      (
+                        chat.message.includes(regexUrl) ? chat.message.split("--")[1].slice(0, 10) : chat.message.slice(0, 10)
+                      )
+                      :
+                      chat.message
+                    }</span>
+                    <span>{chat.message?.length > 15 ? "..." : null}</span>
                   </div>
+                </div>
+                <div style={{
+                  width : "35%",
+                  textAlign : 'end'
+                }}>
+                  <span>{moment.duration(moment().diff(moment(chat.dateTimeSend).utcOffset(0).format('YYYY-MM-DD HH:mm:ss'))).humanize(true)}</span>
                 </div>
               </div>
             ))}

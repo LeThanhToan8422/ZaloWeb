@@ -10,11 +10,11 @@ const ListChat = ({
   messageFinal,
   handleChangeSearchValue,
   searchFriends,
-  handleClickChatSeleted
+  handleClickChatSeleted,
+  setRerender
 }) => {
   const [isPrioritize, setIsPrioritize] = useState(true);
   const [chatSelected, setChatsSelected] = useState(0);
-  const [rerender, setRerender] = useState(false);
   const [search, setSearch] = useState("");
   const [listChat, setListChat] = useState([]);
   const [regexUrl] = useState("https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/");
@@ -23,26 +23,23 @@ const ListChat = ({
     setListChat([...chats]);
     setSearch("")
     handleChangeSearchValue("")
-  }, [JSON.stringify(chats), messageFinal])
+  }, [JSON.stringify(chats)])
 
   useEffect(() => {
-    if (messageFinal !== "") {
+    if (messageFinal) {
       let findMessage = chats.find(
         (c) =>
-          (c.sender === messageFinal.sender ||
-            c.sender === messageFinal.receiver) &&
-          (c.receiver === messageFinal.sender ||
-            c.receiver === messageFinal.receiver)
+          (c.sender === messageFinal?.sender ||
+            c.sender === messageFinal?.receiver) &&
+          (c.receiver === messageFinal?.sender ||
+            c.receiver === messageFinal?.receiver)
       );
 
       if(findMessage){
-        findMessage.sender = messageFinal.sender;
-        findMessage.receiver = messageFinal.receiver;
-        findMessage.message = messageFinal.message;
+        findMessage.message = messageFinal?.message;
+        setRerender(pre => !pre)
       }
-      handleChangeSearchValue("")
     }
-    setRerender(!rerender);
   }, [JSON.stringify(messageFinal)]);
 
   let handleClickChat = (id) => {

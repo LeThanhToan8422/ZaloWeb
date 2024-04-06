@@ -405,7 +405,9 @@ const ContentChat = ({
                         <CiTrash 
                           style={{color: hoverText =="Xóa chỉ ở phía tôi"? "#005ae0":""}}
                           onMouseEnter={() => setHoverText("Xóa chỉ ở phía tôi")}
-                          onMouseLeave={() => setHoverText("")}/>
+                          onMouseLeave={() => setHoverText("")}
+                          onClick={() => handleClickStatusChat("delete", userId, message.id)}
+                          />
                       </div>
                       <span style={{ fontSize: "12px", backgroundColor: "#261e1e", color: "#c3c1c1"}}>{hoverText}</span>
                     </div>
@@ -445,6 +447,7 @@ const ContentChat = ({
                 <input 
                   type="file" 
                   accept=".xls, .xlsx, .doc, .docx, .csv, .txt, .ppt, .pptx, .mp3, .mp4, .rar, .zip, .fa-file"
+                  multiple
                   style={{ display: "none" }} 
                   id="file" 
                   onChange={(e) => handleChangeFile(e)}/>

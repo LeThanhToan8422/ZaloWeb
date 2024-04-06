@@ -16,6 +16,8 @@ function Home() {
   const [searchFriends, setSearchFriends] = useState([]);
   const [chatSelected, setChatsSelected] = useState(0);
   const [user, setUser] = useState({});
+  const [rerender, setRerender] = useState(false);
+
 
   useEffect(() => {
     let getApiUserById = async () => {
@@ -33,7 +35,7 @@ function Home() {
       setChats(datas.data);
     };
     getApiChatsByUserId();
-  }, [location.state.userId, idChat]);
+  }, [location.state.userId, idChat, rerender]);
 
   let handleChangeMessageFinal = (mess) => {
     setMessageFinal(mess);
@@ -74,6 +76,7 @@ function Home() {
         handleChangeSearchValue={handleChangeSearchValue}
         searchFriends={searchFriends}
         handleClickChatSeleted={handleClickChatSeleted}
+        setRerender={setRerender}
       />
       <ContentChat
         userId={location.state.userId}

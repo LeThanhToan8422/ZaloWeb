@@ -57,7 +57,7 @@ const ContentChat = ({
   const [contentMessages, setContentMessages] = useState([]);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [hoverText, setHoverText] = useState("");
-
+  
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
   const [displayIcons, setDisplayIcons] = useState(false);
@@ -318,6 +318,7 @@ const ContentChat = ({
                       borderRadius: "50%",
                     }}
                   />
+
                 </div>
                 <div className="chat-header-left-name">
                   <div className="user">

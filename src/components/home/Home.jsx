@@ -83,6 +83,7 @@ function Home() {
         idChat={idChat}
         handleChangeMessageFinal={handleChangeMessageFinal}
         chatSelected={chatSelected}
+        setRerender={setRerender}
       />
     </div>
   );

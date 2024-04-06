@@ -24,7 +24,7 @@ import { BsBell, BsPinAngle } from "react-icons/bs";
 import { HiOutlineUsers } from "react-icons/hi2";
 import { CiTrash } from "react-icons/ci";
 import { MdOutlineSettingsBackupRestore } from "react-icons/md";
-
+import { FaShare } from 'react-icons/fa';
 
 import axios from "axios";
 // import { Stomp } from "@stomp/stompjs";
@@ -39,12 +39,14 @@ import data from "@emoji-mart/data";
 import InfoUser from "./components/InfoUser";
 import FormUpdateName from "./components/formUpdateName";
 import ViewFile from "./components/ViewFile";
+import ForwardMessageForm from "./components/ForwardMessageForm";
 
 const ContentChat = ({
   userId,
   idChat,
   handleChangeMessageFinal,
   chatSelected,
+  onForwardMessageContent,
 }) => {
   let scrollRef = useRef(null);
 
@@ -64,6 +66,12 @@ const ContentChat = ({
   const [regexUrl] = useState("https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/");
   const [isRerenderStatusChat, setIsRerenderStatusChat] = useState(false);
   const [socket, setSocket] = useState(null);
+  const [forwardedMessageContent, setForwardedMessageContent] = useState('');
+  const [showForwardForm, setShowForwardForm] = useState(false);
+  const [messageContent, setMessageContent] = useState('');
+  const handleMessageContent = (content) => {
+    setMessageContent(content);
+  };
   useEffect(() => {
     let newSocket = io("http://localhost:8080");
     setSocket(newSocket);
@@ -181,7 +189,18 @@ const ContentChat = ({
     });
     setIsRerenderStatusChat(!isRerenderStatusChat)
   }
+  const handleForwardButtonClick = (content) => {
+    setForwardedMessageContent(content);
+    setShowForwardForm(true);
+  };
 
+  const handleForwardFormCancel = () => {
+    setShowForwardForm(false);
+  };
+  const handleForwardMessageContent = (content) => {
+    console.log('Nội dung chia sẻ:', content);
+    console.log("Người nhận:", recipients);
+  };
   return (
     <div className="container-content-chat">
       {/* slide */}
@@ -379,8 +398,27 @@ const ContentChat = ({
                           onMouseEnter={() => setHoverText("Xóa chỉ ở phía tôi")}
                           onMouseLeave={() => setHoverText("")}
                           onClick={() => handleClickStatusChat("delete", userId, message.id)}
-                          />                       
+                          />   
+                           <FaShare
+                          style={{
+                            color: hoverText === 'Chuyển tiếp' ? '#005ae0' : '',
+                          }}
+                          onMouseEnter={() => setHoverText('Chuyển tiếp')}
+                          onMouseLeave={() => setHoverText('')}
+                          onClick={handleForwardButtonClick}
+                        />
+                        {showForwardForm && (
+                          <ForwardMessageForm
+                            visible={showForwardForm}
+                            onCancel={handleForwardFormCancel}
+                            sharedContentFromInfoMess={forwardedMessageContent}
+                            onForwardMessageContent={
+                              handleForwardMessageContent
+                            }
+                          />
+                        )}                    
                       </div>
+                     
                       <span style={{ fontSize: "12px", backgroundColor: "#261e1e", color: "#c3c1c1"}}>{hoverText}</span>
                     </div>
                     :""
@@ -408,6 +446,14 @@ const ContentChat = ({
                           onMouseLeave={() => setHoverText("")}
                           onClick={() => handleClickStatusChat("delete", userId, message.id)}
                           />
+                           <FaShare
+                          style={{
+                            fontSize: '20px',
+                            color: hoverText === 'Chuyển tiếp' ? '#005ae0' : '',
+                          }}
+                          onMouseEnter={() => setHoverText('Chuyển tiếp')}
+                          onMouseLeave={() => setHoverText('')}
+                        />
                       </div>
                       <span style={{ fontSize: "12px", backgroundColor: "#261e1e", color: "#c3c1c1"}}>{hoverText}</span>
                     </div>

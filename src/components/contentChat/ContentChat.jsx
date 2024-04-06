@@ -24,11 +24,10 @@ import { BsBell, BsPinAngle } from "react-icons/bs";
 import { HiOutlineUsers } from "react-icons/hi2";
 import { CiTrash } from "react-icons/ci";
 import { MdOutlineSettingsBackupRestore } from "react-icons/md";
-import { FaShare } from 'react-icons/fa';
+import { FaShare } from "react-icons/fa";
 
 import axios from "axios";
-// import { Stomp } from "@stomp/stompjs";
-// import SockJS from "sockjs-client";
+
 import { io } from "socket.io-client";
 
 //emotion
@@ -46,7 +45,7 @@ const ContentChat = ({
   idChat,
   handleChangeMessageFinal,
   chatSelected,
-  onForwardMessageContent,
+  setRerender
 }) => {
   let scrollRef = useRef(null);
 
@@ -63,15 +62,15 @@ const ContentChat = ({
   const [message, setMessage] = useState("");
   const [displayIcons, setDisplayIcons] = useState(false);
   const [isClickUpdate, setIsClickUpdate] = useState(false);
-  const [regexUrl] = useState("https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/");
+  const [regexUrl] = useState(
+    "https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/"
+  );
   const [isRerenderStatusChat, setIsRerenderStatusChat] = useState(false);
   const [socket, setSocket] = useState(null);
-  const [forwardedMessageContent, setForwardedMessageContent] = useState('');
+  const [forwardedMessageContent, setForwardedMessageContent] = useState("");
   const [showForwardForm, setShowForwardForm] = useState(false);
-  const [messageContent, setMessageContent] = useState('');
-  const handleMessageContent = (content) => {
-    setMessageContent(content);
-  };
+
+
   useEffect(() => {
     let newSocket = io("http://localhost:8080");
     setSocket(newSocket);
@@ -100,7 +99,7 @@ const ContentChat = ({
       }`,
       (dataGot) => {
         handleChangeMessageFinal(dataGot.data);
-        setIsRerenderStatusChat(!isRerenderStatusChat)
+        setIsRerenderStatusChat(!isRerenderStatusChat);
       }
     );
 
@@ -148,7 +147,7 @@ const ContentChat = ({
     getApiContentChats();
   }, [userId, idChat, isRerenderStatusChat]);
 
-  let handleChangeFile = async(e) => {
+  let handleChangeFile = async (e) => {
     for (let i = 0; i < e.target.files.length; i++) {
       const file = e.target.files[i];
       const reader = new FileReader();
@@ -185,22 +184,20 @@ const ContentChat = ({
       implementer: userId,
       chat: chat,
       chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
-      objectId : idChat
+      objectId: idChat,
     });
-    setIsRerenderStatusChat(!isRerenderStatusChat)
-  }
-  const handleForwardButtonClick = (content) => {
-    setForwardedMessageContent(content);
+    setIsRerenderStatusChat(!isRerenderStatusChat);
+  };
+
+  const handleForwardButtonClick = (message) => {
+    setForwardedMessageContent(message);
     setShowForwardForm(true);
   };
 
   const handleForwardFormCancel = () => {
     setShowForwardForm(false);
   };
-  const handleForwardMessageContent = (content) => {
-    console.log('Nội dung chia sẻ:', content);
-    console.log("Người nhận:", recipients);
-  };
+
   return (
     <div className="container-content-chat">
       {/* slide */}
@@ -384,49 +381,72 @@ const ContentChat = ({
                       style={{ cursor: "pointer" }}
                     />
                   ) : null}
-                  {index === hoveredIndex &&  message.sender === userId ? 
-                    <div style={{width: "100px"}}>                  
-                      <div className="utils-message" style={{marginRight: "7px", marginTop: "5px"}}>                        
-                        <MdOutlineSettingsBackupRestore 
-                          style={{color: hoverText =="Thu hồi"? "#005ae0":""}}
+                  {index === hoveredIndex && message.sender === userId ? (
+                    <div style={{ width: "100px" }}>
+                      <div
+                        className="utils-message"
+                        style={{ marginRight: "7px", marginTop: "5px" }}
+                      >
+                        <MdOutlineSettingsBackupRestore
+                          style={{
+                            color: hoverText == "Thu hồi" ? "#005ae0" : "",
+                          }}
                           onMouseEnter={() => setHoverText("Thu hồi")}
                           onMouseLeave={() => setHoverText("")}
-                          onClick={() => handleClickStatusChat("recalls", userId, message.id)}
-                          />
-                        <CiTrash 
-                          style={{color: hoverText =="Xóa chỉ ở phía tôi"? "#005ae0":""}}
-                          onMouseEnter={() => setHoverText("Xóa chỉ ở phía tôi")}
-                          onMouseLeave={() => setHoverText("")}
-                          onClick={() => handleClickStatusChat("delete", userId, message.id)}
-                          />   
-                           <FaShare
+                          onClick={() =>
+                            handleClickStatusChat("recalls", userId, message.id)
+                          }
+                        />
+                        <CiTrash
                           style={{
-                            color: hoverText === 'Chuyển tiếp' ? '#005ae0' : '',
+                            color:
+                              hoverText == "Xóa chỉ ở phía tôi"
+                                ? "#005ae0"
+                                : "",
                           }}
-                          onMouseEnter={() => setHoverText('Chuyển tiếp')}
-                          onMouseLeave={() => setHoverText('')}
-                          onClick={handleForwardButtonClick}
+                          onMouseEnter={() =>
+                            setHoverText("Xóa chỉ ở phía tôi")
+                          }
+                          onMouseLeave={() => setHoverText("")}
+                          onClick={() =>
+                            handleClickStatusChat("delete", userId, message.id)
+                          }
+                        />
+                        <FaShare
+                          style={{
+                            color: hoverText === "Chuyển tiếp" ? "#005ae0" : "",
+                          }}
+                          onMouseEnter={() => setHoverText("Chuyển tiếp")}
+                          onMouseLeave={() => setHoverText("")}
+                          onClick={() => handleForwardButtonClick(message.message)}
                         />
                         {showForwardForm && (
                           <ForwardMessageForm
+                            userId={userId}
                             visible={showForwardForm}
                             onCancel={handleForwardFormCancel}
                             sharedContentFromInfoMess={forwardedMessageContent}
-                            onForwardMessageContent={
-                              handleForwardMessageContent
-                            }
+                            setRerender={setRerender}
                           />
-                        )}                    
+                        )}
                       </div>
-                     
-                      <span style={{ fontSize: "12px", backgroundColor: "#261e1e", color: "#c3c1c1"}}>{hoverText}</span>
+
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          backgroundColor: "#261e1e",
+                          color: "#c3c1c1",
+                        }}
+                      >
+                        {hoverText}
+                      </span>
                     </div>
-                    :""
-                  }
-                  <div className="content-message" 
-                    >
+                  ) : (
+                    ""
+                  )}
+                  <div className="content-message">
                     {message.message.includes(regexUrl) ? (
-                      <ViewFile url={message.message}/>
+                      <ViewFile url={message.message} />
                     ) : (
                       <span className="info mess">{message.message}</span>
                     )}
@@ -437,28 +457,53 @@ const ContentChat = ({
                       {message.dateTimeSend?.slice(11, 16)}
                     </span>
                   </div>
-                  {index === hoveredIndex &&  message.sender !== userId ?
-                    <div style={{width: "100px", height: "20px"}}>
-                      <div className="utils-message" style={{marginLeft: "7px", marginTop: "5px", width:"40px"}}>
-                        <CiTrash 
-                          style={{color: hoverText =="Xóa chỉ ở phía tôi"? "#005ae0":""}}
-                          onMouseEnter={() => setHoverText("Xóa chỉ ở phía tôi")}
-                          onMouseLeave={() => setHoverText("")}
-                          onClick={() => handleClickStatusChat("delete", userId, message.id)}
-                          />
-                           <FaShare
+                  {index === hoveredIndex && message.sender !== userId ? (
+                    <div style={{ width: "100px", height: "20px" }}>
+                      <div
+                        className="utils-message"
+                        style={{
+                          marginLeft: "7px",
+                          marginTop: "5px",
+                          width: "40px",
+                        }}
+                      >
+                        <CiTrash
                           style={{
-                            fontSize: '20px',
-                            color: hoverText === 'Chuyển tiếp' ? '#005ae0' : '',
+                            color:
+                              hoverText == "Xóa chỉ ở phía tôi"
+                                ? "#005ae0"
+                                : "",
                           }}
-                          onMouseEnter={() => setHoverText('Chuyển tiếp')}
-                          onMouseLeave={() => setHoverText('')}
+                          onMouseEnter={() =>
+                            setHoverText("Xóa chỉ ở phía tôi")
+                          }
+                          onMouseLeave={() => setHoverText("")}
+                          onClick={() =>
+                            handleClickStatusChat("delete", userId, message.id)
+                          }
+                        />
+                        <FaShare
+                          style={{
+                            fontSize: "20px",
+                            color: hoverText === "Chuyển tiếp" ? "#005ae0" : "",
+                          }}
+                          onMouseEnter={() => setHoverText("Chuyển tiếp")}
+                          onMouseLeave={() => setHoverText("")}
                         />
                       </div>
-                      <span style={{ fontSize: "12px", backgroundColor: "#261e1e", color: "#c3c1c1"}}>{hoverText}</span>
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          backgroundColor: "#261e1e",
+                          color: "#c3c1c1",
+                        }}
+                      >
+                        {hoverText}
+                      </span>
                     </div>
-                    : ""
-                  }
+                  ) : (
+                    ""
+                  )}
                 </div>
               ))}
             </div>
@@ -490,13 +535,14 @@ const ContentChat = ({
                 </label>
               </div>
               <div className="chat-utilities-icon">
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   accept=".xls, .xlsx, .doc, .docx, .csv, .txt, .ppt, .pptx, .mp3, .mp4, .rar, .zip, .fa-file"
                   multiple
-                  style={{ display: "none" }} 
-                  id="file" 
-                  onChange={(e) => handleChangeFile(e)}/>
+                  style={{ display: "none" }}
+                  id="file"
+                  onChange={(e) => handleChangeFile(e)}
+                />
                 <label htmlFor="file">
                   <i className="fa-solid fa-paperclip icon"></i>
                 </label>

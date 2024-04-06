@@ -1,48 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form, Input, Checkbox, Avatar } from 'antd';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import { Modal, Button, Form, Input, Checkbox, Avatar } from "antd";
+import axios from "axios";
+import ViewFile from "./ViewFile";
+import { io } from "socket.io-client";
 
 const ForwardMessageForm = ({
+  userId,
   visible,
   onCancel,
   sharedContentFromInfoMess,
-  userId,
-  onForwardMessageContent,
+  setRerender
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedFriendsTemp, setSelectedFriendsTemp] = useState([]);
   const [selectedFriends, setSelectedFriends] = useState([]);
-  const [sharedContent, setSharedContent] = useState('');
+  const [sharedContent, setSharedContent] = useState(sharedContentFromInfoMess);
   const [editable, setEditable] = useState(false);
   const [friendList, setFriendList] = useState([]);
   const [filteredFriends, setFilteredFriends] = useState([]);
+  const [regexUrl] = useState(
+    "https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/"
+  );
+  const [socket, setSocket] = useState(null);
 
- 
+  useEffect(() => {
+    let newSocket = io("http://localhost:8080");
+    setSocket(newSocket);
+  }, [userId, sharedContentFromInfoMess, JSON.stringify(selectedFriendsTemp)]);
+
   useEffect(() => {
     const fetchFriends = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8080/users/friends/4`
+          `http://localhost:8080/users/friends/${userId}`
         );
         setFriendList(response.data);
         setFilteredFriends(response.data);
       } catch (error) {
-        console.error('Error fetching friends:', error);
+        console.error("Error fetching friends:", error);
       }
     };
     fetchFriends();
   }, [userId]);
 
-  useEffect(() => {
-    if (sharedContentFromInfoMess && sharedContentFromInfoMess.content) {
-      setSharedContent(sharedContentFromInfoMess.content);
-    }
-  }, [sharedContentFromInfoMess]);
-
   const handleCancel = () => {
     setSelectedFriendsTemp([]);
     setSelectedFriends([]);
-    setSharedContent('');
+    setSharedContent("");
     setEditable(false);
     onCancel();
   };
@@ -51,37 +55,37 @@ const ForwardMessageForm = ({
     setSelectedFriendsTemp(checkedValues);
   };
 
-  const handleForwardMessage = () => {
-    setSelectedFriends(selectedFriendsTemp);
-    onForwardMessageContent(sharedContent, selectedFriendsTemp);
-    handleCancel();
-  };
-
   const handleEditClick = () => {
     setEditable(true);
   };
 
-  const handleSearchChange = (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    setSearchTerm(searchTerm);
-
-    const filtered = friendList.filter((friend) =>
-      friend.name.toLowerCase().includes(searchTerm)
-    );
-    setFilteredFriends(filtered);
+  const handleSearchChange = async (e) => {
+    setSearchTerm(e.target.value);
+    let datas = [];
+    if (e.target.value) {
+      datas = await axios.get(
+        `http://localhost:8080/users/friends/${userId}/${e.target.value}`
+      );
+    } else {
+      datas = await axios.get(
+        `http://localhost:8080/users/friends/${userId}`
+      );
+    }
+    setFriendList([...datas.data])
   };
 
   const sendMessage = () => {
-    if (message !== null) {
-      socket.emit(`Client-Chat-Room`, {
-        message: message,
-        sender: userId,
-        receiver: idChat,
-        chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
-      });
-
-      setMessage("");
-      setDisplayIcons(false);
+    if (sharedContent) {
+      for (let index = 0; index < selectedFriendsTemp.length; index++) {
+        socket.emit(`Client-Chat-Room`, {
+          message: sharedContent,
+          sender: userId,
+          receiver: selectedFriendsTemp[index],
+          chatRoom: userId > selectedFriendsTemp[index] ? `${selectedFriendsTemp[index]}${userId}` : `${userId}${selectedFriendsTemp[index]}`,
+        });
+      }
+      onCancel()
+      setRerender(pre => !pre)
     }
   };
 
@@ -98,10 +102,12 @@ const ForwardMessageForm = ({
           key="submit"
           type="primary"
           onClick={sendMessage}
-          disabled={!selectedFriendsTemp.length || !sharedContent.trim()}>
+          disabled={!selectedFriendsTemp.length || !sharedContent.trim()}
+        >
           Chia sẻ
         </Button>,
-      ]}>
+      ]}
+    >
       <Form layout="vertical">
         <Form.Item label="Tìm kiếm">
           <Input
@@ -114,60 +120,54 @@ const ForwardMessageForm = ({
           <Checkbox.Group
             onChange={handleFriendChange}
             value={selectedFriendsTemp}
-            style={{ width: '100%' }}>
-            {Array(Math.ceil(filteredFriends.length / 3))
-              .fill()
-              .map((_, index) => (
-                <div key={index}>
-                  {[0, 1, 2].map((offset) => {
-                    const friendIndex = index * 3 + offset;
-                    const friend = filteredFriends[friendIndex];
-                    if (!friend) return null; 
-                    return (
-                      <div
-                        key={friend.id}
-                        style={{
-                          marginBottom: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                        }}>
-                        <Checkbox
-                          value={friend.id}
-                          style={{ marginRight: '8px' }}>
-                          <Avatar
-                            src={friend.avatar}
-                            style={{ marginRight: '8px' }}
-                          />
-                          {friend.name}
-                        </Checkbox>
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
+            style={{ width: "100%", display: "flex", flexDirection: "column" }}
+          >
+            {friendList.map((friend) => (
+              <div
+                key={friend.id}
+                style={{
+                  marginBottom: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <Checkbox value={friend.id} style={{ marginRight: "8px" }}>
+                  <Avatar src={friend.image} style={{ marginRight: "8px" }} />
+                  {friend.name}
+                </Checkbox>
+              </div>
+            ))}
           </Checkbox.Group>
         </Form.Item>
 
         <Form.Item label="Nội dung chia sẻ">
           <div
             style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            <Input
-              value={sharedContent}
-              onChange={(e) => setSharedContent(e.target.value)}
-              placeholder="Nhập nội dung chia sẻ"
-              style={{ flex: '1', marginRight: '5px' }}
-              disabled={!editable}
-            />
-            <Button
-              style={{ width: '80px' }}
-              onClick={handleEditClick}
-              disabled={editable}>
-              Sửa
-            </Button>
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            {sharedContentFromInfoMess.includes(regexUrl) ? (
+              <ViewFile url={sharedContentFromInfoMess} />
+            ) : (
+              <>
+                <Input
+                  value={sharedContent}
+                  onChange={(e) => setSharedContent(e.target.value)}
+                  placeholder="Nhập nội dung chia sẻ"
+                  style={{ flex: "1", marginRight: "5px" }}
+                  disabled={!editable}
+                />
+                <Button
+                  style={{ width: "80px" }}
+                  onClick={handleEditClick}
+                  disabled={editable}
+                >
+                  Sửa
+                </Button>
+              </>
+            )}
           </div>
         </Form.Item>
       </Form>

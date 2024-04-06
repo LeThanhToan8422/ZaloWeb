@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "../../sass/ListChat.scss";
 import moment from "moment/moment";
 import 'moment/locale/vi';
+import FormSearchFriendByPhone from "./components/FormSearchFriendByPhone";
 
 const ListChat = ({
   handleChangeChat,
@@ -17,6 +18,7 @@ const ListChat = ({
   const [chatSelected, setChatsSelected] = useState(0);
   const [search, setSearch] = useState("");
   const [listChat, setListChat] = useState([]);
+  const [visibleFriendByPhone, setVisibleFriendByPhone] = useState(false);
   const [regexUrl] = useState("https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/");
 
   useEffect(() => {
@@ -67,7 +69,8 @@ const ListChat = ({
               onChange={(e) => handleChangeSearch(e.target.value)}
             />
           </div>
-          <i className="fa-solid fa-user-plus icon-user"></i>
+          <FormSearchFriendByPhone setVisible={setVisibleFriendByPhone} visible={visibleFriendByPhone} userId={userId}/>
+          <i className="fa-solid fa-user-plus icon-user" onClick={()=>setVisibleFriendByPhone(true)}></i>
           <i className="fa-solid fa-users icon-user"></i>
         </div>
 

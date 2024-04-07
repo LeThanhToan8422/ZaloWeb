@@ -1,44 +1,46 @@
-import "../../sass/ContentChat.scss";
-import { useEffect, useRef, useState } from "react";
+import '../../sass/ContentChat.scss';
+import { useEffect, useRef, useState } from 'react';
 // Import Swiper React components
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper, SwiperSlide } from 'swiper/react';
 
 // Import Swiper styles
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/navigation";
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 
 // import required modules
-import { Autoplay, Pagination, Navigation } from "swiper/modules";
+import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 
 //import icon
-import { SendOutlined, EditOutlined } from "@ant-design/icons";
-import { LuSticker, LuAlarmClock } from "react-icons/lu";
-import { AiOutlineUsergroupAdd } from "react-icons/ai";
-import { IoVideocamOutline, IoSearchOutline } from "react-icons/io5";
+import { SendOutlined, EditOutlined } from '@ant-design/icons';
+import { LuSticker, LuAlarmClock, LuTrash } from 'react-icons/lu';
+import { AiOutlineUsergroupAdd } from 'react-icons/ai';
+import { IoVideocamOutline, IoSearchOutline } from 'react-icons/io5';
 import {
   VscLayoutSidebarRightOff,
   VscLayoutSidebarRight,
-} from "react-icons/vsc";
-import { BsBell, BsPinAngle } from "react-icons/bs";
-import { HiOutlineUsers } from "react-icons/hi2";
-import { CiTrash } from "react-icons/ci";
-import { MdOutlineSettingsBackupRestore } from "react-icons/md";
-import { FaShare } from "react-icons/fa";
+} from 'react-icons/vsc';
+import { BsBell, BsPinAngle, BsEyeSlash } from 'react-icons/bs';
+import { HiOutlineUsers } from 'react-icons/hi2';
+import { CiTrash } from 'react-icons/ci';
+import { MdOutlineSettingsBackupRestore } from 'react-icons/md';
+import { FaShare, FaCaretDown, FaCaretRight } from 'react-icons/fa';
+import { BiSolidToggleLeft } from 'react-icons/bi';
 
-import axios from "axios";
+import axios from 'axios';
 
-import { io } from "socket.io-client";
+import { io } from 'socket.io-client';
 
 //emotion
-import Picker from "@emoji-mart/react";
-import data from "@emoji-mart/data";
+import Picker from '@emoji-mart/react';
+import data from '@emoji-mart/data';
 
 //form
-import InfoUser from "./components/InfoUser";
-import FormUpdateName from "./components/formUpdateName";
-import ViewFile from "./components/ViewFile";
-import ForwardMessageForm from "./components/ForwardMessageForm";
+import InfoUser from './components/InfoUser';
+import FormUpdateName from './components/formUpdateName';
+import ViewFile from './components/ViewFile';
+import ForwardMessageForm from './components/ForwardMessageForm';
+import FormCard from './components/FormCard';
 
 const ContentChat = ({
   userId,
@@ -46,7 +48,7 @@ const ContentChat = ({
   handleChangeMessageFinal,
   chatSelected,
   setRerender,
-  urlBackend
+  urlBackend,
 }) => {
   let scrollRef = useRef(null);
 
@@ -57,20 +59,26 @@ const ContentChat = ({
   const [nameSender, setNameSender] = useState({});
   const [contentMessages, setContentMessages] = useState([]);
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [hoverText, setHoverText] = useState("");
-  
+  const [hoverText, setHoverText] = useState('');
+
   const [image, setImage] = useState(null);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [displayIcons, setDisplayIcons] = useState(false);
   const [isClickUpdate, setIsClickUpdate] = useState(false);
   const [regexUrl] = useState(
-    "https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/"
+    'https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/'
   );
   const [isRerenderStatusChat, setIsRerenderStatusChat] = useState(false);
   const [socket, setSocket] = useState(null);
-  const [forwardedMessageContent, setForwardedMessageContent] = useState("");
+  const [forwardedMessageContent, setForwardedMessageContent] = useState('');
   const [showForwardForm, setShowForwardForm] = useState(false);
+  const [showFormCard, setShowFormCard] = useState(false);
+  const inputRef = useRef(null);
 
+  const [isClickDownMedia, setIsClickDownMedia] = useState(false);
+  const [isClickDownFile, setIsClickDownFile] = useState(false);
+  const [isClickDownLink, setIsClickDownLink] = useState(false);
+  const [isClickDownSetting, setIsClickDownSetting] = useState(false);
 
   useEffect(() => {
     let newSocket = io(`${urlBackend}`);
@@ -110,7 +118,7 @@ const ContentChat = ({
   }, [JSON.stringify(contentMessages), isRerenderStatusChat]);
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [JSON.stringify(contentMessages)]);
 
   const sendMessage = () => {
@@ -122,8 +130,18 @@ const ContentChat = ({
         chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
       });
 
-      setMessage("");
+      setMessage('');
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
       setDisplayIcons(false);
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.keyCode === 13 && !event.shiftKey) {
+      event.preventDefault(); 
+      sendMessage(); 
     }
   };
 
@@ -158,7 +176,7 @@ const ContentChat = ({
 
         const reactFile = {
           originalname: file.name,
-          encoding: "7bit",
+          encoding: '7bit',
           mimetype: file.type,
           buffer: buffer,
           size: file.size,
@@ -175,7 +193,7 @@ const ContentChat = ({
 
       reader.readAsArrayBuffer(file);
     }
-    setMessage("");
+    setMessage('');
     setDisplayIcons(false);
   };
 
@@ -199,17 +217,23 @@ const ContentChat = ({
     setShowForwardForm(false);
   };
 
+  useEffect(() => {
+    if (chatSelected && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [chatSelected]);
+
   return (
     <div className="container-content-chat">
       {/* slide */}
-      {idChat === "" ? (
+      {idChat === '' ? (
         <div className="slides">
           <div className="slogan">
             <div className="slogan-title">
               Chào mừng đến với <b>Zalo PC</b>!
             </div>
             <p>
-              Khám phá những tiện ích hỗ trợ làm việc và trò chuyện cùng <br />{" "}
+              Khám phá những tiện ích hỗ trợ làm việc và trò chuyện cùng <br />{' '}
               người thân, bạn bè được tối ưu hóa cho máy tính của bạn
             </p>
           </div>
@@ -225,8 +249,7 @@ const ContentChat = ({
             }}
             navigation={true}
             modules={[Autoplay, Pagination, Navigation]}
-            className="mySwiper"
-          >
+            className="mySwiper">
             <SwiperSlide>
               <img className="slide" alt="" src="/slide1.png" />
               <div className="slide-title">
@@ -301,27 +324,24 @@ const ContentChat = ({
           />
           <div
             className="content-chat"
-            style={{ width: isClickInfo ? "70%" : "" }}
-          >
+            style={{ width: isClickInfo ? '70%' : '' }}>
             <div className="chat-header">
               <div className="chat-header-left">
                 <div
                   className="chat-header-left-avt"
-                  onClick={() => setIsClickUser(true)}
-                >
+                  onClick={() => setIsClickUser(true)}>
                   <img
                     src={
                       nameReceiver.image == null
-                        ? "/public/avatardefault.png"
+                        ? '/public/avatardefault.png'
                         : nameReceiver.image
                     }
                     style={{
-                      width: "60px",
-                      height: "60px",
-                      borderRadius: "50%",
+                      width: '60px',
+                      height: '60px',
+                      borderRadius: '50%',
                     }}
                   />
-
                 </div>
                 <div className="chat-header-left-name">
                   <div className="user">
@@ -338,7 +358,7 @@ const ContentChat = ({
                   <AiOutlineUsergroupAdd className="icon" />
                 </div>
                 <div className="chat-header-right-icon">
-                  <IoSearchOutline className="icon" />{" "}
+                  <IoSearchOutline className="icon" />{' '}
                 </div>
                 <div className="chat-header-right-icon">
                   <IoVideocamOutline className="icon" />
@@ -347,10 +367,9 @@ const ContentChat = ({
                   className="chat-header-right-icon"
                   onClick={() => setIsClickInfo(!isClickInfo)}
                   style={{
-                    color: isClickInfo ? "#0068ff" : "",
-                    background: isClickInfo ? "#d4e4fa" : "",
-                  }}
-                >
+                    color: isClickInfo ? '#0068ff' : '',
+                    background: isClickInfo ? '#d4e4fa' : '',
+                  }}>
                   {isClickInfo ? (
                     <VscLayoutSidebarRight className="icon" />
                   ) : (
@@ -369,60 +388,60 @@ const ContentChat = ({
                   onMouseLeave={() => setHoveredIndex(null)}
                   style={{
                     justifyContent:
-                      message.sender !== userId ? "flex-start" : "flex-end",
-                    marginTop: index === 0 ? "10px" : "0px",
-                  }}
-                >
+                      message.sender !== userId ? 'flex-start' : 'flex-end',
+                    marginTop: index === 0 ? '10px' : '0px',
+                  }}>
                   {message.sender !== userId ? (
                     <img
                       src={
                         nameReceiver.image == null
-                          ? "/public/avatardefault.png"
+                          ? '/public/avatardefault.png'
                           : nameReceiver.image
                       }
                       className="avatar-user"
                       onClick={() => setIsClickUser(true)}
-                      style={{ cursor: "pointer" }}
+                      style={{ cursor: 'pointer' }}
                     />
                   ) : null}
                   {index === hoveredIndex && message.sender === userId ? (
-                    <div style={{ width: "100px" }}>
+                    <div style={{ width: '100px' }}>
                       <div
                         className="utils-message"
-                        style={{ marginRight: "7px", marginTop: "5px" }}
-                      >
+                        style={{ marginRight: '7px', marginTop: '5px' }}>
                         <MdOutlineSettingsBackupRestore
                           style={{
-                            color: hoverText == "Thu hồi" ? "#005ae0" : "",
+                            color: hoverText == 'Thu hồi' ? '#005ae0' : '',
                           }}
-                          onMouseEnter={() => setHoverText("Thu hồi")}
-                          onMouseLeave={() => setHoverText("")}
+                          onMouseEnter={() => setHoverText('Thu hồi')}
+                          onMouseLeave={() => setHoverText('')}
                           onClick={() =>
-                            handleClickStatusChat("recalls", userId, message.id)
+                            handleClickStatusChat('recalls', userId, message.id)
                           }
                         />
                         <CiTrash
                           style={{
                             color:
-                              hoverText == "Xóa chỉ ở phía tôi"
-                                ? "#005ae0"
-                                : "",
+                              hoverText == 'Xóa chỉ ở phía tôi'
+                                ? '#005ae0'
+                                : '',
                           }}
                           onMouseEnter={() =>
-                            setHoverText("Xóa chỉ ở phía tôi")
+                            setHoverText('Xóa chỉ ở phía tôi')
                           }
-                          onMouseLeave={() => setHoverText("")}
+                          onMouseLeave={() => setHoverText('')}
                           onClick={() =>
-                            handleClickStatusChat("delete", userId, message.id)
+                            handleClickStatusChat('delete', userId, message.id)
                           }
                         />
                         <FaShare
                           style={{
-                            color: hoverText === "Chuyển tiếp" ? "#005ae0" : "",
+                            color: hoverText === 'Chuyển tiếp' ? '#005ae0' : '',
                           }}
-                          onMouseEnter={() => setHoverText("Chuyển tiếp")}
-                          onMouseLeave={() => setHoverText("")}
-                          onClick={() => handleForwardButtonClick(message.message)}
+                          onMouseEnter={() => setHoverText('Chuyển tiếp')}
+                          onMouseLeave={() => setHoverText('')}
+                          onClick={() =>
+                            handleForwardButtonClick(message.message)
+                          }
                         />
                         {showForwardForm && (
                           <ForwardMessageForm
@@ -438,16 +457,15 @@ const ContentChat = ({
 
                       <span
                         style={{
-                          fontSize: "12px",
-                          backgroundColor: "#261e1e",
-                          color: "#c3c1c1",
-                        }}
-                      >
+                          fontSize: '12px',
+                          backgroundColor: '#261e1e',
+                          color: '#c3c1c1',
+                        }}>
                         {hoverText}
                       </span>
                     </div>
                   ) : (
-                    ""
+                    ''
                   )}
                   <div className="content-message">
                     {message.message.includes(regexUrl) ? (
@@ -457,57 +475,67 @@ const ContentChat = ({
                     )}
                     <span
                       className="info time"
-                      style={{ fontSize: 10, color: "darkgrey" }}
-                    >
+                      style={{ fontSize: 10, color: 'darkgrey' }}>
                       {message.dateTimeSend?.slice(11, 16)}
                     </span>
                   </div>
                   {index === hoveredIndex && message.sender !== userId ? (
-                    <div style={{ width: "100px", height: "20px" }}>
+                    <div style={{ width: '100px', height: '20px' }}>
                       <div
                         className="utils-message"
                         style={{
-                          marginLeft: "7px",
-                          marginTop: "5px",
-                          width: "40px",
-                        }}
-                      >
+                          marginLeft: '7px',
+                          marginTop: '5px',
+                          width: '48px',
+                        }}>
                         <CiTrash
                           style={{
                             color:
-                              hoverText == "Xóa chỉ ở phía tôi"
-                                ? "#005ae0"
-                                : "",
+                              hoverText == 'Xóa chỉ ở phía tôi'
+                                ? '#005ae0'
+                                : '',
                           }}
                           onMouseEnter={() =>
-                            setHoverText("Xóa chỉ ở phía tôi")
+                            setHoverText('Xóa chỉ ở phía tôi')
                           }
-                          onMouseLeave={() => setHoverText("")}
+                          onMouseLeave={() => setHoverText('')}
                           onClick={() =>
-                            handleClickStatusChat("delete", userId, message.id)
+                            handleClickStatusChat('delete', userId, message.id)
                           }
                         />
                         <FaShare
                           style={{
-                            fontSize: "20px",
-                            color: hoverText === "Chuyển tiếp" ? "#005ae0" : "",
+                            fontSize: '20px',
+                            color: hoverText === 'Chuyển tiếp' ? '#005ae0' : '',
                           }}
-                          onMouseEnter={() => setHoverText("Chuyển tiếp")}
-                          onMouseLeave={() => setHoverText("")}
+                          onMouseEnter={() => setHoverText('Chuyển tiếp')}
+                          onMouseLeave={() => setHoverText('')}
+                          onClick={() =>
+                            handleForwardButtonClick(message.message)
+                          }
                         />
+                         {showForwardForm && (
+                          <ForwardMessageForm
+                            userId={userId}
+                            visible={showForwardForm}
+                            onCancel={handleForwardFormCancel}
+                            sharedContentFromInfoMess={forwardedMessageContent}
+                            setRerender={setRerender}
+                            urlBackend={urlBackend}
+                          />
+                        )}
                       </div>
                       <span
                         style={{
-                          fontSize: "12px",
-                          backgroundColor: "#261e1e",
-                          color: "#c3c1c1",
-                        }}
-                      >
+                          fontSize: '12px',
+                          backgroundColor: '#261e1e',
+                          color: '#c3c1c1',
+                        }}>
                         {hoverText}
                       </span>
                     </div>
                   ) : (
-                    ""
+                    ''
                   )}
                 </div>
               ))}
@@ -519,10 +547,9 @@ const ContentChat = ({
                 className="chat-utilities-icon"
                 onClick={() => setIsClickSticker(!isClickSticker)}
                 style={{
-                  color: isClickSticker ? "#0068ff" : "",
-                  background: isClickSticker ? "#d4e4fa" : "",
-                }}
-              >
+                  color: isClickSticker ? '#0068ff' : '',
+                  background: isClickSticker ? '#d4e4fa' : '',
+                }}>
                 <LuSticker className="icon" />
               </div>
               {/* button image */}
@@ -531,7 +558,7 @@ const ContentChat = ({
                   type="file"
                   accept=".png, .jpg, .jpeg, .gif, .bmp, .tiff"
                   multiple
-                  style={{ display: "none" }}
+                  style={{ display: 'none' }}
                   id="image"
                   onChange={(e) => handleChangeFile(e)}
                 />
@@ -544,7 +571,7 @@ const ContentChat = ({
                   type="file"
                   accept=".xls, .xlsx, .doc, .docx, .csv, .txt, .ppt, .pptx, .mp3, .mp4, .rar, .zip, .fa-file"
                   multiple
-                  style={{ display: "none" }}
+                  style={{ display: 'none' }}
                   id="file"
                   onChange={(e) => handleChangeFile(e)}
                 />
@@ -552,7 +579,15 @@ const ContentChat = ({
                   <i className="fa-solid fa-paperclip icon"></i>
                 </label>
               </div>
-              <div className="chat-utilities-icon">
+              <div
+                className="chat-utilities-icon"
+                onClick={() => setShowFormCard(true)}>
+                <FormCard
+                  userId={userId}
+                  setVisible={setShowFormCard}
+                  visible={showFormCard}
+                />
+
                 <i className="fa-regular fa-address-card icon"></i>
               </div>
               <div className="chat-utilities-icon">
@@ -566,30 +601,29 @@ const ContentChat = ({
               <div className="chat-text-left">
                 {/*Input Send message*/}
                 <input
+                  ref={inputRef}
                   className="chat-text-input"
                   type="text"
                   placeholder={`Nhập @, tin nhắn tới ${nameReceiver.name}`}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
                 />
-                {image ? <img src={image} /> : ""}
+                {image ? <img src={image} /> : ''}
               </div>
               <div className="chat-text-right">
                 <div
                   className="chat-text-icon"
-                  onClick={() => setDisplayIcons(!displayIcons)}
-                >
+                  onClick={() => setDisplayIcons(!displayIcons)}>
                   <i
                     className="fa-regular fa-face-grin"
                     style={{
-                      fontSize: "20px",
-                      color: displayIcons ? "#0068ff" : "",
-                    }}
-                  ></i>
+                      fontSize: '20px',
+                      color: displayIcons ? '#0068ff' : '',
+                    }}></i>
                   <div
                     className="content-icons"
-                    style={{ display: displayIcons ? "flex" : "none" }}
-                  >
+                    style={{ display: displayIcons ? 'flex' : 'none' }}>
                     <Picker
                       data={data}
                       onEmojiSelect={(e) => setMessage(message + e.native)}
@@ -608,18 +642,28 @@ const ContentChat = ({
           <div
             className="chat-info"
             style={{
-              width: isClickInfo ? "30%" : "",
-              display: isClickInfo ? "flex" : "none",
-              height: isClickInfo ? "100%" : "",
-            }}
-          >
+              width: isClickInfo ? '30%' : '',
+              display: isClickInfo ? 'flex' : 'none',
+              height: isClickInfo ? '100%' : '',
+            }}>
             <div className="header">Thông tin hội thoại</div>
             <div className="header-info">
               <div className="header-info-avt">
-                <i className="fa-solid fa-user-tie icon"></i>
+                <img
+                  src={
+                    nameReceiver.image == null
+                      ? '/public/avatardefault.png'
+                      : nameReceiver.image
+                  }
+                  style={{
+                    width: '60px',
+                    height: '60px',
+                    borderRadius: '50%',
+                  }}
+                />
               </div>
               <div className="header-info-name">
-                <div className="user-name">Le Thi Kim Ngan</div>
+                <div className="user-name">{nameReceiver.name}</div>
                 <div className="user-edit">
                   <EditOutlined />
                 </div>
@@ -655,10 +699,116 @@ const ContentChat = ({
                 <span>0 nhóm chung</span>
               </div>
             </div>
-            <div className="group-media"></div>
-            <div className="group-file"></div>
-            <div className="group-link"></div>
-            <div className="group-setting"></div>
+            <div className="group-media">
+              <div className="media-header">
+                <span>Ảnh/Video</span>
+                <div onClick={() => setIsClickDownMedia(!isClickDownMedia)}>
+                  {isClickDownMedia ? (
+                    <FaCaretRight className="icon" />
+                  ) : (
+                    <FaCaretDown className="icon" />
+                  )}
+                </div>
+              </div>
+              <div style={{ display: isClickDownMedia ? 'none' : '' }}>
+                <div className="media-body">
+                  <div className="frame"></div>
+                </div>
+                <div className="btn">
+                  <div className="btn-all">Xem tất cả</div>
+                </div>
+              </div>
+            </div>
+            <div className="group-file">
+              <div className="file-header">
+                <span>File</span>
+                <div onClick={() => setIsClickDownFile(!isClickDownFile)}>
+                  {isClickDownFile ? (
+                    <FaCaretRight className="icon" />
+                  ) : (
+                    <FaCaretDown className="icon" />
+                  )}
+                </div>
+              </div>
+              <div style={{ display: isClickDownFile ? 'none' : '' }}>
+                {contentMessages.map((message, index) => (
+                  <div className="file-body" key={index}>
+                    {message.message.includes(regexUrl) ? (
+                      <ViewFile url={message.message} />
+                    ) : (
+                      <div className="frame">
+                        {/* <div className="frame-left"></div>
+                     <div className="frame-right">
+                      <div className="frame-right-top">file.rar</div>
+                      <div className="frame-right-bottom">
+                        <div className="frame-weight">51.63 KB</div>
+                        <div className="frame-date">30/01/2024</div>
+                      </div>
+                     </div> */}
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                <div className="btn">
+                  <div className="btn-all">Xem tất cả</div>
+                </div>
+              </div>
+            </div>
+            <div className="group-link">
+              <div className="file-header">
+                <span>Link</span>
+                <div onClick={() => setIsClickDownLink(!isClickDownLink)}>
+                  {isClickDownLink ? (
+                    <FaCaretRight className="icon" />
+                  ) : (
+                    <FaCaretDown className="icon" />
+                  )}
+                </div>
+              </div>
+              <div style={{ display: isClickDownLink ? 'none' : '' }}>
+                <div className="link-body">
+                  <div className="frame">
+                    <div className="frame-left"></div>
+                    <div className="frame-right">
+                      <div className="frame-right-top">link</div>
+                      <div className="frame-right-bottom">
+                        <div className="frame-link">link.com</div>
+                        <div className="frame-date">30/01/2024</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="btn">
+                  <div className="btn-all">Xem tất cả</div>
+                </div>
+              </div>
+            </div>
+            <div className="group-setting" style={{ 'border-bottom': 'none' }}>
+              <div className="setting-header">
+                <span>Thiết lập bảo mật</span>
+                <div onClick={() => setIsClickDownSetting(!isClickDownSetting)}>
+                  {isClickDownSetting ? (
+                    <FaCaretRight className="icon" />
+                  ) : (
+                    <FaCaretDown className="icon" />
+                  )}
+                </div>
+              </div>
+              <div
+                className="setting-body"
+                style={{ display: isClickDownSetting ? 'none' : '' }}>
+                <div className="hidden-chat">
+                  <BsEyeSlash className="icon" />
+                  <span>Ẩn trò chuyện</span>
+                  <BiSolidToggleLeft className="icon-toggle" />
+                </div>
+                <div className="delete-chat">
+                  <LuTrash className="icon" />
+                  <span>Xóa lịch sử trò chuyện</span>
+                </div>
+              </div>
+            </div>
           </div>
         </>
       )}

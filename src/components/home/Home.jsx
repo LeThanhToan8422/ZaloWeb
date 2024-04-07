@@ -25,7 +25,7 @@ function Home() {
       setUser(datas.data);
     };
     getApiUserById();
-  }, [location.state.userId, location.state.rerender]);
+  }, [location.state.userId, location.state.rerender, rerender]);
 
   useEffect(() => {
     let getApiChatsByUserId = async () => {

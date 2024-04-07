@@ -41,6 +41,7 @@ import FormUpdateName from './components/formUpdateName';
 import ViewFile from './components/ViewFile';
 import ForwardMessageForm from './components/ForwardMessageForm';
 import FormCard from './components/FormCard';
+import moment from 'moment';
 
 const ContentChat = ({
   userId,
@@ -91,6 +92,7 @@ const ContentChat = ({
         userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`
       }`,
       (dataGot) => {
+        console.log(dataGot.data);
         handleChangeMessageFinal(dataGot.data);
         setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
       }
@@ -125,6 +127,7 @@ const ContentChat = ({
     if (message !== null) {
       socket.emit(`Client-Chat-Room`, {
         message: message,
+        dateTimeSend : moment().format('YYYY-MM-DD HH:mm:ss'),
         sender: userId,
         receiver: idChat,
         chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
@@ -184,6 +187,9 @@ const ContentChat = ({
         // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
         socket.emit(`Client-Chat-Room`, {
           file: reactFile,
+          dateTimeSend : moment()
+          .utcOffset(7)
+          .format("YYYY-MM-DD HH:mm:ss"),
           sender: userId,
           receiver: idChat,
           chatRoom:
@@ -586,6 +592,7 @@ const ContentChat = ({
                   userId={userId}
                   setVisible={setShowFormCard}
                   visible={showFormCard}
+                  urlBackend={urlBackend}
                 />
 
                 <i className="fa-regular fa-address-card icon"></i>

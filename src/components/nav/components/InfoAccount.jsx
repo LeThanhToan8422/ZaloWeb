@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import FormChangePassword from "./FormUpdatePassword";
 import { io } from "socket.io-client";
 
-function InfoAccount({ visible, setVisible, userId }) {
+function InfoAccount({ visible, setVisible, userId, urlBackend}) {
   let navigate = useNavigate();
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
@@ -21,7 +21,7 @@ function InfoAccount({ visible, setVisible, userId }) {
 
   const [socket, setSocket] = useState(null);
   useEffect(() => {
-    let newSocket = io("https://zalo-backend-team-6.onrender.com");
+    let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
   }, [JSON.stringify(user), userId]);
 
@@ -32,7 +32,8 @@ function InfoAccount({ visible, setVisible, userId }) {
       navigate("/home", {
         state: {
           userId: dataGot.data.id,
-          rerender : dataGot.data.image
+          rerender : dataGot.data.image,
+          urlBackend : urlBackend
         },
       });
     });
@@ -48,7 +49,8 @@ function InfoAccount({ visible, setVisible, userId }) {
       navigate("/home", {
         state: {
           userId: dataGot.data.id,
-          rerender : dataGot.data.image
+          rerender : dataGot.data.image,
+          urlBackend : urlBackend
         },
       });
     });
@@ -64,7 +66,7 @@ function InfoAccount({ visible, setVisible, userId }) {
 
   useEffect(() => {
     let getApiUserById = async () => {
-      let datas = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${userId}`);
+      let datas = await axios.get(`${urlBackend}/users/${userId}`);
       setUser(datas.data);
     };
     getApiUserById();
@@ -288,11 +290,13 @@ function InfoAccount({ visible, setVisible, userId }) {
         setVisible={setIsClickUpdate}
         visible={isClickUpdate}
         user={user}
+        urlBackend={urlBackend}
       />
       <FormChangePassword
         setVisible={setIsClickChangePassword}
         visible={isClickChangePassword}
         userId={userId}
+        urlBackend={urlBackend}
       />
     </div>
   );

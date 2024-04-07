@@ -12,7 +12,8 @@ const ListChat = ({
   handleChangeSearchValue,
   searchFriends,
   handleClickChatSeleted,
-  setRerender
+  setRerender,
+  urlBackend
 }) => {
   const [isPrioritize, setIsPrioritize] = useState(true);
   const [chatSelected, setChatsSelected] = useState(0);
@@ -69,7 +70,12 @@ const ListChat = ({
               onChange={(e) => handleChangeSearch(e.target.value)}
             />
           </div>
-          <FormSearchFriendByPhone setVisible={setVisibleFriendByPhone} visible={visibleFriendByPhone} userId={userId}/>
+          <FormSearchFriendByPhone 
+          setVisible={setVisibleFriendByPhone} 
+          visible={visibleFriendByPhone} 
+          userId={userId}
+          urlBackend={urlBackend}
+          />
           <i className="fa-solid fa-user-plus icon-user" onClick={()=>setVisibleFriendByPhone(true)}></i>
           <i className="fa-solid fa-users icon-user"></i>
         </div>

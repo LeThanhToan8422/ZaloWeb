@@ -9,7 +9,8 @@ const ForwardMessageForm = ({
   visible,
   onCancel,
   sharedContentFromInfoMess,
-  setRerender
+  setRerender,
+  urlBackend
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFriendsTemp, setSelectedFriendsTemp] = useState([]);
@@ -24,7 +25,7 @@ const ForwardMessageForm = ({
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    let newSocket = io("https://zalo-backend-team-6.onrender.com");
+    let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
   }, [userId, sharedContentFromInfoMess, JSON.stringify(selectedFriendsTemp)]);
 
@@ -32,7 +33,7 @@ const ForwardMessageForm = ({
     const fetchFriends = async () => {
       try {
         const response = await axios.get(
-          `https://zalo-backend-team-6.onrender.com/users/friends/${userId}`
+          `${urlBackend}/users/friends/${userId}`
         );
         setFriendList(response.data);
         setFilteredFriends(response.data);
@@ -64,11 +65,11 @@ const ForwardMessageForm = ({
     let datas = [];
     if (e.target.value) {
       datas = await axios.get(
-        `https://zalo-backend-team-6.onrender.com/users/friends/${userId}/${e.target.value}`
+        `${urlBackend}/users/friends/${userId}/${e.target.value}`
       );
     } else {
       datas = await axios.get(
-        `https://zalo-backend-team-6.onrender.com/users/friends/${userId}`
+        `${urlBackend}/users/friends/${userId}`
       );
     }
     setFriendList([...datas.data])

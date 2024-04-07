@@ -45,7 +45,8 @@ const ContentChat = ({
   idChat,
   handleChangeMessageFinal,
   chatSelected,
-  setRerender
+  setRerender,
+  urlBackend
 }) => {
   let scrollRef = useRef(null);
 
@@ -72,7 +73,7 @@ const ContentChat = ({
 
 
   useEffect(() => {
-    let newSocket = io("https://zalo-backend-team-6.onrender.com");
+    let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
   }, [JSON.stringify(contentMessages), chatSelected, isRerenderStatusChat]);
 
@@ -129,10 +130,10 @@ const ContentChat = ({
   useEffect(() => {
     let getApiContentChats = async () => {
       let datas = await axios.get(
-        `https://zalo-backend-team-6.onrender.com/chats/content-chats-between-users/${userId}-and-${idChat}`
+        `${urlBackend}/chats/content-chats-between-users/${userId}-and-${idChat}`
       );
-      let sender = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${userId}`);
-      let receiver = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${idChat}`);
+      let sender = await axios.get(`${urlBackend}/users/${userId}`);
+      let receiver = await axios.get(`${urlBackend}/users/${idChat}`);
 
       setContentMessages(datas.data);
       setNameReceiver({
@@ -290,11 +291,13 @@ const ContentChat = ({
             setVisible={setIsClickUser}
             visible={isClickUser}
             userId={idChat}
+            urlBackend={urlBackend}
           />
           <FormUpdateName
             setVisible={setIsClickUpdate}
             visible={isClickUpdate}
             user={nameReceiver}
+            urlBackend={urlBackend}
           />
           <div
             className="content-chat"
@@ -428,6 +431,7 @@ const ContentChat = ({
                             onCancel={handleForwardFormCancel}
                             sharedContentFromInfoMess={forwardedMessageContent}
                             setRerender={setRerender}
+                            urlBackend={urlBackend}
                           />
                         )}
                       </div>

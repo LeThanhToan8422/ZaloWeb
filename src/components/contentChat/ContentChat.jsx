@@ -13,18 +13,19 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 
 //import icon
 import { SendOutlined, EditOutlined } from "@ant-design/icons";
-import { LuSticker, LuAlarmClock } from "react-icons/lu";
+import { LuSticker, LuAlarmClock, LuTrash } from "react-icons/lu";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { IoVideocamOutline, IoSearchOutline } from "react-icons/io5";
 import {
   VscLayoutSidebarRightOff,
   VscLayoutSidebarRight,
 } from "react-icons/vsc";
-import { BsBell, BsPinAngle } from "react-icons/bs";
+import { BsBell, BsPinAngle, BsEyeSlash } from "react-icons/bs";
 import { HiOutlineUsers } from "react-icons/hi2";
 import { CiTrash } from "react-icons/ci";
 import { MdOutlineSettingsBackupRestore } from "react-icons/md";
-import { FaShare } from "react-icons/fa";
+import { FaShare, FaCaretDown, FaCaretRight } from "react-icons/fa";
+import { BiSolidToggleLeft } from "react-icons/bi";
 
 import axios from "axios";
 
@@ -39,6 +40,7 @@ import InfoUser from "./components/InfoUser";
 import FormUpdateName from "./components/formUpdateName";
 import ViewFile from "./components/ViewFile";
 import ForwardMessageForm from "./components/ForwardMessageForm";
+import FormCard from "./components/FormCard";
 
 const ContentChat = ({
   userId,
@@ -69,6 +71,12 @@ const ContentChat = ({
   const [socket, setSocket] = useState(null);
   const [forwardedMessageContent, setForwardedMessageContent] = useState("");
   const [showForwardForm, setShowForwardForm] = useState(false);
+  const [showFormCard, setShowFormCard] = useState(false);
+
+  const [isClickDownMedia, setIsClickDownMedia] = useState(false);
+  const [isClickDownFile, setIsClickDownFile] = useState(false);
+  const [isClickDownLink, setIsClickDownLink] = useState(false);
+  const [isClickDownSetting, setIsClickDownSetting] = useState(false);
 
 
   useEffect(() => {
@@ -548,7 +556,13 @@ const ContentChat = ({
                   <i className="fa-solid fa-paperclip icon"></i>
                 </label>
               </div>
-              <div className="chat-utilities-icon">
+              <div className="chat-utilities-icon" onClick={() => setShowFormCard(true)}>
+              <FormCard
+                  userId={userId}
+                  setVisible={setShowFormCard}
+                  visible={showFormCard}
+                />
+               
                 <i className="fa-regular fa-address-card icon"></i>
               </div>
               <div className="chat-utilities-icon">
@@ -612,10 +626,21 @@ const ContentChat = ({
             <div className="header">Thông tin hội thoại</div>
             <div className="header-info">
               <div className="header-info-avt">
-                <i className="fa-solid fa-user-tie icon"></i>
+              <img
+                    src={
+                      nameReceiver.image == null
+                        ? "/public/avatardefault.png"
+                        : nameReceiver.image
+                    }
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      borderRadius: "50%",
+                    }}
+                  />
               </div>
               <div className="header-info-name">
-                <div className="user-name">Le Thi Kim Ngan</div>
+                <div className="user-name">{nameReceiver.name}</div>
                 <div className="user-edit">
                   <EditOutlined />
                 </div>
@@ -651,10 +676,86 @@ const ContentChat = ({
                 <span>0 nhóm chung</span>
               </div>
             </div>
-            <div className="group-media"></div>
-            <div className="group-file"></div>
-            <div className="group-link"></div>
-            <div className="group-setting"></div>
+            <div className="group-media">
+            <div className="media-header">
+                <span>Ảnh/Video</span><div onClick={()=> setIsClickDownMedia(!isClickDownMedia)}>{isClickDownMedia ?  <FaCaretRight className="icon"/>: <FaCaretDown className="icon"/>}</div>
+              </div>
+              <div style = {{display: isClickDownMedia ? "none": ""}}>
+                <div className="media-body" >
+                  <div className="frame"></div>
+                </div>
+                <div className="btn">
+                  <div className="btn-all">Xem tất cả</div>
+                </div>
+              </div>
+            </div>
+            <div className="group-file">
+            <div className="file-header">
+                  <span>File</span><div onClick={()=> setIsClickDownFile(!isClickDownFile)}>{isClickDownFile ? <FaCaretRight className="icon"/>: <FaCaretDown className="icon"/>}</div>
+              </div>
+              <div style = {{display: isClickDownFile ? "none": ""}}>
+                {contentMessages.map((message, index) => (
+                  <div className="file-body" key={index}>
+                    {message.message.includes(regexUrl) ? (
+                      <ViewFile url={message.message} />
+                    ):
+                   <div className="frame">
+                     {/* <div className="frame-left"></div>
+                     <div className="frame-right">
+                      <div className="frame-right-top">file.rar</div>
+                      <div className="frame-right-bottom">
+                        <div className="frame-weight">51.63 KB</div>
+                        <div className="frame-date">30/01/2024</div>
+                      </div>
+                     </div> */}
+                     
+                   </div>}
+                </div>
+                ))}
+                
+                <div className="btn">
+                  <div className="btn-all">Xem tất cả</div>
+                </div>
+              </div>
+            </div>
+            <div className="group-link">
+            <div className="file-header">
+                <span>Link</span><div onClick={()=> setIsClickDownLink(!isClickDownLink)}>{isClickDownLink ? <FaCaretRight className="icon"/>: <FaCaretDown className="icon"/>}</div>
+              </div>
+              <div style = {{display: isClickDownLink ? "none": ""}}>
+                <div className="link-body">
+                  <div className="frame">
+                     <div className="frame-left"></div>
+                     <div className="frame-right">
+                      <div className="frame-right-top">link</div>
+                      <div className="frame-right-bottom">
+                        <div className="frame-link">link.com</div>
+                        <div className="frame-date">30/01/2024</div>
+                      </div>
+                     </div>
+                   </div>
+                </div>
+                <div className="btn">
+                  <div className="btn-all">Xem tất cả</div>
+                </div>
+              </div>
+            </div>
+            <div className="group-setting" style={{'border-bottom' : "none"}}>
+              <div className="setting-header">
+                <span>Thiết lập bảo mật</span><div onClick={()=> setIsClickDownSetting(!isClickDownSetting)}>{isClickDownSetting ? <FaCaretRight className="icon"/>: <FaCaretDown className="icon"/>}</div>
+              </div>
+              <div className="setting-body" style = {{display: isClickDownSetting ? "none": ""}}>
+                <div className="hidden-chat">
+                  <BsEyeSlash className="icon"/>
+                  <span>Ẩn trò chuyện</span>
+                  <BiSolidToggleLeft  className="icon-toggle"/>
+                </div>
+                <div className="delete-chat">
+                 <LuTrash className="icon"/>
+                 <span>Xóa lịch sử trò chuyện</span>
+                </div>
+              </div>
+            </div>
           </div>
         </>
       )}

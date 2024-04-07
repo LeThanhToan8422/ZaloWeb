@@ -22,6 +22,7 @@ function FormInfoUserByPhone({visible, setVisible, userId, friendId}) {
     const [friend, setfriend] = useState({});
     const [isClickUpdate, setIsClickUpdate] = useState(false);
     const [isFriend, setIsFriend] = useState(false);
+    const [isBlock, setIsBlock] = useState(false);
     
     useEffect(() => {
         setVisibleModal(visible);
@@ -49,12 +50,20 @@ function FormInfoUserByPhone({visible, setVisible, userId, friendId}) {
             id: userId, // id user của mình
             objectId: friendId, // id của user muốn kết bạn hoặc block
         })
-        console.log(dataAddFriend.data);
         if(dataAddFriend.data){
             setIsFriend(true);
         }
     }
-
+    let handleClickBlock = async () => {
+        let dataBlock = await axios.post(`http://localhost:8080/users/relationships`,{
+            relationship : "block",
+            id: userId, // id user của mình
+            objectId: friendId, // id của user muốn kết bạn hoặc block
+        })
+        if(dataBlock.data){
+            setIsBlock(true);
+        }
+    }
 
     return (
         <div>
@@ -168,26 +177,40 @@ function FormInfoUserByPhone({visible, setVisible, userId, friendId}) {
                               </Col>              
                           </Row>
                           <hr/>
-                          <Row>                          
+                          <Row>  
+                            {isBlock?
                             <Button
+                            type="text"
+                            size="large"
+                            block="true"
+                            style={{display:"flex", alignItems: "center", justifyContent: "center"}}
+                          >
+                             <MdOutlineBlock size={20}/>&nbsp;&nbsp;&nbsp;Bỏ chặn
+                          </Button>: 
+                          <Button
                               type="text"
                               size="large"
                               block="true"
                               style={{display:"flex", alignItems: "center", justifyContent: "center"}}
+                              onClick={handleClickBlock}
                             >
                                <MdOutlineBlock size={20}/>&nbsp;&nbsp;&nbsp;Chặn tin nhắn và cuộc gọi
                             </Button>
+                            }     
                           </Row>
+                          {isFriend? 
                           <Row>                          
-                            <Button
-                              type="text"
-                              size="large"
-                              block="true"
-                              style={{display:"flex", alignItems: "center", justifyContent: "center"}}
-                            >
-                              &nbsp;<CiTrash size={20} />&nbsp;&nbsp;&nbsp;Xóa khỏi danh sách bạn bè
-                            </Button>
-                          </Row>
+                          <Button
+                            type="text"
+                            size="large"
+                            block="true"
+                            style={{display:"flex", alignItems: "center", justifyContent: "center"}}
+                          >
+                            &nbsp;<CiTrash size={20} />&nbsp;&nbsp;&nbsp;Xóa khỏi danh sách bạn bè
+                          </Button>
+                        </Row>:""
+                          }
+                          
 
                         </Form>
                   </Modal>

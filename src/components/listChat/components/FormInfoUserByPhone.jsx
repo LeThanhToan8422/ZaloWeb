@@ -12,28 +12,29 @@ import {
 } from "antd";
 import axios from "axios";
 import {  EditOutlined } from "@ant-design/icons";
-import FormUpdateName from "./formUpdateName";
 import { CiTrash } from "react-icons/ci";
 import { MdOutlineBlock } from "react-icons/md";
 import moment from "moment";
 
-function InfoUser({visible, setVisible, userId, urlBackend}) {
+function FormInfoUserByPhone({visible, setVisible, userId, friendId}) {
     const [form] = Form.useForm();
     const [visibleModal, setVisibleModal] = useState(false);
-    const [user, setUser] = useState({});
+    const [friend, setfriend] = useState({});
     const [isClickUpdate, setIsClickUpdate] = useState(false);
+    const [isFriend, setIsFriend] = useState(false);
+    const [isBlock, setIsBlock] = useState(false);
     
     useEffect(() => {
         setVisibleModal(visible);
       }, [visible]);
     
     useEffect(() => {
-    let getApiUserById = async () => {
-      let datas = await axios.get(`${urlBackend}/users/${userId}`);
-      setUser(datas.data);
+    let getApifriendById = async () => {
+      let datas = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${friendId}`);
+      setfriend(datas.data);
     };
-    getApiUserById();
-    }, [userId]);
+    getApifriendById();
+    }, [friendId, isFriend]);
 
     const handleCancel = () => {
         form.resetFields();
@@ -42,6 +43,28 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
       setVisible(false);
     }
     }
+
+    let handleClickAddFriend = async () => {
+        let dataAddFriend = await axios.post(`https://zalo-backend-team-6.onrender.com/users/relationships`,{
+            relationship : "friends",
+            id: userId, // id user của mình
+            objectId: friendId, // id của user muốn kết bạn hoặc block
+        })
+        if(dataAddFriend.data){
+            setIsFriend(true);
+        }
+    }
+    let handleClickBlock = async () => {
+        let dataBlock = await axios.post(`http://localhost:8080/users/relationships`,{
+            relationship : "block",
+            id: userId, // id user của mình
+            objectId: friendId, // id của user muốn kết bạn hoặc block
+        })
+        if(dataBlock.data){
+            setIsBlock(true);
+        }
+    }
+
     return (
         <div>
           <Modal
@@ -50,7 +73,6 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                   onOk={() => handleCancel()}
                   onCancel={() => handleCancel()}
                   width="30%"
-                  style={{display: isClickUpdate?"none":"block"}}
                   footer={null}
               >
                         <Form
@@ -63,7 +85,7 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                               <Form.Item
                                 name="background"                              
                               >
-                                <img src={user.background=="null" ?"/public/anhbiadefault.jpg":user.background} style={{width : "100%", height : "90px"}} alt="Ảnh bìa"/>
+                                <img src={friend.background=="null" ?"/public/anhbiadefault.jpg":friend.background} style={{width : "100%", height : "90px"}} alt="Ảnh bìa"/>
                               </Form.Item>
                               </Col>   
                           </Row>
@@ -71,20 +93,30 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                               <Form.Item
                                 name="avt"
                               >
-                                <img src={user.image=="null" ?"/public/avatardefault.png":user.image} style={{width : "50px", height : "50px"}} alt="Ảnh đại diện"/>&nbsp;&nbsp;&nbsp; <b>{user.name}</b>&nbsp;&nbsp;&nbsp; <EditOutlined style={{cursor: "pointer"}} onClick={() => setIsClickUpdate(true) }/>
+                                <img src={friend.image=="null" ?"/public/avatardefault.png":friend.image} style={{width : "50px", height : "50px"}} alt="Ảnh đại diện"/>&nbsp;&nbsp;&nbsp; <b>{friend.name}</b>&nbsp;&nbsp;&nbsp; <EditOutlined style={{cursor: "pointer"}} onClick={() => setIsClickUpdate(true) }/>
                               </Form.Item>  
                           </Row>
                           <Row>                             
                               <Col lg={11} >
                               <Form.Item>
-                                  <Button
+                                {isFriend ? 
+                                <Button
                                       type="default"
                                       size="large"
                                       block
                                       
                                   >
                                       Gọi điện
-                                  </Button>
+                                  </Button>:
+                                  <Button
+                                  type="default"
+                                  size="large"
+                                  block
+                                  onClick={handleClickAddFriend}
+                              >
+                                  Kết bạn
+                              </Button>
+                                  } 
                               </Form.Item>
                               </Col> 
                               <Col lg={2} >
@@ -101,12 +133,6 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                               </Form.Item>
                               </Col>   
                           </Row>
-                          {/* <Row>
-                              <Form.Item
-                              >
-                                  <b>Thông tin cá nhân</b>
-                              </Form.Item>  
-                          </Row> */}
                       
                           <Row>
                               <Col lg={6} xs={6}>
@@ -118,7 +144,7 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                                   <Form.Item
                                       name="gender"
                                   >
-                                      {user.gender? "Nam" : "Nữ"}
+                                      {friend.gender? "Nam" : "Nữ"}
                                   </Form.Item>
                               </Col>              
                           </Row>
@@ -132,7 +158,7 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                                   <Form.Item
                                       name="dob"
                                   >
-                                      {moment(user.dob).format("YYYY-MM-DD")}
+                                      {moment(friend.dob).format("YYYY-MM-DD")}
                                   </Form.Item>
                               </Col>              
                           </Row>
@@ -146,36 +172,50 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                                   <Form.Item
                                       name="phone"
                                   >
-                                      {user.phone}
+                                      {friend.phone}
                                   </Form.Item>
                               </Col>              
                           </Row>
                           <hr/>
-                          <Row>                          
+                          <Row>  
+                            {isBlock?
                             <Button
+                            type="text"
+                            size="large"
+                            block="true"
+                            style={{display:"flex", alignItems: "center", justifyContent: "center"}}
+                          >
+                             <MdOutlineBlock size={20}/>&nbsp;&nbsp;&nbsp;Bỏ chặn
+                          </Button>: 
+                          <Button
                               type="text"
                               size="large"
                               block="true"
                               style={{display:"flex", alignItems: "center", justifyContent: "center"}}
+                              onClick={handleClickBlock}
                             >
                                <MdOutlineBlock size={20}/>&nbsp;&nbsp;&nbsp;Chặn tin nhắn và cuộc gọi
                             </Button>
+                            }     
                           </Row>
+                          {isFriend? 
                           <Row>                          
-                            <Button
-                              type="text"
-                              size="large"
-                              block="true"
-                              style={{display:"flex", alignItems: "center", justifyContent: "center"}}
-                            >
-                              &nbsp;<CiTrash size={20} />&nbsp;&nbsp;&nbsp;Xóa khỏi danh sách bạn bè
-                            </Button>
-                          </Row>
+                          <Button
+                            type="text"
+                            size="large"
+                            block="true"
+                            style={{display:"flex", alignItems: "center", justifyContent: "center"}}
+                          >
+                            &nbsp;<CiTrash size={20} />&nbsp;&nbsp;&nbsp;Xóa khỏi danh sách bạn bè
+                          </Button>
+                        </Row>:""
+                          }
+                          
+
                         </Form>
                   </Modal>
-                  <FormUpdateName setVisible={setIsClickUpdate} visible={isClickUpdate} user={user}/>
         </div>
      );
 }
 
-export default InfoUser;
+export default FormInfoUserByPhone;

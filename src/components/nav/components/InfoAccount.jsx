@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import FormChangePassword from "./FormUpdatePassword";
 import { io } from "socket.io-client";
 
-function InfoAccount({ visible, setVisible, userId }) {
+function InfoAccount({ visible, setVisible, userId, urlBackend}) {
   let navigate = useNavigate();
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
@@ -21,7 +21,7 @@ function InfoAccount({ visible, setVisible, userId }) {
 
   const [socket, setSocket] = useState(null);
   useEffect(() => {
-    let newSocket = io("http://localhost:8080");
+    let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
   }, [JSON.stringify(user), userId]);
 
@@ -32,10 +32,28 @@ function InfoAccount({ visible, setVisible, userId }) {
       navigate("/home", {
         state: {
           userId: dataGot.data.id,
-          rerender : dataGot.data.image
+          rerender : dataGot.data.image,
+          urlBackend : urlBackend
         },
       });
-    }); // mỗi khi có tin nhắn thì mess sẽ được render thêm
+    });
+
+    return () => {
+      socket?.disconnect();
+    };
+  }, [JSON.stringify(user), userId]);
+
+  useEffect(() => {
+    socket?.on(`Server-update-background-${userId}`, (dataGot) => {
+      setUser(dataGot.data);
+      navigate("/home", {
+        state: {
+          userId: dataGot.data.id,
+          rerender : dataGot.data.image,
+          urlBackend : urlBackend
+        },
+      });
+    });
 
     return () => {
       socket?.disconnect();
@@ -48,7 +66,7 @@ function InfoAccount({ visible, setVisible, userId }) {
 
   useEffect(() => {
     let getApiUserById = async () => {
-      let datas = await axios.get(`http://localhost:8080/users/${userId}`);
+      let datas = await axios.get(`${urlBackend}/users/${userId}`);
       setUser(datas.data);
     };
     getApiUserById();
@@ -87,6 +105,31 @@ function InfoAccount({ visible, setVisible, userId }) {
     reader.readAsArrayBuffer(file);
   };
 
+  let handleChangeFileBackground = async (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (readerEvent) => {
+      const buffer = readerEvent.target.result;
+
+      const reactFile = {
+        fieldname: "image",
+        originalname: file.name,
+        encoding: "7bit",
+        mimetype: file.type,
+        buffer: buffer,
+        size: file.size,
+      };
+      // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
+      socket.emit(`Client-update-background`, {
+        file: reactFile,
+        id: userId,
+      });
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
   return (
     <div>
       <Modal
@@ -117,6 +160,20 @@ function InfoAccount({ visible, setVisible, userId }) {
                   style={{ width: "100%", height: "90px" }}
                   alt="Ảnh bìa"
                 />
+                <label
+                    htmlFor="background"
+                   style={{display: "flex", justifyContent: "flex-end"}}
+                  >
+                    <IoCameraOutline style={{ cursor: "pointer" }} />
+                  </label>
+                  <input
+                    type="file"
+                    accept=".png, .jpg, .jpeg, .gif, .bmp, .tiff"
+                    multiple
+                    style={{ display: "none" }}
+                    id="background"
+                    onChange={(e) => handleChangeFileBackground(e)}
+                  />
               </Form.Item>
             </Col>
           </Row>
@@ -233,11 +290,13 @@ function InfoAccount({ visible, setVisible, userId }) {
         setVisible={setIsClickUpdate}
         visible={isClickUpdate}
         user={user}
+        urlBackend={urlBackend}
       />
       <FormChangePassword
         setVisible={setIsClickChangePassword}
         visible={isClickChangePassword}
         userId={userId}
+        urlBackend={urlBackend}
       />
     </div>
   );

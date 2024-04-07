@@ -38,7 +38,7 @@ const Register = () => {
 
   let onSignup = async () => {
     let datas = await axios.get(
-      `http://localhost:8080/accounts/phone/0${ph.slice(2, 11)}`
+      `https://zalo-backend-team-6.onrender.com/accounts/phone/0${ph.slice(2, 11)}`
     );
     if (!datas.data) {
       setLoading(true);

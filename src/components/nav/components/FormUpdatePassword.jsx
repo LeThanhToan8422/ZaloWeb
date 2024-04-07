@@ -14,7 +14,7 @@ import {
 } from "antd";
 import axios from "axios";
 
-function FormChangePassword({visible, setVisible, userId}) {
+function FormChangePassword({visible, setVisible, userId, urlBackend}) {
   let salt = bcrypt.genSaltSync(10);
   let navigate = useNavigate();
   const [form] = Form.useForm();
@@ -50,12 +50,12 @@ function FormChangePassword({visible, setVisible, userId}) {
   const onFinish = async (values) => {
     try {
       let datas = await axios.get(
-              `http://localhost:8080/accounts/user/${userId}`
+              `${urlBackend}/accounts/user/${userId}`
             );
             if (datas.data) {
                     if (bcrypt.compareSync(values.oldPassword, datas.data.password)) {
                       let hashPassword = bcrypt.hashSync(values.password, salt);
-                      await axios.put(`http://localhost:8080/accounts`, {
+                      await axios.put(`${urlBackend}/accounts`, {
                         id: datas.data.id,
                         phone: datas.data.phone,
                         password: hashPassword,

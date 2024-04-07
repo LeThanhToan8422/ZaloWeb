@@ -17,7 +17,7 @@ import {
 import axios from "axios";
 import moment from "moment";
 
-function FormUpdate({visible, setVisible, user}) {
+function FormUpdate({visible, setVisible, user, urlBackend}) {
   const { name, gender, dob } = user;
   let setGender = gender? 1: 0;
   const [form] = Form.useForm();
@@ -42,7 +42,7 @@ function FormUpdate({visible, setVisible, user}) {
         ...values,
         dob: values["dob"] ? values["dob"].format("YYYY-MM-DD") : ""
       }
-      const res = await axios.put(`http://localhost:8080/users`, userUpdate)
+      const res = await axios.put(`${urlBackend}/users`, userUpdate)
       if(res){
         message.success("Cập nhật thành công!")
         setVisible(false);

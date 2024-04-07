@@ -1,21 +1,16 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form, Input, Checkbox, Avatar } from "antd";
 import axios from "axios";
-import ViewFile from "./ViewFile";
 import { io } from "socket.io-client";
 
-const ForwardMessageForm = ({
+const FormCard = ({
   userId,
   visible,
-  onCancel,
-  sharedContentFromInfoMess,
-  setRerender,
-  urlBackend
+  setVisible
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFriendsTemp, setSelectedFriendsTemp] = useState([]);
   const [selectedFriends, setSelectedFriends] = useState([]);
-  const [sharedContent, setSharedContent] = useState(sharedContentFromInfoMess);
   const [editable, setEditable] = useState(false);
   const [friendList, setFriendList] = useState([]);
   const [filteredFriends, setFilteredFriends] = useState([]);
@@ -25,15 +20,15 @@ const ForwardMessageForm = ({
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    let newSocket = io(`${urlBackend}`);
+    let newSocket = io("http://localhost:8080");
     setSocket(newSocket);
-  }, [userId, sharedContentFromInfoMess, JSON.stringify(selectedFriendsTemp)]);
+  }, [userId, JSON.stringify(selectedFriendsTemp)]);
 
   useEffect(() => {
     const fetchFriends = async () => {
       try {
         const response = await axios.get(
-          `${urlBackend}/users/friends/${userId}`
+          `http://localhost:8080/users/friends/${userId}`
         );
         setFriendList(response.data);
         setFilteredFriends(response.data);
@@ -47,52 +42,45 @@ const ForwardMessageForm = ({
   const handleCancel = () => {
     setSelectedFriendsTemp([]);
     setSelectedFriends([]);
-    setSharedContent("");
     setEditable(false);
-    onCancel();
   };
 
   const handleFriendChange = (checkedValues) => {
     setSelectedFriendsTemp(checkedValues);
   };
 
-  const handleEditClick = () => {
-    setEditable(true);
-  };
 
   const handleSearchChange = async (e) => {
     setSearchTerm(e.target.value);
     let datas = [];
     if (e.target.value) {
       datas = await axios.get(
-        `${urlBackend}/users/friends/${userId}/${e.target.value}`
+        `http://localhost:8080/users/friends/${userId}/${e.target.value}`
       );
     } else {
       datas = await axios.get(
-        `${urlBackend}/users/friends/${userId}`
+        `http://localhost:8080/users/friends/${userId}`
       );
     }
     setFriendList([...datas.data])
   };
 
   const sendMessage = () => {
-    if (sharedContent) {
-      for (let index = 0; index < selectedFriendsTemp.length; index++) {
-        socket.emit(`Client-Chat-Room`, {
-          message: sharedContent,
-          sender: userId,
-          receiver: selectedFriendsTemp[index],
-          chatRoom: userId > selectedFriendsTemp[index] ? `${selectedFriendsTemp[index]}${userId}` : `${userId}${selectedFriendsTemp[index]}`,
-        });
-      }
-      onCancel()
-      setRerender(pre => !pre)
-    }
+    // if (sharedContent) {
+    //   for (let index = 0; index < selectedFriendsTemp.length; index++) {
+    //     socket.emit(`Client-Chat-Room`, {
+    //       message: sharedContent,
+    //       sender: userId,
+    //       receiver: selectedFriendsTemp[index],
+    //       chatRoom: userId > selectedFriendsTemp[index] ? `${selectedFriendsTemp[index]}${userId}` : `${userId}${selectedFriendsTemp[index]}`,
+    //     });
+    //   }
+    // }
   };
 
   return (
     <Modal
-      title="Chia sẻ"
+      title="Gửi danh thiếp"
       visible={visible}
       onCancel={handleCancel}
       footer={[
@@ -103,9 +91,9 @@ const ForwardMessageForm = ({
           key="submit"
           type="primary"
           onClick={sendMessage}
-          disabled={!selectedFriendsTemp.length || !sharedContent.trim()}
+          disabled={!selectedFriendsTemp.length}
         >
-          Chia sẻ
+          Gửi danh thiếp
         </Button>,
       ]}
     >
@@ -114,7 +102,7 @@ const ForwardMessageForm = ({
           <Input
             value={searchTerm}
             onChange={handleSearchChange}
-            placeholder="Tìm kiếm bạn bè"
+            placeholder="Tìm danh thiếp theo tên"
           />
         </Form.Item>
         <Form.Item label="Bạn bè">
@@ -140,40 +128,9 @@ const ForwardMessageForm = ({
             ))}
           </Checkbox.Group>
         </Form.Item>
-
-        <Form.Item label="Nội dung chia sẻ">
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            {sharedContentFromInfoMess.includes(regexUrl) ? (
-              <ViewFile url={sharedContentFromInfoMess} />
-            ) : (
-              <>
-                <Input
-                  value={sharedContent}
-                  onChange={(e) => setSharedContent(e.target.value)}
-                  placeholder="Nhập nội dung chia sẻ"
-                  style={{ flex: "1", marginRight: "5px" }}
-                  disabled={!editable}
-                />
-                <Button
-                  style={{ width: "80px" }}
-                  onClick={handleEditClick}
-                  disabled={editable}
-                >
-                  Sửa
-                </Button>
-              </>
-            )}
-          </div>
-        </Form.Item>
       </Form>
     </Modal>
   );
 };
 
-export default ForwardMessageForm;
+export default FormCard;

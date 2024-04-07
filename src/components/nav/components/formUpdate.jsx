@@ -42,7 +42,7 @@ function FormUpdate({visible, setVisible, user}) {
         ...values,
         dob: values["dob"] ? values["dob"].format("YYYY-MM-DD") : ""
       }
-      const res = await axios.put(`http://localhost:8080/users`, userUpdate)
+      const res = await axios.put(`https://zalo-backend-team-6.onrender.com/users`, userUpdate)
       if(res){
         message.success("Cập nhật thành công!")
         setVisible(false);

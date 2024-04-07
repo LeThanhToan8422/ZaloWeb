@@ -21,7 +21,7 @@ function Home() {
 
   useEffect(() => {
     let getApiUserById = async () => {
-      let datas = await axios.get(`http://localhost:8080/users/${location.state.userId}`);
+      let datas = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${location.state.userId}`);
       setUser(datas.data);
     };
     getApiUserById();
@@ -30,7 +30,7 @@ function Home() {
   useEffect(() => {
     let getApiChatsByUserId = async () => {
       let datas = await axios.get(
-        `http://localhost:8080/users/get-chats-by-id/${location.state.userId}`
+        `https://zalo-backend-team-6.onrender.com/users/get-chats-by-id/${location.state.userId}`
       );
       setChats(datas.data);
     };
@@ -49,12 +49,12 @@ function Home() {
     let datas = [];
     if (value) {
       datas = await axios.get(
-        `http://localhost:8080/users/friends/${location.state.userId}/${value}`
+        `https://zalo-backend-team-6.onrender.com/users/friends/${location.state.userId}/${value}`
       );
       setSearchFriends(datas.data);
     } else {
       datas = await axios.get(
-        `http://localhost:8080/users/get-chats-by-id/${location.state.userId}`
+        `https://zalo-backend-team-6.onrender.com/users/get-chats-by-id/${location.state.userId}`
       );
       setSearchFriends([]);
       setChats(datas.data);

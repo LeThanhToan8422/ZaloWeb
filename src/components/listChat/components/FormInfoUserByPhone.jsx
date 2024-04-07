@@ -30,7 +30,7 @@ function FormInfoUserByPhone({visible, setVisible, userId, friendId}) {
     
     useEffect(() => {
     let getApifriendById = async () => {
-      let datas = await axios.get(`http://localhost:8080/users/${friendId}`);
+      let datas = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${friendId}`);
       setfriend(datas.data);
     };
     getApifriendById();
@@ -45,7 +45,7 @@ function FormInfoUserByPhone({visible, setVisible, userId, friendId}) {
     }
 
     let handleClickAddFriend = async () => {
-        let dataAddFriend = await axios.post(`http://localhost:8080/users/relationships`,{
+        let dataAddFriend = await axios.post(`https://zalo-backend-team-6.onrender.com/users/relationships`,{
             relationship : "friends",
             id: userId, // id user của mình
             objectId: friendId, // id của user muốn kết bạn hoặc block

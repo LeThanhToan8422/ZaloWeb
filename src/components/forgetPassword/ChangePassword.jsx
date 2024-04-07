@@ -42,11 +42,11 @@ const ChangePassword = () => {
     }
     if (verifyPassword === password) {
       let datas = await axios.get(
-        `http://localhost:8080/accounts/phone/${location.state.phone}`
+        `https://zalo-backend-team-6.onrender.com/accounts/phone/${location.state.phone}`
       );
       if (datas.data) {
         let hashPassword = bcrypt.hashSync(password, salt);
-        let dataAccount = await axios.put(`http://localhost:8080/accounts`, {
+        let dataAccount = await axios.put(`https://zalo-backend-team-6.onrender.com/accounts`, {
           phone: location.state.phone,
           password: hashPassword,
           user: datas.data.user,

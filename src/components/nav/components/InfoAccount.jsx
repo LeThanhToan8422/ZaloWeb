@@ -21,7 +21,7 @@ function InfoAccount({ visible, setVisible, userId }) {
 
   const [socket, setSocket] = useState(null);
   useEffect(() => {
-    let newSocket = io("http://localhost:8080");
+    let newSocket = io("https://zalo-backend-team-6.onrender.com");
     setSocket(newSocket);
   }, [JSON.stringify(user), userId]);
 
@@ -64,7 +64,7 @@ function InfoAccount({ visible, setVisible, userId }) {
 
   useEffect(() => {
     let getApiUserById = async () => {
-      let datas = await axios.get(`http://localhost:8080/users/${userId}`);
+      let datas = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${userId}`);
       setUser(datas.data);
     };
     getApiUserById();

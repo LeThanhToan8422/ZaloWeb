@@ -24,7 +24,7 @@ const ForwardMessageForm = ({
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    let newSocket = io("http://localhost:8080");
+    let newSocket = io("https://zalo-backend-team-6.onrender.com");
     setSocket(newSocket);
   }, [userId, sharedContentFromInfoMess, JSON.stringify(selectedFriendsTemp)]);
 
@@ -32,7 +32,7 @@ const ForwardMessageForm = ({
     const fetchFriends = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8080/users/friends/${userId}`
+          `https://zalo-backend-team-6.onrender.com/users/friends/${userId}`
         );
         setFriendList(response.data);
         setFilteredFriends(response.data);
@@ -64,11 +64,11 @@ const ForwardMessageForm = ({
     let datas = [];
     if (e.target.value) {
       datas = await axios.get(
-        `http://localhost:8080/users/friends/${userId}/${e.target.value}`
+        `https://zalo-backend-team-6.onrender.com/users/friends/${userId}/${e.target.value}`
       );
     } else {
       datas = await axios.get(
-        `http://localhost:8080/users/friends/${userId}`
+        `https://zalo-backend-team-6.onrender.com/users/friends/${userId}`
       );
     }
     setFriendList([...datas.data])

@@ -15,7 +15,7 @@ function FormSearchFriendByPhone({ visible, setVisible, userId }) {
   const [phone, setPhone] = useState("");
 
   let handleSearch = async () => {
-    let datas = await axios.get(`http://localhost:8080/accounts/phone/0${phone.slice(2, 11)}`);
+    let datas = await axios.get(`https://zalo-backend-team-6.onrender.com/accounts/phone/0${phone.slice(2, 11)}`);
     if(datas.data){
       setFriend(datas.data.user);
       setIsClickSearch(true);

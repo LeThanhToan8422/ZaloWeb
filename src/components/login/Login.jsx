@@ -27,7 +27,7 @@ const Login = () => {
 
   const [socket, setSocket] = useState(null);
   useEffect(() => {
-    let newSocket = io('http://localhost:8080');
+    let newSocket = io('https://zalo-backend-team-6.onrender.com');
     // newSocket.emit(`Client-Register-QR-Code`, {
     //   id: 1,
     // })
@@ -52,7 +52,7 @@ const Login = () => {
 
   let handleClickLogin = async () => {
     let datas = await axios.get(
-      `http://localhost:8080/accounts/phone/${phone}`
+      `https://zalo-backend-team-6.onrender.com/accounts/phone/${phone}`
     );
     if (datas.data.user > 0) {
       if (bcrypt.compareSync(password, datas.data.password)) {

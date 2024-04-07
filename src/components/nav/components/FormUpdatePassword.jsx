@@ -50,12 +50,12 @@ function FormChangePassword({visible, setVisible, userId}) {
   const onFinish = async (values) => {
     try {
       let datas = await axios.get(
-              `http://localhost:8080/accounts/user/${userId}`
+              `https://zalo-backend-team-6.onrender.com/accounts/user/${userId}`
             );
             if (datas.data) {
                     if (bcrypt.compareSync(values.oldPassword, datas.data.password)) {
                       let hashPassword = bcrypt.hashSync(values.password, salt);
-                      await axios.put(`http://localhost:8080/accounts`, {
+                      await axios.put(`https://zalo-backend-team-6.onrender.com/accounts`, {
                         id: datas.data.id,
                         phone: datas.data.phone,
                         password: hashPassword,

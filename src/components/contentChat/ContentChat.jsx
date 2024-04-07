@@ -72,7 +72,7 @@ const ContentChat = ({
 
 
   useEffect(() => {
-    let newSocket = io("http://localhost:8080");
+    let newSocket = io("https://zalo-backend-team-6.onrender.com");
     setSocket(newSocket);
   }, [JSON.stringify(contentMessages), chatSelected, isRerenderStatusChat]);
 
@@ -98,7 +98,7 @@ const ContentChat = ({
         userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`
       }`,
       (dataGot) => {
-        handleChangeMessageFinal(dataGot.data);
+        handleChangeMessageFinal(dataGot.data.chatFinal);
         setIsRerenderStatusChat(!isRerenderStatusChat);
       }
     );
@@ -129,10 +129,10 @@ const ContentChat = ({
   useEffect(() => {
     let getApiContentChats = async () => {
       let datas = await axios.get(
-        `http://localhost:8080/chats/content-chats-between-users/${userId}-and-${idChat}`
+        `https://zalo-backend-team-6.onrender.com/chats/content-chats-between-users/${userId}-and-${idChat}`
       );
-      let sender = await axios.get(`http://localhost:8080/users/${userId}`);
-      let receiver = await axios.get(`http://localhost:8080/users/${idChat}`);
+      let sender = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${userId}`);
+      let receiver = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${idChat}`);
 
       setContentMessages(datas.data);
       setNameReceiver({

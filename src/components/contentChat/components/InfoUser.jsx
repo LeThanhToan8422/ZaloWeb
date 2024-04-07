@@ -29,7 +29,7 @@ function InfoUser({visible, setVisible, userId}) {
     
     useEffect(() => {
     let getApiUserById = async () => {
-      let datas = await axios.get(`http://localhost:8080/users/${userId}`);
+      let datas = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${userId}`);
       setUser(datas.data);
     };
     getApiUserById();

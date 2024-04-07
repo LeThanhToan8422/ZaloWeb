@@ -17,7 +17,7 @@ import { CiTrash } from "react-icons/ci";
 import { MdOutlineBlock } from "react-icons/md";
 import moment from "moment";
 
-function InfoUser({visible, setVisible, userId}) {
+function InfoUser({visible, setVisible, userId, urlBackend}) {
     const [form] = Form.useForm();
     const [visibleModal, setVisibleModal] = useState(false);
     const [user, setUser] = useState({});
@@ -29,7 +29,7 @@ function InfoUser({visible, setVisible, userId}) {
     
     useEffect(() => {
     let getApiUserById = async () => {
-      let datas = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${userId}`);
+      let datas = await axios.get(`${urlBackend}/users/${userId}`);
       setUser(datas.data);
     };
     getApiUserById();

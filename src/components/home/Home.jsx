@@ -21,7 +21,7 @@ function Home() {
 
   useEffect(() => {
     let getApiUserById = async () => {
-      let datas = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${location.state.userId}`);
+      let datas = await axios.get(`${location.state.urlBackend}/users/${location.state.userId}`);
       setUser(datas.data);
     };
     getApiUserById();
@@ -30,7 +30,7 @@ function Home() {
   useEffect(() => {
     let getApiChatsByUserId = async () => {
       let datas = await axios.get(
-        `https://zalo-backend-team-6.onrender.com/users/get-chats-by-id/${location.state.userId}`
+        `${location.state.urlBackend}/users/get-chats-by-id/${location.state.userId}`
       );
       setChats(datas.data);
     };
@@ -49,12 +49,12 @@ function Home() {
     let datas = [];
     if (value) {
       datas = await axios.get(
-        `https://zalo-backend-team-6.onrender.com/users/friends/${location.state.userId}/${value}`
+        `${location.state.urlBackend}/users/friends/${location.state.userId}/${value}`
       );
       setSearchFriends(datas.data);
     } else {
       datas = await axios.get(
-        `https://zalo-backend-team-6.onrender.com/users/get-chats-by-id/${location.state.userId}`
+        `${location.state.urlBackend}/users/get-chats-by-id/${location.state.userId}`
       );
       setSearchFriends([]);
       setChats(datas.data);
@@ -67,7 +67,9 @@ function Home() {
 
   return (
     <div className="app">
-      <NavBar user={user} />
+      <NavBar user={user} 
+      urlBackend={location.state.urlBackend}
+      />
       <ListChat
         handleChangeChat={handleChangeChat}
         chats={chats}
@@ -77,6 +79,7 @@ function Home() {
         searchFriends={searchFriends}
         handleClickChatSeleted={handleClickChatSeleted}
         setRerender={setRerender}
+        urlBackend={location.state.urlBackend}
       />
       <ContentChat
         userId={location.state.userId}
@@ -84,6 +87,7 @@ function Home() {
         handleChangeMessageFinal={handleChangeMessageFinal}
         chatSelected={chatSelected}
         setRerender={setRerender}
+        urlBackend={location.state.urlBackend}
       />
     </div>
   );

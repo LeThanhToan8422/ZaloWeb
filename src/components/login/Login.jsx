@@ -7,7 +7,7 @@ import { io } from 'socket.io-client';
 import bcrypt from 'bcryptjs';
 import toast, { Toaster } from 'react-hot-toast';
 
-const Login = () => {
+const Login = ({urlBackend}) => {
   let navigate = useNavigate();
 
   const [phone, setPhone] = useState('');
@@ -59,7 +59,8 @@ const Login = () => {
         navigate('/home', {
           state: {
             userId: datas.data.user,
-            rerender : ""
+            rerender : "",
+            urlBackend : urlBackend
           },
         });
         toast.success('Đăng nhập thành công!!!');

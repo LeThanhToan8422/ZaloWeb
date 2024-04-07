@@ -439,7 +439,7 @@ const ContentChat = ({
                   </div>
                   {index === hoveredIndex &&  message.sender !== userId ?
                     <div style={{width: "100px", height: "20px"}}>
-                      <div className="utils-message" style={{marginLeft: "7px", marginTop: "5px", width:"40px"}}>
+                      <div className="utils-message" style={{marginLeft: "7px", marginTop: "5px", width:"48px"}}>
                         <CiTrash 
                           style={{color: hoverText =="Xóa chỉ ở phía tôi"? "#005ae0":""}}
                           onMouseEnter={() => setHoverText("Xóa chỉ ở phía tôi")}
@@ -453,7 +453,18 @@ const ContentChat = ({
                           }}
                           onMouseEnter={() => setHoverText('Chuyển tiếp')}
                           onMouseLeave={() => setHoverText('')}
+                          onClick={handleForwardButtonClick}
                         />
+                        {showForwardForm && (
+                          <ForwardMessageForm
+                            visible={showForwardForm}
+                            onCancel={handleForwardFormCancel}
+                            sharedContentFromInfoMess={forwardedMessageContent}
+                            onForwardMessageContent={
+                              handleForwardMessageContent
+                            }
+                          />
+                        )}  
                       </div>
                       <span style={{ fontSize: "12px", backgroundColor: "#261e1e", color: "#c3c1c1"}}>{hoverText}</span>
                     </div>

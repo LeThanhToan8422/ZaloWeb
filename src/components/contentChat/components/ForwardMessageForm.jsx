@@ -3,6 +3,7 @@ import { Modal, Button, Form, Input, Checkbox, Avatar } from "antd";
 import axios from "axios";
 import ViewFile from "./ViewFile";
 import { io } from "socket.io-client";
+import moment from "moment";
 
 const ForwardMessageForm = ({
   userId,
@@ -14,11 +15,9 @@ const ForwardMessageForm = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFriendsTemp, setSelectedFriendsTemp] = useState([]);
-  const [selectedFriends, setSelectedFriends] = useState([]);
   const [sharedContent, setSharedContent] = useState(sharedContentFromInfoMess);
   const [editable, setEditable] = useState(false);
   const [friendList, setFriendList] = useState([]);
-  const [filteredFriends, setFilteredFriends] = useState([]);
   const [regexUrl] = useState(
     "https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/"
   );
@@ -36,7 +35,6 @@ const ForwardMessageForm = ({
           `${urlBackend}/users/friends/${userId}`
         );
         setFriendList(response.data);
-        setFilteredFriends(response.data);
       } catch (error) {
         console.error("Error fetching friends:", error);
       }
@@ -46,7 +44,6 @@ const ForwardMessageForm = ({
 
   const handleCancel = () => {
     setSelectedFriendsTemp([]);
-    setSelectedFriends([]);
     setSharedContent("");
     setEditable(false);
     onCancel();
@@ -80,6 +77,9 @@ const ForwardMessageForm = ({
       for (let index = 0; index < selectedFriendsTemp.length; index++) {
         socket.emit(`Client-Chat-Room`, {
           message: sharedContent,
+          dateTimeSend : moment()
+          .utcOffset(7)
+          .format("YYYY-MM-DD HH:mm:ss"),
           sender: userId,
           receiver: selectedFriendsTemp[index],
           chatRoom: userId > selectedFriendsTemp[index] ? `${selectedFriendsTemp[index]}${userId}` : `${userId}${selectedFriendsTemp[index]}`,
@@ -103,7 +103,7 @@ const ForwardMessageForm = ({
           key="submit"
           type="primary"
           onClick={sendMessage}
-          disabled={!selectedFriendsTemp.length || !sharedContent.trim()}
+          disabled={!selectedFriendsTemp.length || !sharedContent?.trim()}
         >
           Chia sẻ
         </Button>,

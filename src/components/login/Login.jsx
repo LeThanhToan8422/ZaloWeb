@@ -27,7 +27,7 @@ const Login = ({urlBackend}) => {
 
   const [socket, setSocket] = useState(null);
   useEffect(() => {
-    let newSocket = io('https://zalo-backend-team-6.onrender.com');
+    let newSocket = io(`${urlBackend}`);
     // newSocket.emit(`Client-Register-QR-Code`, {
     //   id: 1,
     // })
@@ -52,7 +52,7 @@ const Login = ({urlBackend}) => {
 
   let handleClickLogin = async () => {
     let datas = await axios.get(
-      `https://zalo-backend-team-6.onrender.com/accounts/phone/${phone}`
+      `${urlBackend}/accounts/phone/${phone}`
     );
     if (datas.data.user > 0) {
       if (bcrypt.compareSync(password, datas.data.password)) {
@@ -124,11 +124,19 @@ const Login = ({urlBackend}) => {
               </button>
               <button
                 className="button-register"
-                onClick={() => navigate('/register')}>
+                onClick={() => navigate('/register', {
+                  state : {
+                    urlBackend : urlBackend
+                  }
+                })}>
                 Tạo tài khoản
               </button>
               <span
-                onClick={() => navigate('/forget-password')}
+                onClick={() => navigate('/forget-password', {
+                  state : {
+                    urlBackend : urlBackend
+                  }
+                })}
                 className="forget-password">
                 Quên mật khẩu?
               </span>

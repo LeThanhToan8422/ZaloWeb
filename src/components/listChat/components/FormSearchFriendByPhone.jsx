@@ -89,7 +89,9 @@ function FormSearchFriendByPhone({ visible, setVisible, userId, urlBackend }) {
         setVisible={setIsClickSearch}
         visible={isClickSearch}
         userId={userId}
-        friendId={friend}/>
+        friendId={friend}
+        urlBackend={urlBackend}
+        />
     </div>
   );
 }

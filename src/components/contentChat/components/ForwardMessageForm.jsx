@@ -3,28 +3,28 @@ import { Modal, Button, Form, Input, Checkbox, Avatar } from "antd";
 import axios from "axios";
 import ViewFile from "./ViewFile";
 import { io } from "socket.io-client";
+import moment from "moment";
 
 const ForwardMessageForm = ({
   userId,
   visible,
   onCancel,
   sharedContentFromInfoMess,
-  setRerender
+  setRerender,
+  urlBackend
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFriendsTemp, setSelectedFriendsTemp] = useState([]);
-  const [selectedFriends, setSelectedFriends] = useState([]);
   const [sharedContent, setSharedContent] = useState(sharedContentFromInfoMess);
   const [editable, setEditable] = useState(false);
   const [friendList, setFriendList] = useState([]);
-  const [filteredFriends, setFilteredFriends] = useState([]);
   const [regexUrl] = useState(
     "https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/"
   );
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    let newSocket = io("https://zalo-backend-team-6.onrender.com");
+    let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
   }, [userId, sharedContentFromInfoMess, JSON.stringify(selectedFriendsTemp)]);
 
@@ -32,10 +32,9 @@ const ForwardMessageForm = ({
     const fetchFriends = async () => {
       try {
         const response = await axios.get(
-          `https://zalo-backend-team-6.onrender.com/users/friends/${userId}`
+          `${urlBackend}/users/friends/${userId}`
         );
         setFriendList(response.data);
-        setFilteredFriends(response.data);
       } catch (error) {
         console.error("Error fetching friends:", error);
       }
@@ -45,7 +44,6 @@ const ForwardMessageForm = ({
 
   const handleCancel = () => {
     setSelectedFriendsTemp([]);
-    setSelectedFriends([]);
     setSharedContent("");
     setEditable(false);
     onCancel();
@@ -64,11 +62,11 @@ const ForwardMessageForm = ({
     let datas = [];
     if (e.target.value) {
       datas = await axios.get(
-        `https://zalo-backend-team-6.onrender.com/users/friends/${userId}/${e.target.value}`
+        `${urlBackend}/users/friends/${userId}/${e.target.value}`
       );
     } else {
       datas = await axios.get(
-        `https://zalo-backend-team-6.onrender.com/users/friends/${userId}`
+        `${urlBackend}/users/friends/${userId}`
       );
     }
     setFriendList([...datas.data])
@@ -79,6 +77,9 @@ const ForwardMessageForm = ({
       for (let index = 0; index < selectedFriendsTemp.length; index++) {
         socket.emit(`Client-Chat-Room`, {
           message: sharedContent,
+          dateTimeSend : moment()
+          .utcOffset(7)
+          .format("YYYY-MM-DD HH:mm:ss"),
           sender: userId,
           receiver: selectedFriendsTemp[index],
           chatRoom: userId > selectedFriendsTemp[index] ? `${selectedFriendsTemp[index]}${userId}` : `${userId}${selectedFriendsTemp[index]}`,
@@ -102,7 +103,7 @@ const ForwardMessageForm = ({
           key="submit"
           type="primary"
           onClick={sendMessage}
-          disabled={!selectedFriendsTemp.length || !sharedContent.trim()}
+          disabled={!selectedFriendsTemp.length || !sharedContent?.trim()}
         >
           Chia sẻ
         </Button>,

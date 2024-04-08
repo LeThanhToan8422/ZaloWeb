@@ -6,7 +6,8 @@ import { io } from "socket.io-client";
 const FormCard = ({
   userId,
   visible,
-  setVisible
+  setVisible,
+  urlBackend
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFriendsTemp, setSelectedFriendsTemp] = useState([]);
@@ -20,7 +21,7 @@ const FormCard = ({
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    let newSocket = io("http://localhost:8080");
+    let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
   }, [userId, JSON.stringify(selectedFriendsTemp)]);
 
@@ -28,7 +29,7 @@ const FormCard = ({
     const fetchFriends = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8080/users/friends/${userId}`
+          `${urlBackend}/users/friends/${userId}`
         );
         setFriendList(response.data);
         setFilteredFriends(response.data);
@@ -55,11 +56,11 @@ const FormCard = ({
     let datas = [];
     if (e.target.value) {
       datas = await axios.get(
-        `http://localhost:8080/users/friends/${userId}/${e.target.value}`
+        `${urlBackend}/users/friends/${userId}/${e.target.value}`
       );
     } else {
       datas = await axios.get(
-        `http://localhost:8080/users/friends/${userId}`
+        `${urlBackend}/users/friends/${userId}`
       );
     }
     setFriendList([...datas.data])

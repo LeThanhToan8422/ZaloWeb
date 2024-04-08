@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "../../sass/ListChat.scss";
 import moment from "moment/moment";
-import 'moment/locale/vi';
+import "moment/locale/vi";
 import FormSearchFriendByPhone from "./components/FormSearchFriendByPhone";
 
 const ListChat = ({
@@ -12,20 +12,23 @@ const ListChat = ({
   handleChangeSearchValue,
   searchFriends,
   handleClickChatSeleted,
-  setRerender
+  setRerender,
+  urlBackend,
 }) => {
   const [isPrioritize, setIsPrioritize] = useState(true);
   const [chatSelected, setChatsSelected] = useState(0);
   const [search, setSearch] = useState("");
   const [listChat, setListChat] = useState([]);
   const [visibleFriendByPhone, setVisibleFriendByPhone] = useState(false);
-  const [regexUrl] = useState("https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/");
+  const [regexUrl] = useState(
+    "https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/"
+  );
 
   useEffect(() => {
     setListChat([...chats]);
-    setSearch("")
-    handleChangeSearchValue("")
-  }, [JSON.stringify(chats)])
+    setSearch("");
+    handleChangeSearchValue("");
+  }, [JSON.stringify(chats)]);
 
   useEffect(() => {
     if (messageFinal) {
@@ -37,9 +40,9 @@ const ListChat = ({
             c.receiver === messageFinal?.receiver)
       );
 
-      if(findMessage){
+      if (findMessage) {
         findMessage.message = messageFinal?.message;
-        setRerender(pre => !pre)
+        setRerender((pre) => !pre);
       }
     }
   }, [JSON.stringify(messageFinal)]);
@@ -47,7 +50,7 @@ const ListChat = ({
   let handleClickChat = (id) => {
     handleChangeChat(id);
     setChatsSelected(id);
-    handleClickChatSeleted(id)
+    handleClickChatSeleted(id);
   };
 
   let handleChangeSearch = async (value) => {
@@ -69,8 +72,16 @@ const ListChat = ({
               onChange={(e) => handleChangeSearch(e.target.value)}
             />
           </div>
-          <FormSearchFriendByPhone setVisible={setVisibleFriendByPhone} visible={visibleFriendByPhone} userId={userId}/>
-          <i className="fa-solid fa-user-plus icon-user" onClick={()=>setVisibleFriendByPhone(true)}></i>
+          <FormSearchFriendByPhone
+            setVisible={setVisibleFriendByPhone}
+            visible={visibleFriendByPhone}
+            userId={userId}
+            urlBackend={urlBackend}
+          />
+          <i
+            className="fa-solid fa-user-plus icon-user"
+            onClick={() => setVisibleFriendByPhone(true)}
+          ></i>
           <i className="fa-solid fa-users icon-user"></i>
         </div>
 
@@ -169,7 +180,9 @@ const ListChat = ({
                     marginLeft: 20,
                   }}
                 />
-                <div style={{width : "40%", flexDirection: "row", marginLeft: 10 }}>
+                <div
+                  style={{ width: "40%", flexDirection: "row", marginLeft: 10 }}
+                >
                   <div style={{ marginTop: 10, fontSize: 18, marginLeft: 5 }}>
                     {chat.name}
                   </div>
@@ -182,23 +195,33 @@ const ListChat = ({
                     }}
                   >
                     <span>{chat.sender == userId ? "Bạn: " : ""}</span>
-                    <span>{
-                      chat.message?.length > 15
-                      ?
-                      (
-                        chat.message.includes(regexUrl) ? chat.message.split("--")[1].slice(0, 10) : chat.message.slice(0, 10)
-                      )
-                      :
-                      chat.message
-                    }</span>
+                    <span>
+                      {chat.message?.length > 15
+                        ? chat.message.includes(regexUrl)
+                          ? chat.message.split("--")[1].slice(0, 10)
+                          : chat.message.slice(0, 10)
+                        : chat.message}
+                    </span>
                     <span>{chat.message?.length > 15 ? "..." : null}</span>
                   </div>
                 </div>
-                <div style={{
-                  width : "35%",
-                  textAlign : 'end'
-                }}>
-                  <span>{moment.duration(moment().diff(moment(chat.dateTimeSend).utcOffset(0).format('YYYY-MM-DD HH:mm:ss'))).humanize(true)}</span>
+                <div
+                  style={{
+                    width: "35%",
+                    textAlign: "end",
+                  }}
+                >
+                  <span>
+                    {moment
+                      .duration(
+                        moment().diff(
+                          moment(chat.dateTimeSend)
+                            .utcOffset(0)
+                            .format("YYYY-MM-DD HH:mm:ss")
+                        )
+                      )
+                      .humanize(true)}
+                  </span>
                 </div>
               </div>
             ))}

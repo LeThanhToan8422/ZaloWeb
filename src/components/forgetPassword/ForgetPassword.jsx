@@ -11,9 +11,12 @@ import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { toast, Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 const ForgetPassword = () => {
   let navigate = useNavigate();
+  let location = useLocation();
+
   const [otp, setOtp] = useState("");
   const [ph, setPh] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,7 +41,7 @@ const ForgetPassword = () => {
 
   let onForgetPassword = async () => {
     let datas = await axios.get(
-      `https://zalo-backend-team-6.onrender.com/accounts/phone/0${ph.slice(2, 11)}`
+      `${location.state.urlBackend}/accounts/phone/0${ph.slice(2, 11)}`
     );
     if (datas.data) {
       setLoading(true);
@@ -88,6 +91,7 @@ const ForgetPassword = () => {
           navigate("/forget-password-change", {
             state: {
               phone: `0${ph.slice(2, 11)}`,
+              urlBackend : location.state.urlBackend
             },
           })
         ) : (

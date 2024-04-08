@@ -16,7 +16,7 @@ import { CiTrash } from "react-icons/ci";
 import { MdOutlineBlock } from "react-icons/md";
 import moment from "moment";
 
-function FormInfoUserByPhone({visible, setVisible, userId, friendId}) {
+function FormInfoUserByPhone({visible, setVisible, userId, friendId, urlBackend}) {
     const [form] = Form.useForm();
     const [visibleModal, setVisibleModal] = useState(false);
     const [friend, setfriend] = useState({});
@@ -30,7 +30,7 @@ function FormInfoUserByPhone({visible, setVisible, userId, friendId}) {
     
     useEffect(() => {
     let getApifriendById = async () => {
-      let datas = await axios.get(`https://zalo-backend-team-6.onrender.com/users/${friendId}`);
+      let datas = await axios.get(`${urlBackend}/users/${friendId}`);
       setfriend(datas.data);
     };
     getApifriendById();
@@ -45,7 +45,7 @@ function FormInfoUserByPhone({visible, setVisible, userId, friendId}) {
     }
 
     let handleClickAddFriend = async () => {
-        let dataAddFriend = await axios.post(`https://zalo-backend-team-6.onrender.com/users/relationships`,{
+        let dataAddFriend = await axios.post(`${urlBackend}/users/relationships`,{
             relationship : "friends",
             id: userId, // id user của mình
             objectId: friendId, // id của user muốn kết bạn hoặc block
@@ -55,7 +55,7 @@ function FormInfoUserByPhone({visible, setVisible, userId, friendId}) {
         }
     }
     let handleClickBlock = async () => {
-        let dataBlock = await axios.post(`http://localhost:8080/users/relationships`,{
+        let dataBlock = await axios.post(`${urlBackend}/users/relationships`,{
             relationship : "block",
             id: userId, // id user của mình
             objectId: friendId, // id của user muốn kết bạn hoặc block

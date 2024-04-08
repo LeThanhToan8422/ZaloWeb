@@ -7,7 +7,7 @@ import { io } from 'socket.io-client';
 import bcrypt from 'bcryptjs';
 import toast, { Toaster } from 'react-hot-toast';
 
-const Login = () => {
+const Login = ({urlBackend}) => {
   let navigate = useNavigate();
 
   const [phone, setPhone] = useState('');
@@ -27,7 +27,7 @@ const Login = () => {
 
   const [socket, setSocket] = useState(null);
   useEffect(() => {
-    let newSocket = io('https://zalo-backend-team-6.onrender.com');
+    let newSocket = io(`${urlBackend}`);
     // newSocket.emit(`Client-Register-QR-Code`, {
     //   id: 1,
     // })
@@ -52,14 +52,15 @@ const Login = () => {
 
   let handleClickLogin = async () => {
     let datas = await axios.get(
-      `https://zalo-backend-team-6.onrender.com/accounts/phone/${phone}`
+      `${urlBackend}/accounts/phone/${phone}`
     );
     if (datas.data.user > 0) {
       if (bcrypt.compareSync(password, datas.data.password)) {
         navigate('/home', {
           state: {
             userId: datas.data.user,
-            rerender : ""
+            rerender : "",
+            urlBackend : urlBackend
           },
         });
         toast.success('Đăng nhập thành công!!!');
@@ -123,11 +124,19 @@ const Login = () => {
               </button>
               <button
                 className="button-register"
-                onClick={() => navigate('/register')}>
+                onClick={() => navigate('/register', {
+                  state : {
+                    urlBackend : urlBackend
+                  }
+                })}>
                 Tạo tài khoản
               </button>
               <span
-                onClick={() => navigate('/forget-password')}
+                onClick={() => navigate('/forget-password', {
+                  state : {
+                    urlBackend : urlBackend
+                  }
+                })}
                 className="forget-password">
                 Quên mật khẩu?
               </span>

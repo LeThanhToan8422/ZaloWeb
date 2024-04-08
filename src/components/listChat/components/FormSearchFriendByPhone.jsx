@@ -7,7 +7,7 @@ import PhoneInput from "react-phone-input-2";
 import FormInfoUserByPhone from "./FormInfoUserByPhone";
 
 
-function FormSearchFriendByPhone({ visible, setVisible, userId }) {
+function FormSearchFriendByPhone({ visible, setVisible, userId, urlBackend }) {
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
   const [friend, setFriend] = useState({});
@@ -15,7 +15,7 @@ function FormSearchFriendByPhone({ visible, setVisible, userId }) {
   const [phone, setPhone] = useState("");
 
   let handleSearch = async () => {
-    let datas = await axios.get(`https://zalo-backend-team-6.onrender.com/accounts/phone/0${phone.slice(2, 11)}`);
+    let datas = await axios.get(`${urlBackend}/accounts/phone/0${phone.slice(2, 11)}`);
     if(datas.data){
       setFriend(datas.data.user);
       setIsClickSearch(true);
@@ -89,7 +89,9 @@ function FormSearchFriendByPhone({ visible, setVisible, userId }) {
         setVisible={setIsClickSearch}
         visible={isClickSearch}
         userId={userId}
-        friendId={friend}/>
+        friendId={friend}
+        urlBackend={urlBackend}
+        />
     </div>
   );
 }

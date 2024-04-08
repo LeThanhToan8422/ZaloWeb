@@ -41,6 +41,7 @@ const InfoAccount = () => {
     state: {
       phone: location.state.phone,
       password: password,
+      urlBackend : location.state.urlBackend
     },
   });
   };

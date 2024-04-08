@@ -17,10 +17,10 @@ const InfoUser = () => {
 
   let handleClickRegisterUser = async () => {
     let checkPhone = await axios.get(
-      `https://zalo-backend-team-6.onrender.com/users/phone/${location.state.phone}`
+      `${location.state.urlBackend}/users/phone/${location.state.phone}`
     );
     if (!checkPhone.data) {
-      let dataUsers = await axios.post(`https://zalo-backend-team-6.onrender.com/users`, {
+      let dataUsers = await axios.post(`${location.state.urlBackend}/users`, {
         name: name,
         gender: gender,
         dob: dob,
@@ -28,7 +28,7 @@ const InfoUser = () => {
       });
       if (dataUsers.data !== null) {
         let hashPassword = bcrypt.hashSync(location.state.password, salt);
-        let dataAccounts = await axios.post(`https://zalo-backend-team-6.onrender.com/accounts`, {
+        let dataAccounts = await axios.post(`${location.state.urlBackend}/accounts`, {
           phone: location.state.phone,
           password: hashPassword,
           user: dataUsers.data.id,

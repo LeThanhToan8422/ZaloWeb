@@ -141,6 +141,9 @@ function FormSearchFriendByPhone({
                     flexDirection: "row",
                     justifyContent: "flex-start",
                     alignItems: "center",
+                    border: "1px dashed gray",
+                    marginBottom: "5px",
+                    padding:"5px"
                   }}
                 >
                   <img
@@ -151,36 +154,30 @@ function FormSearchFriendByPhone({
                       height: 45,
                       width: 45,
                       borderRadius: 50,
-                      marginTop: 10,
-                      marginLeft: 20,
                     }}
                   />
-                  <div style={{ flexDirection: "row", marginLeft: 10 }}>
-                    <div style={{ marginTop: 10, fontSize: 18, marginLeft: 5 }}>
+                  <div style={{ display: "flex",flexDirection: "row", marginLeft: 10}}>
+                    <div 
+                     style={{  fontSize: 18}}
+                    >
                       {u.name}
                     </div>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <button
+                    <Button 
+                      style={{marginLeft:"160px"}}
+                      type="text"
                       onClick={() =>
                         handleClickAgreeMakeFriend(u)
                       }
                     >
                       Đồng ý
-                    </button>
+                    </Button>
+                  
                   </div>
                 </div>
               ))}
             </Col>
           </Row>
-          <Row>
+          <Row style={{marginTop:"20px"}}>
             <Col lg={13}></Col>
             <Col lg={5}>
               <Button type="default" size="large" onClick={handleCancel}>

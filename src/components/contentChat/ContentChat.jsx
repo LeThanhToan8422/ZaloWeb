@@ -19,17 +19,20 @@ import { IoVideocamOutline, IoSearchOutline } from 'react-icons/io5';
 import {
   VscLayoutSidebarRightOff,
   VscLayoutSidebarRight,
-} from 'react-icons/vsc';
-import { BsBell, BsPinAngle, BsEyeSlash } from 'react-icons/bs';
-import { HiOutlineUsers } from 'react-icons/hi2';
-import { CiTrash } from 'react-icons/ci';
-import { MdOutlineSettingsBackupRestore } from 'react-icons/md';
-import { FaShare, FaCaretDown, FaCaretRight } from 'react-icons/fa';
-import { BiSolidToggleLeft } from 'react-icons/bi';
+} from "react-icons/vsc";
+import { BsBell, BsPinAngle, BsEyeSlash } from "react-icons/bs";
+import { HiOutlineUsers } from "react-icons/hi2";
+import { CiTrash } from "react-icons/ci";
+import { MdOutlineSettingsBackupRestore } from "react-icons/md";
+import { FaShare, FaCaretDown, FaCaretRight } from "react-icons/fa";
+import { BiSolidToggleLeft } from "react-icons/bi";
+import { MdKeyboardVoice } from "react-icons/md";
 
 import axios from 'axios';
 
 import { io } from 'socket.io-client';
+
+import { ReactMic } from 'react-mic';
 
 //emotion
 import Picker from '@emoji-mart/react';
@@ -42,6 +45,7 @@ import ViewFile from './components/ViewFile';
 import ForwardMessageForm from './components/ForwardMessageForm';
 import FormCard from './components/FormCard';
 import moment from 'moment';
+import ViewNewFriend from './components/ViewNewFriend';
 
 const ContentChat = ({
   userId,
@@ -80,6 +84,10 @@ const ContentChat = ({
   const [isClickDownFile, setIsClickDownFile] = useState(false);
   const [isClickDownLink, setIsClickDownLink] = useState(false);
   const [isClickDownSetting, setIsClickDownSetting] = useState(false);
+  const [isRecoding, setIsRecoding] = useState(false);
+  const [voice, setVoice] = useState(false);
+  const [audioLink, setAudioLink] = useState('');
+  const regex = /Bạn và .* đã trở thành bạn/;
 
   useEffect(() => {
     let newSocket = io(`${urlBackend}`);
@@ -223,6 +231,16 @@ const ContentChat = ({
     setShowForwardForm(false);
   };
 
+  const onStopRecoding = (blob) => {
+    console.log(blob);
+    setAudioLink(blob.blobURL)
+  }
+  const handleStart = () => {
+    setVoice(true)
+  }
+  const handleStop = () => {
+    setVoice(false)
+  }
   useEffect(() => {
     if (chatSelected && inputRef.current) {
       inputRef.current.focus();
@@ -474,10 +492,15 @@ const ContentChat = ({
                     ''
                   )}
                   <div className="content-message">
+                    
                     {message.message.includes(regexUrl) ? (
                       <ViewFile url={message.message} />
-                    ) : (
-                      <span className="info mess">{message.message}</span>
+                    ) : (regex.test(message.message) ?
+                    <ViewNewFriend 
+                      name={nameReceiver.name} 
+                      imgFriend={nameReceiver.image} 
+                      img={nameSender.image}/>: 
+                    <span className="info mess">{message.message}</span>
                     )}
                     <span
                       className="info time"
@@ -572,6 +595,7 @@ const ContentChat = ({
                   <i className="fa-regular fa-image icon"></i>
                 </label>
               </div>
+              {/* button file */}
               <div className="chat-utilities-icon">
                 <input
                   type="file"
@@ -585,10 +609,9 @@ const ContentChat = ({
                   <i className="fa-solid fa-paperclip icon"></i>
                 </label>
               </div>
-              <div
-                className="chat-utilities-icon"
-                onClick={() => setShowFormCard(true)}>
-                <FormCard
+              {/* button name card */}
+              <div className="chat-utilities-icon" onClick={() => setShowFormCard(true)}>
+              <FormCard
                   userId={userId}
                   setVisible={setShowFormCard}
                   visible={showFormCard}
@@ -596,6 +619,23 @@ const ContentChat = ({
                 />
 
                 <i className="fa-regular fa-address-card icon"></i>
+              </div>
+              {/* button chat Recoding */}
+              <div className="chat-utilities-icon" >
+                <MdKeyboardVoice className="icon" onClick={()=>setIsRecoding(!isRecoding)}/>
+                {isRecoding &&   <div style={{position:"absolute",display:"flex", width:"200px", margin: "0 0 200px 120px", flexDirection: "column", backgroundColor: "white", padding: "10px"}}>                      
+                                      <ReactMic
+                                      record={voice}
+                                      className="sound-wave"
+                                      onStop={onStopRecoding}
+                                      //onData={onData}
+                                      strokeColor="#000000"
+                                      backgroundColor="#FF4081" />
+                                      {!voice ? <button onClick={handleStart}>Start</button>: <button onClick={handleStop}>Stop</button>}
+                                      {audioLink? <audio src={audioLink} controls style={{width: "180px", height: "40px"}}></audio>:""}
+                                     
+                                      
+                                  </div>}
               </div>
               <div className="chat-utilities-icon">
                 <i className="fa-regular fa-clock icon"></i>
@@ -616,7 +656,8 @@ const ContentChat = ({
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyDown={handleKeyDown}
                 />
-                {image ? <img src={image} /> : ''}
+                {image ? <img src={image} /> : ""}
+                
               </div>
               <div className="chat-text-right">
                 <div

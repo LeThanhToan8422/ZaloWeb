@@ -24,6 +24,23 @@
         .user-chat:hover{
             background-color: #ebe9e9;
         }
+        .utils{
+            padding: 5px 5px 5px 10px;
+            width: 100%;
+            text-align: start;
+            margin: 5px 0;
+        }
+        .utils:hover{
+            background-color: #d6dbe1;
+        }
+        .icon{
+            padding: 5px;
+        }
+        .icon:hover{
+            color: #0373fb;
+            background-color: #dce6f3;
+            border-radius: 5px;
+        }
     }
 
     .contents-search-types{

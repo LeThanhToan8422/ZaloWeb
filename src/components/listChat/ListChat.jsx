@@ -14,6 +14,7 @@ const ListChat = ({
   handleClickChatSeleted,
   setRerender,
   urlBackend,
+  makeFriends
 }) => {
   const [isPrioritize, setIsPrioritize] = useState(true);
   const [chatSelected, setChatsSelected] = useState(0);
@@ -77,6 +78,8 @@ const ListChat = ({
             visible={visibleFriendByPhone}
             userId={userId}
             urlBackend={urlBackend}
+            makeFriends={makeFriends}
+            setRerender={setRerender}
           />
           <i
             className="fa-solid fa-user-plus icon-user"

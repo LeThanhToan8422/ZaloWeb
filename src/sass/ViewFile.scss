@@ -1,4 +1,12 @@
-.container-view-file{
+.container-view-files {
+  height: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  .container-view-file {
     min-height: 100px;
     min-width: 300px;
     display: flex;
@@ -6,7 +14,8 @@
     justify-content: flex-start;
     align-items: center;
 
-    .icon-file{
-        font-size: 50px;
+    .icon-file {
+      font-size: 50px;
     }
+  }
 }

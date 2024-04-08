@@ -26,10 +26,13 @@ import { CiTrash } from "react-icons/ci";
 import { MdOutlineSettingsBackupRestore } from "react-icons/md";
 import { FaShare, FaCaretDown, FaCaretRight } from "react-icons/fa";
 import { BiSolidToggleLeft } from "react-icons/bi";
+import { MdKeyboardVoice } from "react-icons/md";
 
 import axios from "axios";
 
 import { io } from "socket.io-client";
+
+import { ReactMic } from 'react-mic';
 
 //emotion
 import Picker from "@emoji-mart/react";
@@ -77,6 +80,8 @@ const ContentChat = ({
   const [isClickDownFile, setIsClickDownFile] = useState(false);
   const [isClickDownLink, setIsClickDownLink] = useState(false);
   const [isClickDownSetting, setIsClickDownSetting] = useState(false);
+  const [isRecoding, setIsRecoding] = useState(false);
+  const [audioLink, setAudioLink] = useState('');
 
 
   useEffect(() => {
@@ -205,6 +210,11 @@ const ContentChat = ({
   const handleForwardFormCancel = () => {
     setShowForwardForm(false);
   };
+
+  const onStopRecoding = (blob) => {
+    console.log(blob);
+    setAudioLink(blob.blobURL)
+  }
 
   return (
     <div className="container-content-chat">
@@ -543,6 +553,7 @@ const ContentChat = ({
                   <i className="fa-regular fa-image icon"></i>
                 </label>
               </div>
+              {/* button file */}
               <div className="chat-utilities-icon">
                 <input
                   type="file"
@@ -556,6 +567,7 @@ const ContentChat = ({
                   <i className="fa-solid fa-paperclip icon"></i>
                 </label>
               </div>
+              {/* button name card */}
               <div className="chat-utilities-icon" onClick={() => setShowFormCard(true)}>
               <FormCard
                   userId={userId}
@@ -564,6 +576,11 @@ const ContentChat = ({
                 />
                
                 <i className="fa-regular fa-address-card icon"></i>
+              </div>
+              {/* button chat Recoding */}
+              <div className="chat-utilities-icon" onClick={()=>setIsRecoding(!isRecoding)}>
+                <MdKeyboardVoice className="icon"/>
+                
               </div>
               <div className="chat-utilities-icon">
                 <i className="fa-regular fa-clock icon"></i>
@@ -583,6 +600,13 @@ const ContentChat = ({
                   onChange={(e) => setMessage(e.target.value)}
                 />
                 {image ? <img src={image} /> : ""}
+                {isRecoding && <ReactMic
+                                  record={isRecoding}
+                                  className="sound-wave"
+                                  onStop={onStopRecoding}
+                                  //onData={onData}
+                                  strokeColor="#000000"
+                                  backgroundColor="#FF4081" />}
               </div>
               <div className="chat-text-right">
                 <div

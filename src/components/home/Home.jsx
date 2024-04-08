@@ -17,6 +17,7 @@ function Home() {
   const [chatSelected, setChatsSelected] = useState(0);
   const [user, setUser] = useState({});
   const [rerender, setRerender] = useState(false);
+  const [makeFriends, setMakeFriends] = useState([]);
 
 
   useEffect(() => {
@@ -36,6 +37,16 @@ function Home() {
     };
     getApiChatsByUserId();
   }, [location.state.userId, idChat, rerender]);
+
+  useEffect(() => {
+    let getApiMakeFriends = async () => {
+      let datas = await axios.get(
+        `${location.state.urlBackend}/make-friends/givers/${location.state.userId}`
+      );
+      setMakeFriends(datas.data);
+    };
+    getApiMakeFriends();
+  }, [location.state.userId, rerender]);
 
   let handleChangeMessageFinal = (mess) => {
     setMessageFinal(mess);
@@ -80,6 +91,7 @@ function Home() {
         handleClickChatSeleted={handleClickChatSeleted}
         setRerender={setRerender}
         urlBackend={location.state.urlBackend}
+        makeFriends={makeFriends}
       />
       <ContentChat
         userId={location.state.userId}

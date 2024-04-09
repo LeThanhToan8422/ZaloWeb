@@ -8,20 +8,24 @@ import moment from "moment";
 const FormCreateGroup = ({
   userId,
   visible,
-  onCancel,
+  setVisible,
   setRerender,
   urlBackend
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [form] = Form.useForm();
   const [selectedFriendsTemp, setSelectedFriendsTemp] = useState([]);
-  const [editable, setEditable] = useState(false);
   const [friendList, setFriendList] = useState([]);
   const [regexUrl] = useState(
     "https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/"
   );
   const [socket, setSocket] = useState(null);
   const [groupName, setGroupName] = useState("");
+  const [visibleModal, setVisibleModal] = useState(false);
 
+  useEffect(() => {
+    setVisibleModal(visible);
+  }, [visible]);
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -39,8 +43,11 @@ const FormCreateGroup = ({
 
   const handleCancel = () => {
     setSelectedFriendsTemp([]);
-    setEditable(false);
-    onCancel();
+    form.resetFields();
+    setVisibleModal(false);
+    if (typeof setVisible === "function") {
+      setVisible(false);
+    }
   };
 
   const handleFriendChange = (checkedValues) => {
@@ -84,8 +91,9 @@ const FormCreateGroup = ({
   return (
     <Modal
       title="Tạo nhóm"
-      visible={visible}
-      onCancel={handleCancel}
+      open={visibleModal}
+      onOk={() => handleCancel()}
+      onCancel={() => handleCancel()}
       footer={[
         <Button key="back" onClick={handleCancel}>
           Hủy
@@ -100,7 +108,7 @@ const FormCreateGroup = ({
         </Button>,
       ]}
     >
-      <Form layout="vertical">
+      <Form layout="vertical" form={form}>
         <Form.Item>
           <Input
             value={groupName}

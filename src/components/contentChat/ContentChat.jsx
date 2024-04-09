@@ -230,7 +230,7 @@ const ContentChat = ({
   const handleForwardFormCancel = () => {
     setShowForwardForm(false);
   };
-
+  
   const onStopRecoding = (blob) => {
     console.log(blob);
     setAudioLink(blob.blobURL);
@@ -386,19 +386,14 @@ const ContentChat = ({
                 </div>
               </div>
               <div className="chat-header-right">
-                <div
-                  className="chat-header-right-icon"
-                  onClick={handleClickShowCreateGroup}
-                >
-                  {showModalGroup && (
-                    <FormCreateGroup
+                <div className="chat-header-right-icon" onClick={()=>setShowFormCreateGroup(!showFormCreateGroup)}>
+                  <FormCreateGroup 
                       userId={userId}
                       urlBackend={urlBackend}
-                      visible={showModalGroup}
-                      setVisible={setShowModalGroup}
+                      setVisible={setShowFormCreateGroup}
+                      visible={showFormCreateGroup}
                       setRerender={setRerender}
-                    />
-                  )}
+                  />
                   <AiOutlineUsergroupAdd className="icon" />
                 </div>
                 <div className="chat-header-right-icon">

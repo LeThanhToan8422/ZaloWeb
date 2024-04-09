@@ -46,6 +46,7 @@ import ForwardMessageForm from './components/ForwardMessageForm';
 import FormCard from './components/FormCard';
 import moment from 'moment';
 import ViewNewFriend from './components/ViewNewFriend';
+import FormCreateGroup from './components/FormCreateGroup';
 
 const ContentChat = ({
   userId,
@@ -79,6 +80,7 @@ const ContentChat = ({
   const [showForwardForm, setShowForwardForm] = useState(false);
   const [showFormCard, setShowFormCard] = useState(false);
   const inputRef = useRef(null);
+  const [showFormCreateGroup, setShowFormCreateGroup] = useState(false);
 
   const [isClickDownMedia, setIsClickDownMedia] = useState(false);
   const [isClickDownFile, setIsClickDownFile] = useState(false);
@@ -231,6 +233,14 @@ const ContentChat = ({
     setShowForwardForm(false);
   };
 
+  const handleCreateGroupButtonClick = () => {
+    setShowFormCreateGroup(true);
+  };
+
+  const handleCreateGroupCancel = () => {
+    setShowFormCreateGroup(false);
+  };
+
   const onStopRecoding = (blob) => {
     console.log(blob);
     setAudioLink(blob.blobURL)
@@ -378,7 +388,14 @@ const ContentChat = ({
                 </div>
               </div>
               <div className="chat-header-right">
-                <div className="chat-header-right-icon">
+                <div className="chat-header-right-icon" onClick={handleCreateGroupButtonClick}>
+                  {showFormCreateGroup && (<FormCreateGroup 
+                                            userId={userId}
+                                            urlBackend={urlBackend}
+                                            visible={showFormCreateGroup}
+                                            onCancel={handleCreateGroupCancel}
+                                            setRerender={setRerender}
+                                            />)}
                   <AiOutlineUsergroupAdd className="icon" />
                 </div>
                 <div className="chat-header-right-icon">

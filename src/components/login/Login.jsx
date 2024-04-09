@@ -71,6 +71,11 @@ const Login = ({urlBackend}) => {
       toast.error('Thông tin không chính xác!!!');
     }
   };
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleClickLogin();
+    }
+  };
 
   return (
     <div className="container-login">
@@ -107,6 +112,11 @@ const Login = ({urlBackend}) => {
                   className="input-phone"
                   placeholder="Số điện thoại"
                   onChange={(e) => setPhone(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      document.querySelector('.input-password').focus();
+                    }
+                  }}
                 />
               </div>
               <div className="form-content">
@@ -117,6 +127,7 @@ const Login = ({urlBackend}) => {
                   className="input-password"
                   placeholder="Mật khẩu"
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={handleKeyPress}
                 />
               </div>
               <button className="button-login" onClick={handleClickLogin}>

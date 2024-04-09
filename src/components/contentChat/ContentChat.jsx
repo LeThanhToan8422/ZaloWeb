@@ -233,13 +233,6 @@ const ContentChat = ({
     setShowForwardForm(false);
   };
 
-  const handleCreateGroupButtonClick = () => {
-    setShowFormCreateGroup(true);
-  };
-
-  const handleCreateGroupCancel = () => {
-    setShowFormCreateGroup(false);
-  };
 
   const onStopRecoding = (blob) => {
     console.log(blob);
@@ -388,14 +381,14 @@ const ContentChat = ({
                 </div>
               </div>
               <div className="chat-header-right">
-                <div className="chat-header-right-icon" onClick={handleCreateGroupButtonClick}>
-                  {showFormCreateGroup && (<FormCreateGroup 
-                                            userId={userId}
-                                            urlBackend={urlBackend}
-                                            visible={showFormCreateGroup}
-                                            onCancel={handleCreateGroupCancel}
-                                            setRerender={setRerender}
-                                            />)}
+                <div className="chat-header-right-icon" onClick={()=>setShowFormCreateGroup(!showFormCreateGroup)}>
+                  <FormCreateGroup 
+                      userId={userId}
+                      urlBackend={urlBackend}
+                      setVisible={setShowFormCreateGroup}
+                      visible={showFormCreateGroup}
+                      setRerender={setRerender}
+                  />
                   <AiOutlineUsergroupAdd className="icon" />
                 </div>
                 <div className="chat-header-right-icon">

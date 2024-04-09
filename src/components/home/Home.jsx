@@ -92,6 +92,7 @@ function Home() {
         setRerender={setRerender}
         urlBackend={location.state.urlBackend}
         makeFriends={makeFriends}
+        setDeleteChat={setIdChat}
       />
       <ContentChat
         userId={location.state.userId}

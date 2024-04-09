@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form, Input, Checkbox, Avatar } from "antd";
 import axios from "axios";
-import ViewFile from "./ViewFile";
-import { io } from "socket.io-client";
-import moment from "moment";
 
 const FormCreateGroup = ({
   userId,
   visible,
-  onCancel,
+  setVisible,
   setRerender,
   urlBackend
 }) => {
@@ -19,8 +16,12 @@ const FormCreateGroup = ({
   const [regexUrl] = useState(
     "https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/"
   );
-  const [socket, setSocket] = useState(null);
+  const [showFormCreateGroup, setShowFormCreateGroup] = useState(visible);
   const [groupName, setGroupName] = useState("");
+
+  useEffect(() => {
+
+  })
 
 
   useEffect(() => {
@@ -40,7 +41,8 @@ const FormCreateGroup = ({
   const handleCancel = () => {
     setSelectedFriendsTemp([]);
     setEditable(false);
-    onCancel();
+    // setVisible(false)
+    // setShowFormCreateGroup(false)
   };
 
   const handleFriendChange = (checkedValues) => {
@@ -81,13 +83,18 @@ const FormCreateGroup = ({
     // }
   };
 
+  let handleClickBack = () => {
+    // setVisible(false)
+    // setShowFormCreateGroup(false)
+  }
+
   return (
     <Modal
       title="Tạo nhóm"
-      visible={visible}
+      visible={showFormCreateGroup}
       onCancel={handleCancel}
       footer={[
-        <Button key="back" onClick={handleCancel}>
+        <Button key="back" onClick={handleClickBack}>
           Hủy
         </Button>,
         <Button

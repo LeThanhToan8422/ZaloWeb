@@ -4,16 +4,41 @@ import { useState, useEffect } from "react";
 import { Button, Form, Row, Col, Select, message, Modal } from "antd";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import { io } from "socket.io-client";
 
 function FormDeleteChat({
   visible,
   setVisible,
   userId,
+  objectId,
   urlBackend,
-  setRerender
+  setRerender,
+  setDeleteChat
 }) {
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
+  const [socket, setSocket] = useState(null);
+  const [render, setRender] = useState(false);
+
+  useEffect(() => {
+    let newSocket = io(`${urlBackend}`);
+    setSocket(newSocket);
+  }, [userId, objectId, render]);
+
+  useEffect(() => {
+    socket?.on(
+      `Server-Delete-Chat-${userId}`,
+      (dataGot) => {
+        handleCancel()
+        setDeleteChat("")
+        setRerender(pre => !pre)
+      }
+    );
+
+    return () => {
+      socket?.disconnect();
+    };
+  }, [userId, objectId, render]);
 
 
   useEffect(() => {
@@ -26,6 +51,14 @@ function FormDeleteChat({
     if (typeof setVisible === "function") {
       setVisible(false);
     }
+  };
+
+  let handleClickDeleteChat = () => {
+    socket.emit(`Client-Delete-Chat`, {
+      implementer: userId,
+      objectId: objectId,
+    });
+    setRender(!render)
   };
 
   return (
@@ -59,7 +92,7 @@ function FormDeleteChat({
               </Button>
             </Col>
             <Col lg={6}>
-              <Button type="primary" size="large">
+              <Button type="primary" size="large" onClick={handleClickDeleteChat}>
                 Xóa
               </Button>
             </Col>

@@ -15,7 +15,8 @@ const ListChat = ({
   handleClickChatSeleted,
   setRerender,
   urlBackend,
-  makeFriends
+  makeFriends,
+  setDeleteChat
 }) => {
   const [isPrioritize, setIsPrioritize] = useState(true);
   const [chatSelected, setChatsSelected] = useState(0);
@@ -94,7 +95,7 @@ const ListChat = ({
             className="fa-solid fa-user-plus icon-user"
             onClick={() => setVisibleFriendByPhone(true)}
           ></i>
-          <span style={{color: 'red', marginBottom:20,marginLeft:-10, fontSize:12}}>{makeFriends.length>0?`+` + makeFriends.length:""}</span>
+          <span style={{color: 'red', marginBottom:20,marginLeft:-10, fontSize:12}}>{makeFriends?.length>0?`+` + makeFriends?.length:""}</span>
           <i className="fa-solid fa-users icon-user"></i>
         </div>
 
@@ -260,8 +261,10 @@ const ListChat = ({
                                 setVisible={setVisibleDel} 
                                 visible={visibleDel} 
                                 userId={userId} 
+                                objectId={chat.id}
                                 urlBackend={urlBackend} 
                                 setRerender={setRerender}
+                                setDeleteChat={setDeleteChat}
                               />
                               <div className="utils">Thêm vào nhóm</div>
                       </div>

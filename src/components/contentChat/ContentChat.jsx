@@ -558,10 +558,10 @@ const ContentChat = ({
                       />
                     ) : null}
                     {index === hoveredIndex && message.sender === userId ? (
-                      <div style={{ width: "100px" }}>
+                      <div style={{ width: "100px", height: "20px" }}>
                         <div
                           className="utils-message"
-                          style={{ marginRight: "7px", marginTop: "5px" }}
+                          style={{ marginLeft: "12px",marginTop: "5px", width: "80px" }}
                         >
                           <MdOutlineSettingsBackupRestore
                             style={{
@@ -654,7 +654,7 @@ const ContentChat = ({
                           style={{
                             marginLeft: "7px",
                             marginTop: "5px",
-                            width: "48px",
+                            width: "60px",
                           }}
                         >
                           <CiTrash
@@ -678,7 +678,6 @@ const ContentChat = ({
                           />
                           <FaShare
                             style={{
-                              fontSize: "20px",
                               color:
                                 hoverText === "Chuyển tiếp" ? "#005ae0" : "",
                             }}

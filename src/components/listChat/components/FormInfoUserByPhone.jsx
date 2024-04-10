@@ -7,6 +7,7 @@ import { EditOutlined } from "@ant-design/icons";
 import { CiTrash } from "react-icons/ci";
 import { MdOutlineBlock } from "react-icons/md";
 import moment from "moment";
+import { io } from "socket.io-client";
 
 function FormInfoUserByPhone({
   visible,
@@ -16,6 +17,9 @@ function FormInfoUserByPhone({
   urlBackend,
   isFriend,
   setRerender,
+  setPhone,
+  setIsFriend,
+  handleSearch,
 }) {
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
@@ -23,6 +27,32 @@ function FormInfoUserByPhone({
   const [isClickUpdate, setIsClickUpdate] = useState(false);
   const [sendMakeFriend, setSendMakeFriend] = useState(false);
   const [isBlock, setIsBlock] = useState(false);
+  const [socket, setSocket] = useState(null);
+  const [render, setRender] = useState(false);
+
+  useEffect(() => {
+    let newSocket = io(`${urlBackend}`);
+    setSocket(newSocket);
+  }, [userId, friendId, JSON.stringify(isFriend)]);
+
+  useEffect(() => {
+    socket?.on(
+      `Server-Delete-Make-Friends-${
+        userId > friendId ? `${friendId}${userId}` : `${userId}${friendId}`
+      }`,
+      (dataGot) => {
+        setSendMakeFriend(false);
+        setIsFriend({
+          id: 0,
+          isFriends: "0",
+        });
+      }
+    );
+
+    return () => {
+      socket?.disconnect();
+    };
+  }, [userId, friendId, JSON.stringify(isFriend)]);
 
   useEffect(() => {
     setVisibleModal(visible);
@@ -34,7 +64,7 @@ function FormInfoUserByPhone({
       setfriend(datas.data);
     };
     getApifriendById();
-  }, [friendId, isFriend]);
+  }, [friendId, JSON.stringify(isFriend)]);
 
   const handleCancel = () => {
     form.resetFields();
@@ -45,14 +75,26 @@ function FormInfoUserByPhone({
   };
 
   let handleClickAddFriend = async () => {
-    let dataAddFriend = await axios.post(`${urlBackend}/make-friends`, {
-      content: "Mình kết bạn với nhau nhé!!!",
-      giver: userId, // id user của mình
-      recipient: friendId, // id của user muốn kết bạn hoặc block
-    });
-    if (dataAddFriend.data) {
-      setSendMakeFriend(true);
-      setRerender(pre => !pre)
+    if (isFriend.isFriends === "0") {
+      let dataAddFriend = await axios.post(`${urlBackend}/make-friends`, {
+        content: "Mình kết bạn với nhau nhé!!!",
+        giver: userId, // id user của mình
+        recipient: friendId, // id của user muốn kết bạn hoặc block
+      });
+      if (dataAddFriend.data) {
+        setSendMakeFriend(true);
+        setIsFriend({
+          id: dataAddFriend.data.id,
+          isFriends: "Đã gửi lời mời kết bạn",
+        });
+        setRerender((pre) => !pre);
+      }
+    } else if (isFriend.isFriends === "Đã gửi lời mời kết bạn") {
+      socket.emit(`Client-Delete-Make-Friends`, {
+        id: isFriend.id,
+        chatRoom:
+          userId > friendId ? `${friendId}${userId}` : `${userId}${friendId}`,
+      });
     }
   };
   let handleClickBlock = async () => {
@@ -86,9 +128,9 @@ function FormInfoUserByPhone({
               <Form.Item name="background">
                 <img
                   src={
-                    friend.background == "null"
+                    friend?.background == "null"
                       ? "/public/anhbiadefault.jpg"
-                      : friend.background
+                      : friend?.background
                   }
                   style={{ width: "100%", height: "90px" }}
                   alt="Ảnh bìa"
@@ -100,14 +142,14 @@ function FormInfoUserByPhone({
             <Form.Item name="avt">
               <img
                 src={
-                  friend.image == "null"
+                  friend?.image == "null"
                     ? "/public/avatardefault.png"
-                    : friend.image
+                    : friend?.image
                 }
                 style={{ width: "50px", height: "50px" }}
                 alt="Ảnh đại diện"
               />
-              &nbsp;&nbsp;&nbsp; <b>{friend.name}</b>&nbsp;&nbsp;&nbsp;{" "}
+              &nbsp;&nbsp;&nbsp; <b>{friend?.name}</b>&nbsp;&nbsp;&nbsp;{" "}
               <EditOutlined
                 style={{ cursor: "pointer" }}
                 onClick={() => setIsClickUpdate(true)}
@@ -117,11 +159,12 @@ function FormInfoUserByPhone({
           <Row>
             <Col lg={11}>
               <Form.Item>
-                {isFriend ? (
+                {isFriend.isFriends === true ? (
                   <Button type="default" size="large" block>
                     Gọi điện
                   </Button>
-                ) : sendMakeFriend ? (
+                ) : isFriend.isFriends === "Đã gửi lời mời kết bạn" ||
+                  sendMakeFriend ? (
                   <Button
                     type="default"
                     size="large"
@@ -160,7 +203,7 @@ function FormInfoUserByPhone({
             </Col>
             <Col lg={18} xs={18}>
               <Form.Item name="gender">
-                {friend.gender ? "Nam" : "Nữ"}
+                {friend?.gender ? "Nam" : "Nữ"}
               </Form.Item>
             </Col>
           </Row>
@@ -172,7 +215,7 @@ function FormInfoUserByPhone({
             </Col>
             <Col lg={18} xs={18}>
               <Form.Item name="dob">
-                {moment(friend.dob).format("YYYY-MM-DD")}
+                {moment(friend?.dob).format("YYYY-MM-DD")}
               </Form.Item>
             </Col>
           </Row>
@@ -183,7 +226,7 @@ function FormInfoUserByPhone({
               </Form.Item>
             </Col>
             <Col lg={18} xs={18}>
-              <Form.Item name="phone">{friend.phone}</Form.Item>
+              <Form.Item name="phone">{friend?.phone}</Form.Item>
             </Col>
           </Row>
           <hr />
@@ -219,7 +262,7 @@ function FormInfoUserByPhone({
               </Button>
             )}
           </Row>
-          {isFriend ? (
+          {isFriend.isFriends ? (
             <Row>
               <Button
                 type="text"

@@ -59,7 +59,15 @@ function FormSearchFriendByPhone({
       let dts = await axios.get(
         `${urlBackend}/users/check-is-friend/${userId}/${datas.data.user}`
       );
-      setIsFriend(dts.data.isFriends)
+      if(!Boolean(dts.data)){
+        setIsFriend({
+          id : 0,
+          isFriends : "0"
+        })
+      }
+      else{
+        setIsFriend(dts.data)
+      }
     } else {
       message.error("Số điện thoại chưa được đăng ký!");
     }
@@ -200,6 +208,9 @@ function FormSearchFriendByPhone({
         urlBackend={urlBackend}
         isFriend={isFriend}
         setRerender={setRerender}
+        setPhone={setPhone}
+        setIsFriend={setIsFriend}
+        handleSearch={handleSearch}
       />
     </div>
   );

@@ -54,7 +54,7 @@ const Login = ({urlBackend}) => {
     let datas = await axios.get(
       `${urlBackend}/accounts/phone/${phone}`
     );
-    if (datas.data.user > 0) {
+    if (datas.data?.user > 0) {
       if (bcrypt.compareSync(password, datas.data.password)) {
         navigate('/home', {
           state: {

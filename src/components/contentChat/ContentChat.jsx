@@ -80,7 +80,7 @@ const ContentChat = ({
   const [showForwardForm, setShowForwardForm] = useState(false);
   const [showFormCard, setShowFormCard] = useState(false);
   const inputRef = useRef(null);
-  const [showModalGroup, setShowModalGroup] = useState(false);
+  const [showFormCreateGroup, setShowFormCreateGroup] = useState(false);
 
   const [isClickDownMedia, setIsClickDownMedia] = useState(false);
   const [isClickDownFile, setIsClickDownFile] = useState(false);
@@ -247,10 +247,6 @@ const ContentChat = ({
     }
   }, [chatSelected]);
 
-  let handleClickShowCreateGroup = () => {
-    console.log(showModalGroup);
-    setShowModalGroup(true);
-  };
 
   return (
     <div className="container-content-chat">

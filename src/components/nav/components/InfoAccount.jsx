@@ -153,9 +153,9 @@ function InfoAccount({ visible, setVisible, userId, urlBackend}) {
               <Form.Item name="background">
                 <img
                   src={
-                    user.background == "null"
+                    user?.background == "null"
                       ? "/public/anhbiadefault.jpg"
-                      : user.background
+                      : user?.background
                   }
                   style={{ width: "100%", height: "90px" }}
                   alt="Ảnh bìa"
@@ -183,9 +183,9 @@ function InfoAccount({ visible, setVisible, userId, urlBackend}) {
                 <div style={{ display: "flex" }}>
                   <img
                     src={
-                      user.image == "null"
+                      user?.image == "null"
                         ? "/public/avatardefault.png"
-                        : user.image
+                        : user?.image
                     }
                     style={{
                       width: "60px",
@@ -214,7 +214,7 @@ function InfoAccount({ visible, setVisible, userId, urlBackend}) {
             </Col>
             <Col lg={12}>
               <Form.Item>
-                &nbsp;&nbsp;&nbsp; <b>{user.name}</b>&nbsp;&nbsp;&nbsp;{" "}
+                &nbsp;&nbsp;&nbsp; <b>{user?.name}</b>&nbsp;&nbsp;&nbsp;{" "}
                 <EditOutlined onClick={() => setIsClickUpdate(true)} />
               </Form.Item>
             </Col>
@@ -232,7 +232,7 @@ function InfoAccount({ visible, setVisible, userId, urlBackend}) {
               </Form.Item>
             </Col>
             <Col lg={18} xs={18}>
-              <Form.Item name="gender">{user.gender ? "Nam" : "Nữ"}</Form.Item>
+              <Form.Item name="gender">{user?.gender ? "Nam" : "Nữ"}</Form.Item>
             </Col>
           </Row>
           <Row>
@@ -243,7 +243,7 @@ function InfoAccount({ visible, setVisible, userId, urlBackend}) {
             </Col>
             <Col lg={18} xs={18}>
               <Form.Item name="dob">
-                {moment(user.dob).format("YYYY-MM-DD")}
+                {moment(user?.dob).format("YYYY-MM-DD")}
               </Form.Item>
             </Col>
           </Row>
@@ -254,7 +254,7 @@ function InfoAccount({ visible, setVisible, userId, urlBackend}) {
               </Form.Item>
             </Col>
             <Col lg={18} xs={18}>
-              <Form.Item name="phone">{user.phone}</Form.Item>
+              <Form.Item name="phone">{user?.phone}</Form.Item>
             </Col>
           </Row>
           <Row>

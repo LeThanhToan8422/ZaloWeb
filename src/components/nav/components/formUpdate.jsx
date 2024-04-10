@@ -18,7 +18,7 @@ import axios from "axios";
 import moment from "moment";
 
 function FormUpdate({visible, setVisible, user, urlBackend}) {
-  const { name, gender, dob } = user;
+  const { name = "", gender = "", dob = "" } = user;
   let setGender = gender? 1: 0;
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);

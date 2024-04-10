@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 
 /*Components*/
 import { Button, Form, Row, Col, Select, message, Modal } from "antd";
-import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { io } from "socket.io-client";
 
@@ -32,6 +31,7 @@ function FormDeleteChat({
         handleCancel()
         setDeleteChat("")
         setRerender(pre => !pre)
+        toast.success("Xóa thành công")
       }
     );
 

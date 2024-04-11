@@ -63,7 +63,7 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                               <Form.Item
                                 name="background"                              
                               >
-                                <img src={user.background=="null" ?"/public/anhbiadefault.jpg":user.background} style={{width : "100%", height : "90px"}} alt="Ảnh bìa"/>
+                                <img src={user?.background=="null" ?"/public/anhbiadefault.jpg":user?.background} style={{width : "100%", height : "90px"}} alt="Ảnh bìa"/>
                               </Form.Item>
                               </Col>   
                           </Row>
@@ -71,7 +71,7 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                               <Form.Item
                                 name="avt"
                               >
-                                <img src={user.image=="null" ?"/public/avatardefault.png":user.image} style={{width : "50px", height : "50px"}} alt="Ảnh đại diện"/>&nbsp;&nbsp;&nbsp; <b>{user.name}</b>&nbsp;&nbsp;&nbsp; <EditOutlined style={{cursor: "pointer"}} onClick={() => setIsClickUpdate(true) }/>
+                                <img src={user?.image=="null" ?"/public/avatardefault.png":user?.image} style={{width : "50px", height : "50px"}} alt="Ảnh đại diện"/>&nbsp;&nbsp;&nbsp; <b>{user?.name}</b>&nbsp;&nbsp;&nbsp; <EditOutlined style={{cursor: "pointer"}} onClick={() => setIsClickUpdate(true) }/>
                               </Form.Item>  
                           </Row>
                           <Row>                             
@@ -118,7 +118,7 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                                   <Form.Item
                                       name="gender"
                                   >
-                                      {user.gender? "Nam" : "Nữ"}
+                                      {user?.gender? "Nam" : "Nữ"}
                                   </Form.Item>
                               </Col>              
                           </Row>
@@ -132,7 +132,7 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                                   <Form.Item
                                       name="dob"
                                   >
-                                      {moment(user.dob).format("YYYY-MM-DD")}
+                                      {moment(user?.dob).format("YYYY-MM-DD")}
                                   </Form.Item>
                               </Col>              
                           </Row>
@@ -146,7 +146,7 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                                   <Form.Item
                                       name="phone"
                                   >
-                                      {user.phone}
+                                      {user?.phone}
                                   </Form.Item>
                               </Col>              
                           </Row>

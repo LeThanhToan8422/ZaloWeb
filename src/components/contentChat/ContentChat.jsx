@@ -163,6 +163,7 @@ const ContentChat = ({
       let datas = await axios.get(
         `${urlBackend}/chats/content-chats-between-users/${userId}-and-${idChat}/${page}`
       );
+      console.log(datas.data);
       let sender = await axios.get(`${urlBackend}/users/${userId}`);
       let receiver = await axios.get(`${urlBackend}/users/${idChat}`);
 

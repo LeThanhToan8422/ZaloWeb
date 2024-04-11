@@ -6,6 +6,7 @@ import ContentChat from "../contentChat/ContentChat";
 import "../../App.css";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
+import { io } from "socket.io-client";
 
 function Home() {
   let location = useLocation();
@@ -18,6 +19,22 @@ function Home() {
   const [user, setUser] = useState({});
   const [rerender, setRerender] = useState(false);
   const [makeFriends, setMakeFriends] = useState([]);
+
+  useEffect(() => {
+    let newSocket = io(`${location.state.urlBackend}`);
+
+    newSocket?.on(
+      `Server-Chat-Room-${location.state.userId}`,
+      (dataGot) => {
+        handleChangeMessageFinal(dataGot.data);
+        // setRerender(pre => !pre)
+      }
+    );
+
+    return () => {
+      newSocket?.disconnect();
+    };
+  }, [location.state.userId, idChat, rerender, messageFinal]);
 
 
   useEffect(() => {
@@ -36,7 +53,9 @@ function Home() {
       setChats(datas.data);
     };
     getApiChatsByUserId();
+  }, [location.state.userId, idChat, rerender, messageFinal]);
 
+  useEffect(() => {
     let getApiMakeFriends = async () => {
       let datas = await axios.get(
         `${location.state.urlBackend}/make-friends/givers/${location.state.userId}`
@@ -44,7 +63,7 @@ function Home() {
       setMakeFriends(datas.data);
     };
     getApiMakeFriends();
-  }, [location.state.userId, idChat, rerender]);
+  }, [location.state.userId, idChat, rerender, messageFinal]);
 
   let handleChangeMessageFinal = (mess) => {
     setMessageFinal(mess);

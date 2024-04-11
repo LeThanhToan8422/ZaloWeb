@@ -49,6 +49,7 @@ import FormCard from "./components/FormCard";
 import moment from "moment";
 import ViewNewFriend from "./components/ViewNewFriend";
 import FormCreateGroup from "./components/FormCreateGroup";
+import FormAddMemberToGroup from "./components/FormAddMemberToGroup";
 
 const ContentChat = ({
   userId,
@@ -95,6 +96,7 @@ const ContentChat = ({
   const [isGroup, setIsGroup] = useState(true);
   const [isClickDownMember, setIsClickDownMember] = useState(false);
   const [isClickDownNew, setIsClickDownNew] = useState(false);
+  const [isClickAddMember, setIsClickAddMember] = useState(false);
 
   useEffect(() => {
     let newSocket = io(`${urlBackend}`);
@@ -353,6 +355,13 @@ const ContentChat = ({
             setVisible={setIsClickUpdate}
             visible={isClickUpdate}
             user={nameReceiver}
+            urlBackend={urlBackend}
+          />
+          <FormAddMemberToGroup
+            setVisible={setIsClickAddMember}
+            visible={isClickAddMember}
+            userId={userId}
+            groupId={idChat}
             urlBackend={urlBackend}
           />
           <div
@@ -923,8 +932,9 @@ const ContentChat = ({
                   <span>
                     Tạo nhóm <br /> trò chuyện
                   </span>
-                </div>): (<><div className="group-chat">
-                  <AiOutlineUsergroupAdd className="icon" />
+                </div>): (<>
+                <div className="group-chat">
+                  <AiOutlineUsergroupAdd className="icon" onClick={()=>setIsClickAddMember(true)}/>
                   <span>
                     Thêm <br /> thành viên
                   </span>

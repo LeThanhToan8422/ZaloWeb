@@ -383,17 +383,18 @@
         }
         .header-info-utilities{
           display: flex;
-          justify-content: center;
+          justify-content: space-around;
           align-items: center;
           width: 100%;
           height: 90px;
           .notif, .pin-chat, .group-chat{
             display: flex;
             flex-direction: column;
-            width: calc(100%/3);
+           // width: calc(100%/3);
             height: 100%;
             justify-content: center;
             align-items: center;
+            text-align: center;
             color: #7589a3;
             .icon{
               font-size: 35px;
@@ -432,12 +433,12 @@
             background-color: #e5eaf0;
         }
       }
-      .group-media, .group-file, .group-link, .group-setting{
+      .group-new, .group-member, .group-media, .group-file, .group-link, .group-setting{
         width: 100%;
         display: flex;
         flex-direction: column;
         border-bottom: 8px solid #d6dbe1;
-        .media-header, .file-header, .setting-header{
+        .new-header, .member-header, .media-header, .file-header, .setting-header{
           height: 40px;
           display: flex;
           padding: 0 16px;
@@ -450,6 +451,20 @@
             font-size: 20px;
           }
 
+        }
+        //member group
+        .member-body, .new-body{
+          display: flex;
+          padding: 5px 16px;
+          .icon{
+            font-size: 25px;
+            margin-right: 20px;
+            color: #525252;
+          }
+        }
+        .member-body:hover, .new-body:hover{
+          background-color: #e5eaf0;
+          cursor: pointer;
         }
         //media
         .media-body{
@@ -528,7 +543,8 @@
             }
           }
           .hidden-chat:hover, .delete-chat:hover{
-            background-color: #d6dbe1;
+            background-color: #d6dbe1;            
+            cursor: pointer;
           }
           .icon{
             font-size: 18px;

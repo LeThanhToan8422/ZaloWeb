@@ -107,9 +107,9 @@ const ContentChat = ({
         userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`
       }`,
       (dataGot) => {
-        console.log(dataGot.data);
         handleChangeMessageFinal(dataGot.data);
         setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
+        setRerender(pre => !pre)
       }
     );
 

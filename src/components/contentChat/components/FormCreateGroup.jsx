@@ -85,10 +85,6 @@ const FormCreateGroup = ({
     // }
   };
 
-  let handleClickBack = () => {
-    // setVisible(false)
-    // setShowFormCreateGroup(false)
-  }
 
   return (
     <Modal
@@ -97,7 +93,7 @@ const FormCreateGroup = ({
       onOk={() => handleCancel()}
       onCancel={() => handleCancel()}
       footer={[
-        <Button key="back" onClick={handleClickBack}>
+        <Button key="back" onClick={() => handleCancel()}>
           Hủy
         </Button>,
         <Button

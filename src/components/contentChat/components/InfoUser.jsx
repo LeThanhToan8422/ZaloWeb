@@ -17,11 +17,12 @@ import { CiTrash } from "react-icons/ci";
 import { MdOutlineBlock } from "react-icons/md";
 import moment from "moment";
 
-function InfoUser({visible, setVisible, userId, urlBackend}) {
+function InfoUser({visible, setVisible, userId, urlBackend, friendId}) {
     const [form] = Form.useForm();
     const [visibleModal, setVisibleModal] = useState(false);
     const [user, setUser] = useState({});
     const [isClickUpdate, setIsClickUpdate] = useState(false);
+    const [isBlock, setIsBlock] = useState(false);
     
     useEffect(() => {
         setVisibleModal(visible);
@@ -29,11 +30,11 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
     
     useEffect(() => {
     let getApiUserById = async () => {
-      let datas = await axios.get(`${urlBackend}/users/${userId}`);
+      let datas = await axios.get(`${urlBackend}/users/${friendId}`);
       setUser(datas.data);
     };
     getApiUserById();
-    }, [userId]);
+    }, [friendId]);
 
     const handleCancel = () => {
         form.resetFields();
@@ -42,6 +43,17 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
       setVisible(false);
     }
     }
+
+    let handleClickBlock = async () => {
+        let dataBlock = await axios.post(`${urlBackend}/users/relationships`, {
+          relationship: "block",
+          id: userId, // id user của mình
+          objectId: friendId, // id của user muốn kết bạn hoặc block
+        });
+        if (dataBlock.data) {
+          setIsBlock(true);
+        }
+      };
     return (
         <div>
           <Modal
@@ -152,14 +164,36 @@ function InfoUser({visible, setVisible, userId, urlBackend}) {
                           </Row>
                           <hr/>
                           <Row>                          
-                            <Button
-                              type="text"
-                              size="large"
-                              block="true"
-                              style={{display:"flex", alignItems: "center", justifyContent: "center"}}
-                            >
-                               <MdOutlineBlock size={20}/>&nbsp;&nbsp;&nbsp;Chặn tin nhắn và cuộc gọi
-                            </Button>
+                          {isBlock ? (
+              <Button
+                type="text"
+                size="large"
+                block="true"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <MdOutlineBlock size={20} />
+                &nbsp;&nbsp;&nbsp;Bỏ chặn
+              </Button>
+            ) : (
+              <Button
+                type="text"
+                size="large"
+                block="true"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onClick={handleClickBlock}
+              >
+                <MdOutlineBlock size={20} />
+                &nbsp;&nbsp;&nbsp;Chặn tin nhắn và cuộc gọi
+              </Button>
+            )}
                           </Row>
                           <Row>                          
                             <Button

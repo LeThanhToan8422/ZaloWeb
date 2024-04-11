@@ -26,7 +26,7 @@ function Home() {
       setUser(datas.data);
     };
     getApiUserById();
-  }, [location.state.userId, location.state.rerender, rerender]);
+  }, [location.state.userId]);
 
   useEffect(() => {
     let getApiChatsByUserId = async () => {
@@ -36,9 +36,7 @@ function Home() {
       setChats(datas.data);
     };
     getApiChatsByUserId();
-  }, [location.state.userId, idChat, rerender]);
 
-  useEffect(() => {
     let getApiMakeFriends = async () => {
       let datas = await axios.get(
         `${location.state.urlBackend}/make-friends/givers/${location.state.userId}`
@@ -46,7 +44,7 @@ function Home() {
       setMakeFriends(datas.data);
     };
     getApiMakeFriends();
-  }, [location.state.userId, rerender]);
+  }, [location.state.userId, idChat, rerender]);
 
   let handleChangeMessageFinal = (mess) => {
     setMessageFinal(mess);

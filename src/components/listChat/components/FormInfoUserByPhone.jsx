@@ -37,6 +37,22 @@ function FormInfoUserByPhone({
 
   useEffect(() => {
     socket?.on(
+      `Server-Make-Friends-${
+        userId > friendId ? `${friendId}${userId}` : `${userId}${friendId}`
+      }`,
+      (dataGot) => {
+        if (dataGot.data) {
+          setSendMakeFriend(true);
+          setIsFriend({
+            id: dataGot.data.id,
+            isFriends: "Đã gửi lời mời kết bạn",
+          });
+          setRerender((pre) => !pre);
+        }
+      }
+    );
+
+    socket?.on(
       `Server-Delete-Make-Friends-${
         userId > friendId ? `${friendId}${userId}` : `${userId}${friendId}`
       }`,
@@ -76,19 +92,13 @@ function FormInfoUserByPhone({
 
   let handleClickAddFriend = async () => {
     if (isFriend.isFriends === "0") {
-      let dataAddFriend = await axios.post(`${urlBackend}/make-friends`, {
+      socket.emit(`Client-Make-Friends`, {
         content: "Mình kết bạn với nhau nhé!!!",
         giver: userId, // id user của mình
         recipient: friendId, // id của user muốn kết bạn hoặc block
+        chatRoom:
+          userId > friendId ? `${friendId}${userId}` : `${userId}${friendId}`,
       });
-      if (dataAddFriend.data) {
-        setSendMakeFriend(true);
-        setIsFriend({
-          id: dataAddFriend.data.id,
-          isFriends: "Đã gửi lời mời kết bạn",
-        });
-        setRerender((pre) => !pre);
-      }
     } else if (isFriend.isFriends === "Đã gửi lời mời kết bạn") {
       socket.emit(`Client-Delete-Make-Friends`, {
         id: isFriend.id,

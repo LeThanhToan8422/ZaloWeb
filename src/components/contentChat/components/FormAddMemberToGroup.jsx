@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form, Input, Checkbox, Avatar } from "antd";
 import axios from "axios";
+import { io } from "socket.io-client";
+
 
 const FormAddMemberToGroup = ({
   userId,
@@ -18,23 +20,46 @@ const FormAddMemberToGroup = ({
   );
   const [groupName, setGroupName] = useState("");
   const [visibleModal, setVisibleModal] = useState(false);
+  const [group, setGroup] = useState(null);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     setVisibleModal(visible);
   }, [visible]);
 
   useEffect(() => {
+    let newSocket = io(`${urlBackend}`);
+    setSocket(newSocket);
+
+    return () => {
+      newSocket?.disconnect();
+    };
+  }, [userId]);
+
+  useEffect(() => {
     const fetchFriends = async () => {
       try {
         const response = await axios.get(
-          `${urlBackend}/users/friends/${userId}`
+          `${urlBackend}/users/get-friends-not-join-group/${userId}/${groupId.id}`
         );
         setFriendList(response.data);
       } catch (error) {
         console.error("Error fetching friends:", error);
       }
     };
+
+    const fetchGroupChat = async () => {
+      try {
+        const response = await axios.get(
+          `${urlBackend}/group-chats/${groupId.id}`
+        );
+        setGroup(response.data);
+      } catch (error) {
+        console.error("Error fetching friends:", error);
+      }
+    };
     fetchFriends();
+    fetchGroupChat()
   }, [userId]);
 
   const handleCancel = () => {
@@ -56,32 +81,22 @@ const FormAddMemberToGroup = ({
     let datas = [];
     if (e.target.value) {
       datas = await axios.get(
-        `${urlBackend}/users/friends/${userId}/${e.target.value}`
+        `${urlBackend}/users/get-friends-not-join-group/${userId}/${groupId.id}/${e.target.value}`
       );
     } else {
       datas = await axios.get(
-        `${urlBackend}/users/friends/${userId}`
+        `${urlBackend}/users/get-friends-not-join-group/${userId}/${groupId.id}`
       );
     }
     setFriendList([...datas.data])
   };
 
   const sendMessage = () => {
-    // if (sharedContent) {
-    //   for (let index = 0; index < selectedFriendsTemp.length; index++) {
-    //     socket.emit(`Client-Chat-Room`, {
-    //       message: sharedContent,
-    //       dateTimeSend : moment()
-    //       .utcOffset(7)
-    //       .format("YYYY-MM-DD HH:mm:ss"),
-    //       sender: userId,
-    //       receiver: selectedFriendsTemp[index],
-    //       chatRoom: userId > selectedFriendsTemp[index] ? `${selectedFriendsTemp[index]}${userId}` : `${userId}${selectedFriendsTemp[index]}`,
-    //     });
-    //   }
-    //   onCancel()
-    //   setRerender(pre => !pre)
-    // }
+    group.members = [...group.members, ...selectedFriendsTemp]
+    socket.emit(`Client-Update-Group-Chats`, {
+      group : group
+    });
+    setVisible(false)
   };
 
 

@@ -15,7 +15,7 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import { SendOutlined, EditOutlined } from "@ant-design/icons";
 import { LuSticker, LuAlarmClock, LuTrash } from "react-icons/lu";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
-import { IoVideocamOutline, IoSearchOutline } from "react-icons/io5";
+import { IoVideocamOutline, IoSearchOutline, IoSettingsOutline } from "react-icons/io5";
 import {
   VscLayoutSidebarRightOff,
   VscLayoutSidebarRight,
@@ -23,10 +23,12 @@ import {
 import { BsBell, BsPinAngle, BsEyeSlash } from "react-icons/bs";
 import { HiOutlineUsers } from "react-icons/hi2";
 import { CiTrash } from "react-icons/ci";
-import { MdOutlineSettingsBackupRestore } from "react-icons/md";
+import { MdOutlineSettingsBackupRestore, MdGroups } from "react-icons/md";
 import { FaShare, FaCaretDown, FaCaretRight } from "react-icons/fa";
 import { BiSolidToggleLeft } from "react-icons/bi";
 import { MdKeyboardVoice } from "react-icons/md";
+import { GiNotebook } from "react-icons/gi";
+import { GrReturn } from "react-icons/gr";
 
 import axios from "axios";
 
@@ -46,6 +48,7 @@ import ForwardMessageForm from "./components/ForwardMessageForm";
 import FormCard from "./components/FormCard";
 import moment from "moment";
 import ViewNewFriend from "./components/ViewNewFriend";
+import FormAddMemberToGroup from "./components/FormAddMemberToGroup";
 
 const ContentChat = ({
   userId,
@@ -87,6 +90,10 @@ const ContentChat = ({
   const [voice, setVoice] = useState(false);
   const [audioLink, setAudioLink] = useState("");
   const [page, setPage] = useState(1);
+  const [isGroup, setIsGroup] = useState(true);
+  const [isClickDownMember, setIsClickDownMember] = useState(false);
+  const [isClickDownNew, setIsClickDownNew] = useState(false);
+  const [isClickAddMember, setIsClickAddMember] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -410,13 +417,21 @@ const ContentChat = ({
           <InfoUser
             setVisible={setIsClickUser}
             visible={isClickUser}
-            userId={idChat}
+            userId={userId}
+            friendId={idChat}
             urlBackend={urlBackend}
           />
           <FormUpdateName
             setVisible={setIsClickUpdate}
             visible={isClickUpdate}
             user={nameReceiver}
+            urlBackend={urlBackend}
+          />
+          <FormAddMemberToGroup
+            setVisible={setIsClickAddMember}
+            visible={isClickAddMember}
+            userId={userId}
+            groupId={idChat}
             urlBackend={urlBackend}
           />
           <div
@@ -628,10 +643,10 @@ const ContentChat = ({
                       />
                     ) : null}
                     {index === hoveredIndex && message.sender === userId ? (
-                      <div style={{ width: "100px" }}>
+                      <div style={{ width: "100px", height: "20px" }}>
                         <div
                           className="utils-message"
-                          style={{ marginRight: "7px", marginTop: "5px" }}
+                          style={{ marginLeft: "12px",marginTop: "5px", width: "80px" }}
                         >
                           <MdOutlineSettingsBackupRestore
                             style={{
@@ -729,7 +744,7 @@ const ContentChat = ({
                           style={{
                             marginLeft: "7px",
                             marginTop: "5px",
-                            width: "48px",
+                            width: "60px",
                           }}
                         >
                           <CiTrash
@@ -753,7 +768,6 @@ const ContentChat = ({
                           />
                           <FaShare
                             style={{
-                              fontSize: "20px",
                               color:
                                 hoverText === "Chuyển tiếp" ? "#005ae0" : "",
                             }}
@@ -986,15 +1000,31 @@ const ContentChat = ({
                     Ghim hội <br /> thoại
                   </span>
                 </div>
+                {!isGroup ? (
                 <div className="group-chat">
                   <AiOutlineUsergroupAdd className="icon" />
                   <span>
                     Tạo nhóm <br /> trò chuyện
                   </span>
+                </div>): (<>
+                <div className="group-chat">
+                  <AiOutlineUsergroupAdd className="icon" onClick={()=>setIsClickAddMember(true)}/>
+                  <span>
+                    Thêm <br /> thành viên
+                  </span>
                 </div>
+                <div className="group-chat">
+                  <IoSettingsOutline className="icon" />
+                  <span>
+                    Quản lý <br /> nhóm
+                  </span>
+                </div></>)}
+
+                
               </div>
             </div>
-            <div className="chat-info-general">
+            {!isGroup ? (
+              <div className="chat-info-general">
               <div className="list-remider">
                 <LuAlarmClock className="icon" />
                 <span>Danh sách nhắc hẹn</span>
@@ -1004,6 +1034,50 @@ const ContentChat = ({
                 <span>0 nhóm chung</span>
               </div>
             </div>
+            ):(<>
+              <div className="group-member">
+              <div className="member-header">
+                <span>Thành viên nhóm</span>
+                <div onClick={() => setIsClickDownMember(!isClickDownMember)}>
+                  {isClickDownMember ? (
+                    <FaCaretRight className="icon" />
+                  ) : (
+                    <FaCaretDown className="icon" />
+                  )}
+                </div>
+              </div>              
+              <div style={{ display: isClickDownMember ? "none" : "" }}>
+                <div className="member-body">
+                  <MdGroups className="icon"/>
+                  <span>thành viên</span>
+                </div>
+              </div>
+            </div>
+            <div className="group-new">
+              <div className="new-header">
+                <span>Bảng tin nhóm</span>
+                <div onClick={() => setIsClickDownNew(!isClickDownNew)}>
+                  {isClickDownNew ? (
+                    <FaCaretRight className="icon" />
+                  ) : (
+                    <FaCaretDown className="icon" />
+                  )}
+                </div>
+              </div>              
+              <div style={{ display: isClickDownNew ? "none" : "" }}>
+                <div className="new-body">
+                  <LuAlarmClock className="icon"/>
+                  <span>Danh sách nhắc hẹn</span>
+                </div>
+                <div className="new-body">
+                  <GiNotebook className="icon"/>
+                  <span>Ghi chú, ghim, bình chọn</span>
+                </div>
+              </div>
+            </div>
+            </>)}
+            
+            
             <div className="group-media">
               <div className="media-header">
                 <span>Ảnh/Video</span>
@@ -1113,6 +1187,12 @@ const ContentChat = ({
                   <LuTrash className="icon" />
                   <span>Xóa lịch sử trò chuyện</span>
                 </div>
+                {isGroup && (
+                  <div className="delete-chat">
+                    <GrReturn className="icon" />
+                    <span>Rời nhóm</span>
+                  </div>
+                )}                
               </div>
             </div>
           </div>

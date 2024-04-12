@@ -90,11 +90,13 @@ const ContentChat = ({
   const [voice, setVoice] = useState(false);
   const [audioLink, setAudioLink] = useState("");
   const [page, setPage] = useState(1);
-  const [isGroup, setIsGroup] = useState(true);
+  const [isGroup, setIsGroup] = useState(false);
   const [isClickDownMember, setIsClickDownMember] = useState(false);
   const [isClickDownNew, setIsClickDownNew] = useState(false);
   const [isClickAddMember, setIsClickAddMember] = useState(false);
-
+  const [fileType, setFileType] = useState(["xls", "xlsx","doc", "docx", "csv", "txt","ppt", "pptx","rar", "zip","fa-file"]);
+  const [imageType, setImageType] = useState(["png","jpeg","jpg","gif","bmp","tiff", ]);
+  const [videoType, setVideoType] = useState(["mp3", "mp4"]);
   useEffect(() => {
     setPage(1);
     setNameSender({});
@@ -112,6 +114,7 @@ const ContentChat = ({
 
   useEffect(() => {
     if (idChat.type === "Single") {
+      setIsGroup(false);
       socket?.on(
         `Server-Chat-Room-${
           userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`
@@ -133,6 +136,7 @@ const ContentChat = ({
         }
       );
     } else {
+      setIsGroup(true);
       socket?.on(`Server-Chat-Room-${idChat.id}`, (dataGot) => {
         handleChangeMessageFinal(dataGot.data);
         setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
@@ -269,9 +273,9 @@ const ContentChat = ({
             file: reactFile,
             dateTimeSend: moment().utcOffset(7).format("YYYY-MM-DD HH:mm:ss"),
             sender: userId,
-            receiver: idChat,
+            receiver: idChat.id,
             chatRoom:
-              userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
+              userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`,
           });
         };
 
@@ -919,7 +923,7 @@ const ContentChat = ({
                   ref={inputRef}
                   className="chat-text-input"
                   type="text"
-                  placeholder={`Nhập @, tin nhắn tới ${nameReceiver.name}`}
+                  placeholder={`Nhập @, tin nhắn tới ${nameReceiver.name? nameReceiver.name : contentMessages[0]?.nameGroup}`}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -971,8 +975,8 @@ const ContentChat = ({
                 <img
                   src={
                     nameReceiver.image == null
-                      ? "/public/avatardefault.png"
-                      : nameReceiver.image
+                        ? contentMessages[0]?.imageGroup
+                        : nameReceiver.image
                   }
                   style={{
                     width: "60px",
@@ -982,7 +986,9 @@ const ContentChat = ({
                 />
               </div>
               <div className="header-info-name">
-                <div className="user-name">{nameReceiver.name}</div>
+                <div className="user-name">{nameReceiver.name
+                        ? nameReceiver.name
+                        : contentMessages[0]?.nameGroup}</div>
                 <div className="user-edit">
                   <EditOutlined />
                 </div>
@@ -1090,9 +1096,18 @@ const ContentChat = ({
                 </div>
               </div>
               <div style={{ display: isClickDownMedia ? "none" : "" }}>
-                <div className="media-body">
-                  <div className="frame"></div>
+              
+                
+                <div className="media-body" >
+                {contentMessages.map((message, index) => (
+                  <div className="frame" key={index}>
+                  {message.message.includes(regexUrl) && imageType.includes(message.message.substring(message.message.lastIndexOf('.')+1))? (
+                    <img src={message.message} style={{ width:"50px", height:"50px", border:"1px solid #7589a3", borderRadius:"4px"}}/>):""}
+                  {message.message.includes(regexUrl) && videoType.includes(message.message.substring(message.message.lastIndexOf('.')+1))? (
+                    <video src={message.message} controls style={{ width:"50px", height:"50px", border:"1px solid #7589a3", borderRadius:"4px"}}/>):""}
+                  </div>))}
                 </div>
+                
                 <div className="btn">
                   <div className="btn-all">Xem tất cả</div>
                 </div>
@@ -1112,8 +1127,16 @@ const ContentChat = ({
               <div style={{ display: isClickDownFile ? "none" : "" }}>
                 {contentMessages.map((message, index) => (
                   <div className="file-body" key={index}>
-                    {message.message.includes(regexUrl) && message.message.substring(message.message.lastIndexOf('.')+1)==='docx'? (
-                      <ViewFile url={message.message} />
+                    {message.message.includes(regexUrl) && fileType.includes(message.message.substring(message.message.lastIndexOf('.')+1))? (
+                      <div className="frame">
+                        <ViewFile url={message.message} />
+                        <span
+                            className="info time"
+                            style={{ fontSize: 10, color: "darkgrey" }}
+                          >
+                            {message.dateTimeSend?.split("T")[0]}
+                          </span>
+                      </div>
                     ) : ""}
                   </div>
                 ))}
@@ -1137,14 +1160,7 @@ const ContentChat = ({
               <div style={{ display: isClickDownLink ? "none" : "" }}>
                 <div className="link-body">
                   <div className="frame">
-                    <div className="frame-left"></div>
-                    <div className="frame-right">
-                      <div className="frame-right-top">link</div>
-                      <div className="frame-right-bottom">
-                        <div className="frame-link">link.com</div>
-                        <div className="frame-date">30/01/2024</div>
-                      </div>
-                    </div>
+                    
                   </div>
                 </div>
                 <div className="btn">

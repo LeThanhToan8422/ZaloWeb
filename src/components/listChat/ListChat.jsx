@@ -165,7 +165,10 @@ const ListChat = ({
         </div>
       </div>
 
-      <div className="contents-chats">
+      <div className="contents-chats" style={{
+        height : "100%",
+        overflowY : "scroll"
+      }}>
         {searchFriends?.length > 0
           ? searchFriends.map((chat) => (
               <div

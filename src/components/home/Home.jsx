@@ -6,18 +6,41 @@ import ContentChat from "../contentChat/ContentChat";
 import "../../App.css";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
+import { io } from "socket.io-client";
 
 function Home() {
   let location = useLocation();
 
   const [chats, setChats] = useState([]);
-  const [idChat, setIdChat] = useState("");
+  const [idChat, setIdChat] = useState({});
   const [messageFinal, setMessageFinal] = useState("");
   const [searchFriends, setSearchFriends] = useState([]);
-  const [chatSelected, setChatsSelected] = useState(0);
   const [user, setUser] = useState({});
   const [rerender, setRerender] = useState(false);
   const [makeFriends, setMakeFriends] = useState([]);
+
+  useEffect(() => {
+    let newSocket = io(`${location.state.urlBackend}`);
+
+    newSocket?.on(
+      `Server-Chat-Room-${location.state.userId}`,
+      (dataGot) => {
+        handleChangeMessageFinal(dataGot.data);
+        // setRerender(pre => !pre)
+      }
+    );
+
+    newSocket?.on(
+      `Server-Group-Chats-${location.state.userId}`,
+      (dataGot) => {
+        setRerender(pre => !pre)
+      }
+    );
+
+    return () => {
+      newSocket?.disconnect();
+    };
+  }, [location.state.userId, JSON.stringify(idChat), rerender, messageFinal]);
 
 
   useEffect(() => {
@@ -36,7 +59,9 @@ function Home() {
       setChats(datas.data);
     };
     getApiChatsByUserId();
+  }, [location.state.userId, JSON.stringify(idChat), rerender, messageFinal]);
 
+  useEffect(() => {
     let getApiMakeFriends = async () => {
       let datas = await axios.get(
         `${location.state.urlBackend}/make-friends/givers/${location.state.userId}`
@@ -44,14 +69,14 @@ function Home() {
       setMakeFriends(datas.data);
     };
     getApiMakeFriends();
-  }, [location.state.userId, idChat, rerender]);
+  }, [location.state.userId, JSON.stringify(idChat), rerender, messageFinal]);
 
   let handleChangeMessageFinal = (mess) => {
     setMessageFinal(mess);
   };
 
-  let handleChangeChat = (id) => {
-    setIdChat(id);
+  let handleChangeChat = (value) => {
+    setIdChat(value);
   };
 
   let handleChangeSearchValue = async (value) => {
@@ -70,9 +95,6 @@ function Home() {
     }
   };
 
-  let handleClickChatSeleted = (id) => {
-    setChatsSelected(id);
-  };
 
   return (
     <div className="app">
@@ -86,7 +108,6 @@ function Home() {
         messageFinal={messageFinal}
         handleChangeSearchValue={handleChangeSearchValue}
         searchFriends={searchFriends}
-        handleClickChatSeleted={handleClickChatSeleted}
         setRerender={setRerender}
         urlBackend={location.state.urlBackend}
         makeFriends={makeFriends}
@@ -96,7 +117,6 @@ function Home() {
         userId={location.state.userId}
         idChat={idChat}
         handleChangeMessageFinal={handleChangeMessageFinal}
-        chatSelected={chatSelected}
         setRerender={setRerender}
         urlBackend={location.state.urlBackend}
       />

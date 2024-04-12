@@ -4,6 +4,7 @@ import moment from "moment/moment";
 import "moment/locale/vi";
 import FormSearchFriendByPhone from "./components/FormSearchFriendByPhone";
 import FormDeleteChat from "./components/FormDeleteChat";
+import FormCreateGroup from "./components/FormCreateGroup";
 
 const ListChat = ({
   handleChangeChat,
@@ -12,7 +13,6 @@ const ListChat = ({
   messageFinal,
   handleChangeSearchValue,
   searchFriends,
-  handleClickChatSeleted,
   setRerender,
   urlBackend,
   makeFriends,
@@ -29,9 +29,10 @@ const ListChat = ({
   const [isClickUtils, setIsClickUtils] = useState(false);
   const [idChat, setIdChat] = useState('');
   const [visibleDel, setVisibleDel] = useState(false);
+  const [visibleGroup, setVisibleGroup] = useState(false);
 
   useEffect(() => {
-    setListChat([...chats]);
+    // setListChat([...chats]);
     setSearch("");
     handleChangeSearchValue("");
   }, [JSON.stringify(chats)]);
@@ -53,10 +54,27 @@ const ListChat = ({
     }
   }, [JSON.stringify(messageFinal)]);
 
-  let handleClickChat = (id) => {
-    handleChangeChat(id);
-    setChatsSelected(id);
-    handleClickChatSeleted(id);
+  let handleClickChat = (chat) => {
+    if(chat.receiver){
+      handleChangeChat({
+        id : chat.id,
+        type : "Single"
+      });
+      setChatsSelected({
+        id : chat.id,
+        type : "Single"
+      });
+    }
+    else{
+      handleChangeChat({
+        id : chat.id,
+        type : "Group"
+      });
+      setChatsSelected({
+        id : chat.id,
+        type : "Group"
+      });
+    }
   };
 
   let handleChangeSearch = async (value) => {
@@ -96,7 +114,17 @@ const ListChat = ({
             onClick={() => setVisibleFriendByPhone(true)}
           ></i>
           <span style={{color: 'red', marginBottom:20,marginLeft:-10, fontSize:12}}>{makeFriends?.length>0?`+` + makeFriends?.length:""}</span>
-          <i className="fa-solid fa-users icon-user"></i>
+          <i className="fa-solid fa-users icon-user" onClick={() => (setVisibleGroup(true))}></i>
+          {
+            visibleGroup 
+            &&
+            <FormCreateGroup 
+            visible={visibleGroup} 
+            setVisible={setVisibleGroup}
+            userId={userId}
+            urlBackend={urlBackend}
+            />
+          }
         </div>
 
         <div className="content-type">
@@ -143,10 +171,10 @@ const ListChat = ({
               <div
                 className="user-chat"
                 key={chat.id}
-                onClick={() => handleClickChat(chat.id)}
+                onClick={() => handleClickChat(chat)}
                 style={{
                   backgroundColor:
-                    chatSelected === chat.id ? "#e5efff" : "white",
+                    chatSelected.id === chat.id ? "#e5efff" : "white",
                 }}
               >
                 <img
@@ -170,14 +198,14 @@ const ListChat = ({
                 </div>
               </div>
             ))
-          : listChat.map((chat) => (
+          : chats?.map((chat) => (
                 <div
                   className="user-chat"
                   key={chat.id}
-                  onClick={() => handleClickChat(chat.id)}
+                  onClick={() => handleClickChat(chat)}
                   style={{
                     backgroundColor:
-                      chatSelected === chat.id ? "#e5efff" : "white",
+                      chatSelected.id === chat.id ? "#e5efff" : "white",
                   }}
                 >
                   <img

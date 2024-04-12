@@ -343,6 +343,89 @@
         line-height: 1.5;
         border-bottom: 1px solid #d6dbe1;
       }
+      .view-member{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        
+        .list-member{
+          display: flex;
+          flex-direction: column;
+          margin: 10px 0;
+          .list-member-text{
+            font-weight: 600;
+            margin: 0 16px 5px 16px;
+          }
+          .member{
+            display: flex;
+            width: 100%;
+            height: 80px;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            .member-avt{
+              width: 40px;
+              height: 40px;
+              margin-left: 16px;
+              img{
+                border-radius:50%;
+              }
+            }
+            .member-name{
+              font-weight: 500;
+            }
+            .icon{
+              display: none;
+              margin-left: 120px;
+              padding: 5px 7px;
+              cursor: pointer;
+            }
+            .icon:hover{
+              background-color: #c9d0d6 ;
+            }
+            .utils-leader{
+              position: absolute;
+              width: 150px;
+              background-color: #fff;
+              display: flex;
+              flex-direction: column;
+              right: 10px;
+              top: 55px;
+              z-index: 1;
+              border-radius: 2%;
+              box-shadow: 0 0 5px #b4a7a7;
+              padding: 10px 0;
+              span{
+                padding: 5px ;
+              }
+              span:hover{
+                background-color: #e4e9ee ;
+                cursor: pointer;
+              }
+            }
+          }
+          .member:hover{
+            background-color: #e4e9ee ;
+            .icon{
+              display: block;
+            }
+          }
+          
+        }
+        .add-member{
+          margin: 16px 16px 5px 16px;
+          display: flex;
+          background-color: #e4e9ee ;
+          justify-content: center;
+          padding: 5px;
+          border-radius: 5px;
+          cursor: pointer;
+          .icon{
+            font-size: 20px;
+          }
+        }
+      }
+      
       .header-info{
         width: 100%;
         height: 220px;

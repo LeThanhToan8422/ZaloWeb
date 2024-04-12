@@ -1081,11 +1081,8 @@ const ContentChat = ({
               <span style={{marginLeft: "70px"}}>Thành viên</span>
             </div>
             <div className="view-member">
-              <div className="add-member">
-                <AiOutlineUsergroupAdd
-                        className="icon"
-                        onClick={() => setIsClickAddMember(true)}
-                />
+              <div className="add-member" onClick={() => setIsClickAddMember(true)}>
+                <AiOutlineUsergroupAdd className="icon"/>
                 <span>Thêm thành viên</span>
               </div>
               <div className="list-member">

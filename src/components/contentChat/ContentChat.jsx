@@ -15,11 +15,7 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import { SendOutlined, EditOutlined } from "@ant-design/icons";
 import { LuSticker, LuAlarmClock, LuTrash } from "react-icons/lu";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
-import {
-  IoVideocamOutline,
-  IoSearchOutline,
-  IoSettingsOutline,
-} from "react-icons/io5";
+import { IoVideocamOutline,  IoSearchOutline,  IoSettingsOutline,  IoChevronBack} from "react-icons/io5";
 import {
   VscLayoutSidebarRightOff,
   VscLayoutSidebarRight,
@@ -104,6 +100,8 @@ const ContentChat = ({
   const [fileType, setFileType] = useState(["xls", "xlsx","doc", "docx", "csv", "txt","ppt", "pptx","rar", "zip","fa-file"]);
   const [imageType, setImageType] = useState(["png","jpeg","jpg","gif","bmp","tiff", ]);
   const [videoType, setVideoType] = useState(["mp3", "mp4"]);
+  const [isClickViewMember, setIsClickViewMember] = useState(false);
+  const [showUtilsForLeader, setShowUtilsForLeader] = useState(false);
   useEffect(() => {
     setPage(1);
     setNameSender({});
@@ -238,7 +236,7 @@ const ContentChat = ({
 
     let getApiContentGroupChats = async () => {
       let datas = await axios.get(
-        `${urlBackend}/group-chats/content-chats-between-group/${idChat.id}/${
+        `${urlBackend}/group-chats/content-chats-between-group/${idChat.id}/${userId}/${
           page * 10
         }`
       );
@@ -273,6 +271,7 @@ const ContentChat = ({
           buffer: buffer,
           size: file.size,
         };
+        console.log(reactFile);
         // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
         socket.emit(`Client-Chat-Room`, {
           file: reactFile,
@@ -308,43 +307,58 @@ const ContentChat = ({
     }
   };
 
-  let handleClickSendVoiceMessage = async () => {
-    if (idChat.type === "Single") {
-      if (audioLink) {
-        socket.emit(`Client-Chat-Room`, {
-          message: audioLink,
-          dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
-          sender: userId,
-          receiver: idChat.id,
-          chatRoom:
-            userId > idChat.id
-              ? `${idChat.id}${userId}`
-              : `${userId}${idChat.id}`,
-        });
+  let handleClickSendVoiceMessage = (blob) => {
+    const formData = new FormData();
+    let blobWithProp = new Blob([blob["blob"]], blob["options"]);
+    formData.append('audioFile', blobWithProp, 'test.wav');
+    console.log(formData);
+    // fetch(audioLink).then(res => res.blob()).then(blob => {
+    //   const downloadLink = document.createElement('a');
+    //   downloadLink.href = window.URL.createObjectURL(blob);
+    //   downloadLink.download = "test.wav";
+    //   document.body.appendChild(downloadLink);
+    //   downloadLink.click();
+    //   document.body.removeChild(downloadLink);
+    // })
+    // .catch(err => {
+    //   console.error('Lỗi khi tải: ', err);
+    // })
+    // if (idChat.type === "Single") {
+    //   if (audioLink) {
+    //     socket.emit(`Client-Chat-Room`, {
+    //       message: audioLink,
+    //       dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
+    //       sender: userId,
+    //       receiver: idChat.id,
+    //       chatRoom:
+    //         userId > idChat.id
+    //           ? `${idChat.id}${userId}`
+    //           : `${userId}${idChat.id}`,
+    //     });
 
-        setMessage("");
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-        setDisplayIcons(false);
-      }
-    } else {
-      if (audioLink) {
-        socket.emit(`Client-Chat-Room`, {
-          message: audioLink,
-          dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
-          sender: userId,
-          groupChat: idChat.id,
-          chatRoom: idChat.id,
-        });
+    //     setMessage("");
+    //     if (inputRef.current) {
+    //       inputRef.current.focus();
+    //     }
+    //     setDisplayIcons(false);
+    //   }
+    // } else {
+    //   if (audioLink) {
+    //     socket.emit(`Client-Chat-Room`, {
+    //       message: audioLink,
+    //       dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
+    //       sender: userId,
+    //       groupChat: idChat.id,
+    //       chatRoom: idChat.id,
+    //     });
 
-        setMessage("");
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-        setDisplayIcons(false);
-      }
-    }
+    //     setMessage("");
+    //     if (inputRef.current) {
+    //       inputRef.current.focus();
+    //     }
+    //     setDisplayIcons(false);
+    //   }
+    // }
   };
 
   const handleForwardButtonClick = (message) => {
@@ -359,6 +373,17 @@ const ContentChat = ({
   const onStopRecoding = (blob) => {
     console.log(blob);
     setAudioLink(blob.blobURL);
+    const reactFile = {
+      mimetype: blob.options.mimeType,
+      buffer: blob.blob.arrayBuffer,
+      size: blob.blob.size,
+    };
+    //handleClickSendVoiceMessage(blob);
+
+    const formData = new FormData();
+    let blobWithProp = new Blob([blob["blob"]], blob["options"]);
+    formData.append('audioFile', blobWithProp);
+    console.log(formData);
   };
   const handleStart = () => {
     setVoice(true);
@@ -378,6 +403,10 @@ const ContentChat = ({
     }
   };
 
+  const handleClickRecording = () => {
+    setAudioLink("");
+    setIsRecoding(!isRecoding);
+  }
   return (
     <div className="container-content-chat">
       {/* slide */}
@@ -927,7 +956,7 @@ const ContentChat = ({
               <div className="chat-utilities-icon">
                 <MdKeyboardVoice
                   className="icon"
-                  onClick={() => setIsRecoding(!isRecoding)}
+                  onClick={handleClickRecording}
                 />
                 {isRecoding && (
                   <div
@@ -1045,7 +1074,42 @@ const ContentChat = ({
               display: isClickInfo ? "flex" : "none",
               height: isClickInfo ? "100%" : "",
             }}
-          >
+          >{isClickViewMember ? (<>
+            <div className="header" style={{justifyContent:"flex-start"}}>
+              <IoChevronBack onClick={()=>setIsClickViewMember(false)}
+                            style={{cursor: "pointer"}}/>
+              <span style={{marginLeft: "70px"}}>Thành viên</span>
+            </div>
+            <div className="view-member">
+              <div className="add-member">
+                <AiOutlineUsergroupAdd
+                        className="icon"
+                        onClick={() => setIsClickAddMember(true)}
+                />
+                <span>Thêm thành viên</span>
+              </div>
+              <div className="list-member">
+                <span className="list-member-text">Danh sách thành viên</span>
+                {contentMessages.map((message, index) => (
+                  <div className="member" key={index} onMouseEnter={()=>setHoveredIndex(index)} onMouseLeave={()=>setShowUtilsForLeader(false)}>
+                    <div className="member-avt">
+                      <img src={message.imageUser}/>
+                    </div>
+                    <div className="member-name">
+                      {message.name}
+                    </div>
+                    <i className="fa-solid fa-ellipsis icon" onClick={()=>setShowUtilsForLeader(!showUtilsForLeader)}></i>
+                    {showUtilsForLeader && index===hoveredIndex && 
+                      <div className="utils-leader">
+                        <span>Thêm phó nhóm</span>
+                        <span>Xóa khỏi nhóm</span>
+                      </div>}
+                </div>
+                ))}
+                
+              </div>
+            </div>
+          </>):(<>
             <div className="header">Thông tin hội thoại</div>
             <div className="header-info">
               <div className="header-info-avt">
@@ -1138,7 +1202,7 @@ const ContentChat = ({
                     </div>
                   </div>
                   <div style={{ display: isClickDownMember ? "none" : "" }}>
-                    <div className="member-body">
+                    <div className="member-body" onClick={()=>setIsClickViewMember(true)}>
                       <MdGroups className="icon" />
                       <span>thành viên</span>
                     </div>
@@ -1285,6 +1349,7 @@ const ContentChat = ({
                 )}
               </div>
             </div>
+            </>)  }
           </div>
         </>
       )}

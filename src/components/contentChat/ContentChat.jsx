@@ -15,7 +15,11 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import { SendOutlined, EditOutlined } from "@ant-design/icons";
 import { LuSticker, LuAlarmClock, LuTrash } from "react-icons/lu";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
-import { IoVideocamOutline, IoSearchOutline, IoSettingsOutline } from "react-icons/io5";
+import {
+  IoVideocamOutline,
+  IoSearchOutline,
+  IoSettingsOutline,
+} from "react-icons/io5";
 import {
   VscLayoutSidebarRightOff,
   VscLayoutSidebarRight,
@@ -74,6 +78,9 @@ const ContentChat = ({
   const [isClickUpdate, setIsClickUpdate] = useState(false);
   const [regexUrl] = useState(
     "https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/"
+  );
+  const [regexUrlBlob] = useState(
+    /^blob:http:\/\/localhost:\d+\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
   );
   const [isRerenderStatusChat, setIsRerenderStatusChat] = useState(false);
   const [socket, setSocket] = useState(null);
@@ -231,7 +238,6 @@ const ContentChat = ({
           page * 10
         }`
       );
-      console.log(datas.data);
       let sender = await axios.get(`${urlBackend}/users/${datas.sender}`);
 
       setContentMessages(datas.data);
@@ -249,37 +255,40 @@ const ContentChat = ({
   }, [userId, JSON.stringify(idChat), isRerenderStatusChat, page]);
 
   let handleChangeFile = async (e) => {
-    if (idChat.type === "Single") {
-      for (let i = 0; i < e.target.files.length; i++) {
-        const file = e.target.files[i];
-        const reader = new FileReader();
+    for (let i = 0; i < e.target.files.length; i++) {
+      const file = e.target.files[i];
+      const reader = new FileReader();
 
-        reader.onload = (readerEvent) => {
-          const buffer = readerEvent.target.result;
+      reader.onload = (readerEvent) => {
+        const buffer = readerEvent.target.result;
 
-          const reactFile = {
-            originalname: file.name,
-            encoding: "7bit",
-            mimetype: file.type,
-            buffer: buffer,
-            size: file.size,
-          };
-          // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
-          socket.emit(`Client-Chat-Room`, {
-            file: reactFile,
-            dateTimeSend: moment().utcOffset(7).format("YYYY-MM-DD HH:mm:ss"),
-            sender: userId,
-            receiver: idChat,
-            chatRoom:
-              userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
-          });
+        const reactFile = {
+          originalname: file.name,
+          encoding: "7bit",
+          mimetype: file.type,
+          buffer: buffer,
+          size: file.size,
         };
+        // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
+        socket.emit(`Client-Chat-Room`, {
+          file: reactFile,
+          dateTimeSend: moment().utcOffset(7).format("YYYY-MM-DD HH:mm:ss"),
+          sender: userId,
+          receiver: idChat.type === "Single" ? idChat.id : null,
+          groupChat: idChat.type === "Group" ? idChat.id : null,
+          chatRoom:
+            idChat.type === "Single"
+              ? userId > idChat.id
+                ? `${idChat.id}${userId}`
+                : `${userId}${idChat.id}`
+              : idChat.id,
+        });
+      };
 
-        reader.readAsArrayBuffer(file);
-      }
-      setMessage("");
-      setDisplayIcons(false);
+      reader.readAsArrayBuffer(file);
     }
+    setMessage("");
+    setDisplayIcons(false);
   };
 
   let handleClickStatusChat = (status, userId, chat) => {
@@ -292,6 +301,45 @@ const ContentChat = ({
         objectId: idChat,
       });
       setIsRerenderStatusChat(!isRerenderStatusChat);
+    }
+  };
+
+  let handleClickSendVoiceMessage = async () => {
+    if (idChat.type === "Single") {
+      if (audioLink) {
+        socket.emit(`Client-Chat-Room`, {
+          message: audioLink,
+          dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
+          sender: userId,
+          receiver: idChat.id,
+          chatRoom:
+            userId > idChat.id
+              ? `${idChat.id}${userId}`
+              : `${userId}${idChat.id}`,
+        });
+
+        setMessage("");
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+        setDisplayIcons(false);
+      }
+    } else {
+      if (audioLink) {
+        socket.emit(`Client-Chat-Room`, {
+          message: audioLink,
+          dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
+          sender: userId,
+          groupChat: idChat.id,
+          chatRoom: idChat.id,
+        });
+
+        setMessage("");
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+        setDisplayIcons(false);
+      }
     }
   };
 
@@ -615,6 +663,11 @@ const ContentChat = ({
                     img={nameSender.image}
                     dateTimeSend={message.dateTimeSend}
                   />
+                ) : message.message.match(regexUrlBlob) ? (
+                  <audio
+                    src={"blob:http://localhost:5173/aa9b1297-1e33-4a49-af71-7c9c233cec26"}
+                    controls
+                  ></audio>
                 ) : (
                   <div
                     ref={
@@ -646,7 +699,11 @@ const ContentChat = ({
                       <div style={{ width: "100px", height: "20px" }}>
                         <div
                           className="utils-message"
-                          style={{ marginLeft: "12px",marginTop: "5px", width: "80px" }}
+                          style={{
+                            marginLeft: "12px",
+                            marginTop: "5px",
+                            width: "80px",
+                          }}
                         >
                           <MdOutlineSettingsBackupRestore
                             style={{
@@ -902,6 +959,26 @@ const ContentChat = ({
                     ) : (
                       ""
                     )}
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <button
+                        style={{
+                          border: "1px solid black",
+                          padding: "5px 15px",
+                          borderRadius: "10px",
+                          margin: "10px",
+                        }}
+                        onClick={handleClickSendVoiceMessage}
+                      >
+                        Send
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1001,83 +1078,91 @@ const ContentChat = ({
                   </span>
                 </div>
                 {!isGroup ? (
-                <div className="group-chat">
-                  <AiOutlineUsergroupAdd className="icon" />
-                  <span>
-                    Tạo nhóm <br /> trò chuyện
-                  </span>
-                </div>): (<>
-                <div className="group-chat">
-                  <AiOutlineUsergroupAdd className="icon" onClick={()=>setIsClickAddMember(true)}/>
-                  <span>
-                    Thêm <br /> thành viên
-                  </span>
-                </div>
-                <div className="group-chat">
-                  <IoSettingsOutline className="icon" />
-                  <span>
-                    Quản lý <br /> nhóm
-                  </span>
-                </div></>)}
-
-                
+                  <div className="group-chat">
+                    <AiOutlineUsergroupAdd className="icon" />
+                    <span>
+                      Tạo nhóm <br /> trò chuyện
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="group-chat">
+                      <AiOutlineUsergroupAdd
+                        className="icon"
+                        onClick={() => setIsClickAddMember(true)}
+                      />
+                      <span>
+                        Thêm <br /> thành viên
+                      </span>
+                    </div>
+                    <div className="group-chat">
+                      <IoSettingsOutline className="icon" />
+                      <span>
+                        Quản lý <br /> nhóm
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
             {!isGroup ? (
               <div className="chat-info-general">
-              <div className="list-remider">
-                <LuAlarmClock className="icon" />
-                <span>Danh sách nhắc hẹn</span>
-              </div>
-              <div className="group-general">
-                <HiOutlineUsers className="icon" />
-                <span>0 nhóm chung</span>
-              </div>
-            </div>
-            ):(<>
-              <div className="group-member">
-              <div className="member-header">
-                <span>Thành viên nhóm</span>
-                <div onClick={() => setIsClickDownMember(!isClickDownMember)}>
-                  {isClickDownMember ? (
-                    <FaCaretRight className="icon" />
-                  ) : (
-                    <FaCaretDown className="icon" />
-                  )}
-                </div>
-              </div>              
-              <div style={{ display: isClickDownMember ? "none" : "" }}>
-                <div className="member-body">
-                  <MdGroups className="icon"/>
-                  <span>thành viên</span>
-                </div>
-              </div>
-            </div>
-            <div className="group-new">
-              <div className="new-header">
-                <span>Bảng tin nhóm</span>
-                <div onClick={() => setIsClickDownNew(!isClickDownNew)}>
-                  {isClickDownNew ? (
-                    <FaCaretRight className="icon" />
-                  ) : (
-                    <FaCaretDown className="icon" />
-                  )}
-                </div>
-              </div>              
-              <div style={{ display: isClickDownNew ? "none" : "" }}>
-                <div className="new-body">
-                  <LuAlarmClock className="icon"/>
+                <div className="list-remider">
+                  <LuAlarmClock className="icon" />
                   <span>Danh sách nhắc hẹn</span>
                 </div>
-                <div className="new-body">
-                  <GiNotebook className="icon"/>
-                  <span>Ghi chú, ghim, bình chọn</span>
+                <div className="group-general">
+                  <HiOutlineUsers className="icon" />
+                  <span>0 nhóm chung</span>
                 </div>
               </div>
-            </div>
-            </>)}
-            
-            
+            ) : (
+              <>
+                <div className="group-member">
+                  <div className="member-header">
+                    <span>Thành viên nhóm</span>
+                    <div
+                      onClick={() => setIsClickDownMember(!isClickDownMember)}
+                    >
+                      {isClickDownMember ? (
+                        <FaCaretRight className="icon" />
+                      ) : (
+                        <FaCaretDown className="icon" />
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ display: isClickDownMember ? "none" : "" }}>
+                    <div className="member-body">
+                      <MdGroups className="icon" />
+                      <span>thành viên</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="group-new">
+                  <div className="new-header">
+                    <span>Bảng tin nhóm</span>
+                    <div onClick={() => setIsClickDownNew(!isClickDownNew)}>
+                      {isClickDownNew ? (
+                        <FaCaretRight className="icon" />
+                      ) : (
+                        <FaCaretDown className="icon" />
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ display: isClickDownNew ? "none" : "" }}>
+                    <div className="new-body">
+                      <LuAlarmClock className="icon" />
+                      <span>Danh sách nhắc hẹn</span>
+                    </div>
+                    <div className="new-body">
+                      <GiNotebook className="icon" />
+                      <span>Ghi chú, ghim, bình chọn</span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
             <div className="group-media">
               <div className="media-header">
                 <span>Ảnh/Video</span>
@@ -1192,7 +1277,7 @@ const ContentChat = ({
                     <GrReturn className="icon" />
                     <span>Rời nhóm</span>
                   </div>
-                )}                
+                )}
               </div>
             </div>
           </div>

@@ -1037,20 +1037,9 @@ const ContentChat = ({
               <div style={{ display: isClickDownFile ? "none" : "" }}>
                 {contentMessages.map((message, index) => (
                   <div className="file-body" key={index}>
-                    {message.message.includes(regexUrl) ? (
+                    {message.message.includes(regexUrl) && message.message.substring(message.message.lastIndexOf('.')+1)==='docx'? (
                       <ViewFile url={message.message} />
-                    ) : (
-                      <div className="frame">
-                        {/* <div className="frame-left"></div>
-                     <div className="frame-right">
-                      <div className="frame-right-top">file.rar</div>
-                      <div className="frame-right-bottom">
-                        <div className="frame-weight">51.63 KB</div>
-                        <div className="frame-date">30/01/2024</div>
-                      </div>
-                     </div> */}
-                      </div>
-                    )}
+                    ) : ""}
                   </div>
                 ))}
 

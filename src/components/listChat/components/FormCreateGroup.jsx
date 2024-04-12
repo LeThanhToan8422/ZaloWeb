@@ -1,28 +1,29 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form, Input, Checkbox, Avatar } from "antd";
 import axios from "axios";
+import { io } from "socket.io-client";
 
 const FormCreateGroup = ({
   userId,
   visible,
   setVisible,
-  setRerender,
   urlBackend
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [form] = Form.useForm();
   const [selectedFriendsTemp, setSelectedFriendsTemp] = useState([]);
   const [friendList, setFriendList] = useState([]);
-  const [regexUrl] = useState(
-    "https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/"
-  );
-  const [showFormCreateGroup, setShowFormCreateGroup] = useState(visible);
   const [groupName, setGroupName] = useState("");
-  const [visibleModal, setVisibleModal] = useState(false);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    setVisibleModal(visible);
-  }, [visible]);
+    let newSocket = io(`${urlBackend}`);
+    setSocket(newSocket)
+
+    return () => {
+      newSocket?.disconnect();
+    };
+  }, [userId]);
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -41,7 +42,6 @@ const FormCreateGroup = ({
   const handleCancel = () => {
     setSelectedFriendsTemp([]);
     form.resetFields();
-    setVisibleModal(false);
     if (typeof setVisible === "function") {
       setVisible(false);
     }
@@ -68,28 +68,22 @@ const FormCreateGroup = ({
   };
 
   const sendMessage = () => {
-    // if (sharedContent) {
-    //   for (let index = 0; index < selectedFriendsTemp.length; index++) {
-    //     socket.emit(`Client-Chat-Room`, {
-    //       message: sharedContent,
-    //       dateTimeSend : moment()
-    //       .utcOffset(7)
-    //       .format("YYYY-MM-DD HH:mm:ss"),
-    //       sender: userId,
-    //       receiver: selectedFriendsTemp[index],
-    //       chatRoom: userId > selectedFriendsTemp[index] ? `${selectedFriendsTemp[index]}${userId}` : `${userId}${selectedFriendsTemp[index]}`,
-    //     });
-    //   }
-    //   onCancel()
-    //   setRerender(pre => !pre)
-    // }
+    socket.emit(`Client-Group-Chats`, {
+      name : groupName,
+      members : JSON.stringify([userId,...selectedFriendsTemp]),
+      leader : userId,
+    });
+    setVisible(false)
   };
 
+  // let handleClickBack = () => {
+  //   setVisible(false)
+  // }
 
   return (
     <Modal
       title="Tạo nhóm"
-      open={visibleModal}
+      open={visible}
       onOk={() => handleCancel()}
       onCancel={() => handleCancel()}
       footer={[

@@ -46,13 +46,11 @@ import ForwardMessageForm from "./components/ForwardMessageForm";
 import FormCard from "./components/FormCard";
 import moment from "moment";
 import ViewNewFriend from "./components/ViewNewFriend";
-import FormCreateGroup from "./components/FormCreateGroup";
 
 const ContentChat = ({
   userId,
   idChat,
   handleChangeMessageFinal,
-  chatSelected,
   setRerender,
   urlBackend,
 }) => {
@@ -80,7 +78,6 @@ const ContentChat = ({
   const [showForwardForm, setShowForwardForm] = useState(false);
   const [showFormCard, setShowFormCard] = useState(false);
   const inputRef = useRef(null);
-  const [showFormCreateGroup, setShowFormCreateGroup] = useState(false);
 
   const [isClickDownMedia, setIsClickDownMedia] = useState(false);
   const [isClickDownFile, setIsClickDownFile] = useState(false);
@@ -89,65 +86,107 @@ const ContentChat = ({
   const [isRecoding, setIsRecoding] = useState(false);
   const [voice, setVoice] = useState(false);
   const [audioLink, setAudioLink] = useState("");
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+    setNameSender({});
+    setNameReceiver({});
+  }, [JSON.stringify(idChat)]);
 
   useEffect(() => {
     let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
-  }, [JSON.stringify(contentMessages), chatSelected, isRerenderStatusChat]);
+  }, [
+    JSON.stringify(contentMessages),
+    JSON.stringify(idChat),
+    isRerenderStatusChat,
+  ]);
 
   useEffect(() => {
-    socket?.on(
-      `Server-Chat-Room-${
-        userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`
-      }`,
-      (dataGot) => {
+    if (idChat.type === "Single") {
+      socket?.on(
+        `Server-Chat-Room-${
+          userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`
+        }`,
+        (dataGot) => {
+          handleChangeMessageFinal(dataGot.data);
+          setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
+          setRerender((pre) => !pre);
+        }
+      );
+
+      socket?.on(
+        `Server-Status-Chat-${
+          userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`
+        }`,
+        (dataGot) => {
+          handleChangeMessageFinal(dataGot.data.chatFinal);
+          setIsRerenderStatusChat(!isRerenderStatusChat);
+        }
+      );
+    } else {
+      socket?.on(`Server-Chat-Room-${idChat.id}`, (dataGot) => {
         handleChangeMessageFinal(dataGot.data);
         setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
-        setRerender(pre => !pre)
-      }
-    );
+        setRerender((pre) => !pre);
+      });
 
-    return () => {
-      socket?.disconnect();
-    };
-  }, [JSON.stringify(contentMessages), chatSelected, isRerenderStatusChat]);
-
-  useEffect(() => {
-    socket?.on(
-      `Server-Status-Chat-${
-        userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`
-      }`,
-      (dataGot) => {
+      socket?.on(`Server-Status-Chat-${idChat.id}`, (dataGot) => {
         handleChangeMessageFinal(dataGot.data.chatFinal);
         setIsRerenderStatusChat(!isRerenderStatusChat);
-      }
-    );
+      });
+    }
 
     return () => {
       socket?.disconnect();
     };
-  }, [JSON.stringify(contentMessages), isRerenderStatusChat]);
+  }, [
+    JSON.stringify(contentMessages),
+    JSON.stringify(idChat),
+    isRerenderStatusChat,
+  ]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [JSON.stringify(contentMessages)]);
 
   const sendMessage = () => {
-    if (message !== null) {
-      socket.emit(`Client-Chat-Room`, {
-        message: message,
-        dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
-        sender: userId,
-        receiver: idChat,
-        chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
-      });
+    if (idChat.type === "Single") {
+      if (message !== null) {
+        socket.emit(`Client-Chat-Room`, {
+          message: message,
+          dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
+          sender: userId,
+          receiver: idChat.id,
+          chatRoom:
+            userId > idChat.id
+              ? `${idChat.id}${userId}`
+              : `${userId}${idChat.id}`,
+        });
 
-      setMessage("");
-      if (inputRef.current) {
-        inputRef.current.focus();
+        setMessage("");
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+        setDisplayIcons(false);
       }
-      setDisplayIcons(false);
+    } else {
+      if (message !== null) {
+        socket.emit(`Client-Chat-Room`, {
+          message: message,
+          dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
+          sender: userId,
+          groupChat: idChat.id,
+          chatRoom: idChat.id,
+        });
+
+        setMessage("");
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+        setDisplayIcons(false);
+      }
     }
   };
 
@@ -161,11 +200,12 @@ const ContentChat = ({
   useEffect(() => {
     let getApiContentChats = async () => {
       let datas = await axios.get(
-        `${urlBackend}/chats/content-chats-between-users/${userId}-and-${idChat}/${page}`
+        `${urlBackend}/chats/content-chats-between-users/${userId}-and-${
+          idChat.id
+        }/${page * 10}`
       );
-      console.log(datas.data);
       let sender = await axios.get(`${urlBackend}/users/${userId}`);
-      let receiver = await axios.get(`${urlBackend}/users/${idChat}`);
+      let receiver = await axios.get(`${urlBackend}/users/${idChat.id}`);
 
       setContentMessages(datas.data);
       setNameReceiver({
@@ -177,50 +217,75 @@ const ContentChat = ({
         image: sender.data.image,
       });
     };
-    idChat && getApiContentChats();
-  }, [userId, idChat, isRerenderStatusChat]);
+
+    let getApiContentGroupChats = async () => {
+      let datas = await axios.get(
+        `${urlBackend}/group-chats/content-chats-between-group/${idChat.id}/${
+          page * 10
+        }`
+      );
+      console.log(datas.data);
+      let sender = await axios.get(`${urlBackend}/users/${datas.sender}`);
+
+      setContentMessages(datas.data);
+      setNameSender({
+        name: sender.data.name,
+        image: sender.data.image,
+      });
+    };
+
+    if (idChat.type === "Single") {
+      getApiContentChats();
+    } else {
+      getApiContentGroupChats();
+    }
+  }, [userId, JSON.stringify(idChat), isRerenderStatusChat, page]);
 
   let handleChangeFile = async (e) => {
-    for (let i = 0; i < e.target.files.length; i++) {
-      const file = e.target.files[i];
-      const reader = new FileReader();
+    if (idChat.type === "Single") {
+      for (let i = 0; i < e.target.files.length; i++) {
+        const file = e.target.files[i];
+        const reader = new FileReader();
 
-      reader.onload = (readerEvent) => {
-        const buffer = readerEvent.target.result;
+        reader.onload = (readerEvent) => {
+          const buffer = readerEvent.target.result;
 
-        const reactFile = {
-          originalname: file.name,
-          encoding: "7bit",
-          mimetype: file.type,
-          buffer: buffer,
-          size: file.size,
+          const reactFile = {
+            originalname: file.name,
+            encoding: "7bit",
+            mimetype: file.type,
+            buffer: buffer,
+            size: file.size,
+          };
+          // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
+          socket.emit(`Client-Chat-Room`, {
+            file: reactFile,
+            dateTimeSend: moment().utcOffset(7).format("YYYY-MM-DD HH:mm:ss"),
+            sender: userId,
+            receiver: idChat,
+            chatRoom:
+              userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
+          });
         };
-        // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
-        socket.emit(`Client-Chat-Room`, {
-          file: reactFile,
-          dateTimeSend: moment().utcOffset(7).format("YYYY-MM-DD HH:mm:ss"),
-          sender: userId,
-          receiver: idChat,
-          chatRoom:
-            userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
-        });
-      };
 
-      reader.readAsArrayBuffer(file);
+        reader.readAsArrayBuffer(file);
+      }
+      setMessage("");
+      setDisplayIcons(false);
     }
-    setMessage("");
-    setDisplayIcons(false);
   };
 
   let handleClickStatusChat = (status, userId, chat) => {
-    socket.emit(`Client-Status-Chat`, {
-      status: status,
-      implementer: userId,
-      chat: chat,
-      chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
-      objectId: idChat,
-    });
-    setIsRerenderStatusChat(!isRerenderStatusChat);
+    if (idChat.type === "Single") {
+      socket.emit(`Client-Status-Chat`, {
+        status: status,
+        implementer: userId,
+        chat: chat,
+        chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
+        objectId: idChat,
+      });
+      setIsRerenderStatusChat(!isRerenderStatusChat);
+    }
   };
 
   const handleForwardButtonClick = (message) => {
@@ -231,7 +296,7 @@ const ContentChat = ({
   const handleForwardFormCancel = () => {
     setShowForwardForm(false);
   };
-  
+
   const onStopRecoding = (blob) => {
     console.log(blob);
     setAudioLink(blob.blobURL);
@@ -243,16 +308,21 @@ const ContentChat = ({
     setVoice(false);
   };
   useEffect(() => {
-    if (chatSelected && inputRef.current) {
+    if (idChat && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [chatSelected]);
+  }, [JSON.stringify(idChat)]);
 
+  let handleScrollContentChats = (e) => {
+    if (e.currentTarget.scrollTop === 0) {
+      setPage((pre) => pre + 1);
+    }
+  };
 
   return (
     <div className="container-content-chat">
       {/* slide */}
-      {idChat === "" ? (
+      {!idChat.id ? (
         <div className="slides">
           <div className="slogan">
             <div className="slogan-title">
@@ -362,7 +432,7 @@ const ContentChat = ({
                   <img
                     src={
                       nameReceiver.image == null
-                        ? "/public/avatardefault.png"
+                        ? contentMessages[0]?.imageGroup
                         : nameReceiver.image
                     }
                     style={{
@@ -374,7 +444,11 @@ const ContentChat = ({
                 </div>
                 <div className="chat-header-left-name">
                   <div className="user">
-                    <div className="user-name">{nameReceiver.name}</div>
+                    <div className="user-name">
+                      {nameReceiver.name
+                        ? nameReceiver.name
+                        : contentMessages[0]?.nameGroup}
+                    </div>
                     <div className="user-edit">
                       <EditOutlined onClick={() => setIsClickUpdate(true)} />
                     </div>
@@ -383,16 +457,6 @@ const ContentChat = ({
                 </div>
               </div>
               <div className="chat-header-right">
-                <div className="chat-header-right-icon" onClick={()=>setShowFormCreateGroup(!showFormCreateGroup)}>
-                  <FormCreateGroup 
-                      userId={userId}
-                      urlBackend={urlBackend}
-                      setVisible={setShowFormCreateGroup}
-                      visible={showFormCreateGroup}
-                      setRerender={setRerender}
-                  />
-                  <AiOutlineUsergroupAdd className="icon" />
-                </div>
                 <div className="chat-header-right-icon">
                   <IoSearchOutline className="icon" />{" "}
                 </div>
@@ -415,7 +479,10 @@ const ContentChat = ({
                 </div>
               </div>
             </div>
-            <div className="chat-view">
+            <div
+              className="chat-view"
+              onScroll={(e) => handleScrollContentChats(e)}
+            >
               {contentMessages.map((message, index) => {
                 return message.isRecalls ? (
                   <div
@@ -436,7 +503,7 @@ const ContentChat = ({
                       <img
                         src={
                           nameReceiver.image == null
-                            ? "/public/avatardefault.png"
+                            ? message.imageUser
                             : nameReceiver.image
                         }
                         className="avatar-user"
@@ -445,7 +512,9 @@ const ContentChat = ({
                       />
                     ) : null}
                     <div className="content-message">
-                      <span className="info mess" style={{color : "#7B8089"}}>Tin nhắn đã được thu hồi</span>
+                      <span className="info mess" style={{ color: "#7B8089" }}>
+                        Tin nhắn đã được thu hồi
+                      </span>
                       <span
                         className="info time"
                         style={{ fontSize: 10, color: "darkgrey" }}
@@ -550,7 +619,7 @@ const ContentChat = ({
                       <img
                         src={
                           nameReceiver.image == null
-                            ? "/public/avatardefault.png"
+                            ? message.imageUser
                             : nameReceiver.image
                         }
                         className="avatar-user"
@@ -635,18 +704,23 @@ const ContentChat = ({
                     ) : (
                       ""
                     )}
-                    <div className="content-message">
-                      {message.message.includes(regexUrl) ? (
-                        <ViewFile url={message.message} />
-                      ) : (
-                        <span className="info mess">{message.message}</span>
+                    <div>
+                      {!nameReceiver.name && message.sender !== userId && (
+                        <span>{message.name}</span>
                       )}
-                      <span
-                        className="info time"
-                        style={{ fontSize: 10, color: "darkgrey" }}
-                      >
-                        {message.dateTimeSend?.slice(11, 16)}
-                      </span>
+                      <div className="content-message">
+                        {message.message.includes(regexUrl) ? (
+                          <ViewFile url={message.message} />
+                        ) : (
+                          <span className="info mess">{message.message}</span>
+                        )}
+                        <span
+                          className="info time"
+                          style={{ fontSize: 10, color: "darkgrey" }}
+                        >
+                          {message.dateTimeSend?.slice(11, 16)}
+                        </span>
+                      </div>
                     </div>
                     {index === hoveredIndex && message.sender !== userId ? (
                       <div style={{ width: "100px", height: "20px" }}>

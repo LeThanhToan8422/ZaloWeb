@@ -96,6 +96,7 @@ const ContentChat = ({
   const [isRecoding, setIsRecoding] = useState(false);
   const [voice, setVoice] = useState(false);
   const [audioLink, setAudioLink] = useState("");
+  const [voiceMessage, setVoiceMessage] = useState(null);
   const [page, setPage] = useState(1);
   const [isGroup, setIsGroup] = useState(true);
   const [isClickDownMember, setIsClickDownMember] = useState(false);
@@ -147,7 +148,7 @@ const ContentChat = ({
       });
 
       socket?.on(`Server-Status-Chat-${idChat.id}`, (dataGot) => {
-        handleChangeMessageFinal(dataGot.data.chatFinal);
+        setRerender((pre) => !pre);
         setIsRerenderStatusChat(!isRerenderStatusChat);
       });
     }
@@ -234,7 +235,7 @@ const ContentChat = ({
 
     let getApiContentGroupChats = async () => {
       let datas = await axios.get(
-        `${urlBackend}/group-chats/content-chats-between-group/${idChat.id}/${
+        `${urlBackend}/group-chats/content-chats-between-group/${idChat.id}/${userId}/${
           page * 10
         }`
       );
@@ -292,56 +293,52 @@ const ContentChat = ({
   };
 
   let handleClickStatusChat = (status, userId, chat) => {
-    if (idChat.type === "Single") {
-      socket.emit(`Client-Status-Chat`, {
-        status: status,
-        implementer: userId,
-        chat: chat,
-        chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
-        objectId: idChat,
-      });
-      setIsRerenderStatusChat(!isRerenderStatusChat);
-    }
+    socket.emit(`Client-Status-Chat`, {
+      status: status,
+      implementer: userId,
+      chat: chat,
+      chatRoom:
+        idChat.type === "Single"
+          ? userId > idChat.id
+            ? `${idChat.id}${userId}`
+            : `${userId}${idChat.id}`
+          : idChat.id,
+    });
+    setIsRerenderStatusChat(!isRerenderStatusChat);
   };
 
-  let handleClickSendVoiceMessage = async () => {
-    if (idChat.type === "Single") {
-      if (audioLink) {
-        socket.emit(`Client-Chat-Room`, {
-          message: audioLink,
-          dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
-          sender: userId,
-          receiver: idChat.id,
-          chatRoom:
-            userId > idChat.id
-              ? `${idChat.id}${userId}`
-              : `${userId}${idChat.id}`,
-        });
+  // let handleClickSendVoiceMessage = async () => {
+  //   const file = e.target.files[i];
+  //   const reader = new FileReader();
 
-        setMessage("");
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-        setDisplayIcons(false);
-      }
-    } else {
-      if (audioLink) {
-        socket.emit(`Client-Chat-Room`, {
-          message: audioLink,
-          dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
-          sender: userId,
-          groupChat: idChat.id,
-          chatRoom: idChat.id,
-        });
+  //   reader.onload = (readerEvent) => {
+  //     const buffer = readerEvent.target.result;
 
-        setMessage("");
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-        setDisplayIcons(false);
-      }
-    }
-  };
+  //     const reactFile = {
+  //       originalname: file.name,
+  //       encoding: "7bit",
+  //       mimetype: file.type,
+  //       buffer: buffer,
+  //       size: file.size,
+  //     };
+  //     // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
+  //     socket.emit(`Client-Chat-Room`, {
+  //       file: reactFile,
+  //       dateTimeSend: moment().utcOffset(7).format("YYYY-MM-DD HH:mm:ss"),
+  //       sender: userId,
+  //       receiver: idChat.type === "Single" ? idChat.id : null,
+  //       groupChat: idChat.type === "Group" ? idChat.id : null,
+  //       chatRoom:
+  //         idChat.type === "Single"
+  //           ? userId > idChat.id
+  //             ? `${idChat.id}${userId}`
+  //             : `${userId}${idChat.id}`
+  //           : idChat.id,
+  //     });
+  //   };
+
+  //   reader.readAsArrayBuffer(file);
+  // };
 
   const handleForwardButtonClick = (message) => {
     setForwardedMessageContent(message);
@@ -353,7 +350,7 @@ const ContentChat = ({
   };
 
   const onStopRecoding = (blob) => {
-    console.log(blob);
+    setVoiceMessage(blob);
     setAudioLink(blob.blobURL);
   };
   const handleStart = () => {
@@ -665,7 +662,9 @@ const ContentChat = ({
                   />
                 ) : message.message.match(regexUrlBlob) ? (
                   <audio
-                    src={"blob:http://localhost:5173/aa9b1297-1e33-4a49-af71-7c9c233cec26"}
+                    src={
+                      "blob:http://localhost:5173/aa9b1297-1e33-4a49-af71-7c9c233cec26"
+                    }
                     controls
                   ></audio>
                 ) : (
@@ -974,7 +973,7 @@ const ContentChat = ({
                           borderRadius: "10px",
                           margin: "10px",
                         }}
-                        onClick={handleClickSendVoiceMessage}
+                        // onClick={handleClickSendVoiceMessage}
                       >
                         Send
                       </button>

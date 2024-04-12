@@ -92,6 +92,7 @@ const ContentChat = ({
   const [isRecoding, setIsRecoding] = useState(false);
   const [voice, setVoice] = useState(false);
   const [audioLink, setAudioLink] = useState("");
+  const [voiceMessage, setVoiceMessage] = useState(null);
   const [page, setPage] = useState(1);
   const [isGroup, setIsGroup] = useState(false);
   const [isClickDownMember, setIsClickDownMember] = useState(false);
@@ -149,7 +150,7 @@ const ContentChat = ({
       });
 
       socket?.on(`Server-Status-Chat-${idChat.id}`, (dataGot) => {
-        handleChangeMessageFinal(dataGot.data.chatFinal);
+        setRerender((pre) => !pre);
         setIsRerenderStatusChat(!isRerenderStatusChat);
       });
     }
@@ -295,17 +296,20 @@ const ContentChat = ({
   };
 
   let handleClickStatusChat = (status, userId, chat) => {
-    if (idChat.type === "Single") {
-      socket.emit(`Client-Status-Chat`, {
-        status: status,
-        implementer: userId,
-        chat: chat,
-        chatRoom: userId > idChat ? `${idChat}${userId}` : `${userId}${idChat}`,
-        objectId: idChat,
-      });
-      setIsRerenderStatusChat(!isRerenderStatusChat);
-    }
+    socket.emit(`Client-Status-Chat`, {
+      status: status,
+      implementer: userId,
+      chat: chat,
+      chatRoom:
+        idChat.type === "Single"
+          ? userId > idChat.id
+            ? `${idChat.id}${userId}`
+            : `${userId}${idChat.id}`
+          : idChat.id,
+    });
+    setIsRerenderStatusChat(!isRerenderStatusChat);
   };
+
 
   let handleClickSendVoiceMessage = (blob) => {
     const formData = new FormData();
@@ -361,6 +365,7 @@ const ContentChat = ({
     // }
   };
 
+
   const handleForwardButtonClick = (message) => {
     setForwardedMessageContent(message);
     setShowForwardForm(true);
@@ -371,7 +376,7 @@ const ContentChat = ({
   };
 
   const onStopRecoding = (blob) => {
-    console.log(blob);
+    setVoiceMessage(blob);
     setAudioLink(blob.blobURL);
     const reactFile = {
       mimetype: blob.options.mimeType,
@@ -698,7 +703,9 @@ const ContentChat = ({
                   />
                 ) : message.message.match(regexUrlBlob) ? (
                   <audio
-                    src={"blob:http://localhost:5173/aa9b1297-1e33-4a49-af71-7c9c233cec26"}
+                    src={
+                      "blob:http://localhost:5173/aa9b1297-1e33-4a49-af71-7c9c233cec26"
+                    }
                     controls
                   ></audio>
                 ) : (
@@ -1007,7 +1014,7 @@ const ContentChat = ({
                           borderRadius: "10px",
                           margin: "10px",
                         }}
-                        onClick={handleClickSendVoiceMessage}
+                        // onClick={handleClickSendVoiceMessage}
                       >
                         Send
                       </button>

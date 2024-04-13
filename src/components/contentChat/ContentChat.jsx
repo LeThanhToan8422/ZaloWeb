@@ -94,6 +94,7 @@ const ContentChat = ({
   const [audioLink, setAudioLink] = useState("");
   const [voiceMessage, setVoiceMessage] = useState(null);
   const [page, setPage] = useState(1);
+  const [group, setGroup] = useState(null);
   const [isGroup, setIsGroup] = useState(false);
   const [isClickDownMember, setIsClickDownMember] = useState(false);
   const [isClickDownNew, setIsClickDownNew] = useState(false);
@@ -103,6 +104,9 @@ const ContentChat = ({
   const [videoType, setVideoType] = useState(["mp3", "mp4"]);
   const [isClickViewMember, setIsClickViewMember] = useState(false);
   const [showUtilsForLeader, setShowUtilsForLeader] = useState(false);
+  const [membersOfGroup, setMembersOfGroup] = useState(null);
+
+
   useEffect(() => {
     setPage(1);
     setNameSender({});
@@ -117,6 +121,20 @@ const ContentChat = ({
     JSON.stringify(idChat),
     isRerenderStatusChat,
   ]);
+
+  useEffect(() => {
+    const fetchGroupChat = async () => {
+      try {
+        const response = await axios.get(
+          `${urlBackend}/group-chats/${idChat.id}`
+        );
+        setGroup(response.data);
+      } catch (error) {
+        console.error("Error fetching friends:", error);
+      }
+    };
+    fetchGroupChat()
+  }, [userId, JSON.stringify(idChat), JSON.stringify(group)])
 
   useEffect(() => {
     if (idChat.type === "Single") {
@@ -167,6 +185,14 @@ const ContentChat = ({
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [JSON.stringify(contentMessages)]);
+
+  useEffect(() => {
+    let getApiMembersOfGroup = async() => {
+      let datas = await axios.get(`${urlBackend}/users/get-members-in-group/${idChat.id}`);
+    setMembersOfGroup(datas.data);
+    }
+    getApiMembersOfGroup()
+  }, [isClickViewMember, JSON.stringify(group)]);
 
   const sendMessage = () => {
     if (idChat.type === "Single") {
@@ -412,6 +438,21 @@ const ContentChat = ({
     setAudioLink("");
     setIsRecoding(!isRecoding);
   }
+
+  // let handleClickShowMembersGroup = async() => {
+  //   let datas = await axios.get(`${urlBackend}/users/get-members-in-group/${idChat.id}`);
+  //   setMembersOfGroup(datas.data);
+  //   setIsClickViewMember(true)
+  // }
+
+  let handleClickDeleteMember = async(id) => {
+    console.log(id);
+    group.members = JSON.stringify(group.members.filter(m => m !== id))
+    socket.emit(`Client-Update-Group-Chats`, {
+      group : group
+    });
+  }
+
   return (
     <div className="container-content-chat">
       {/* slide */}
@@ -518,6 +559,8 @@ const ContentChat = ({
             visible={isClickAddMember}
             userId={userId}
             groupId={idChat}
+            group={group}
+            setGroup={setGroup}
             urlBackend={urlBackend}
           />
           <div
@@ -1083,7 +1126,7 @@ const ContentChat = ({
             }}
           >{isClickViewMember ? (<>
             <div className="header" style={{justifyContent:"flex-start"}}>
-              <IoChevronBack onClick={()=>setIsClickViewMember(false)}
+              <IoChevronBack onClick={() => setIsClickViewMember(false)}
                             style={{cursor: "pointer"}}/>
               <span style={{marginLeft: "70px"}}>Thành viên</span>
             </div>
@@ -1094,19 +1137,19 @@ const ContentChat = ({
               </div>
               <div className="list-member">
                 <span className="list-member-text">Danh sách thành viên</span>
-                {contentMessages.map((message, index) => (
+                {membersOfGroup?.map((u, index) => (
                   <div className="member" key={index} onMouseEnter={()=>setHoveredIndex(index)} onMouseLeave={()=>setShowUtilsForLeader(false)}>
                     <div className="member-avt">
-                      <img src={message.imageUser}/>
+                      <img src={u.image}/>
                     </div>
                     <div className="member-name">
-                      {message.name}
+                      {u.name}
                     </div>
                     <i className="fa-solid fa-ellipsis icon" onClick={()=>setShowUtilsForLeader(!showUtilsForLeader)}></i>
                     {showUtilsForLeader && index===hoveredIndex && 
                       <div className="utils-leader">
                         <span>Thêm phó nhóm</span>
-                        <span>Xóa khỏi nhóm</span>
+                        <span onClick={() => handleClickDeleteMember(u.id)}>Xóa khỏi nhóm</span>
                       </div>}
                 </div>
                 ))}
@@ -1206,7 +1249,7 @@ const ContentChat = ({
                     </div>
                   </div>
                   <div style={{ display: isClickDownMember ? "none" : "" }}>
-                    <div className="member-body" onClick={()=>setIsClickViewMember(true)}>
+                    <div className="member-body" onClick={() => setIsClickViewMember(true)}>
                       <MdGroups className="icon" />
                       <span>thành viên</span>
                     </div>

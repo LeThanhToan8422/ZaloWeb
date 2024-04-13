@@ -49,6 +49,7 @@ import FormCard from "./components/FormCard";
 import moment from "moment";
 import ViewNewFriend from "./components/ViewNewFriend";
 import FormAddMemberToGroup from "./components/FormAddMemberToGroup";
+import toast from "react-hot-toast";
 
 const ContentChat = ({
   userId,
@@ -105,7 +106,7 @@ const ContentChat = ({
   const [isClickViewMember, setIsClickViewMember] = useState(false);
   const [showUtilsForLeader, setShowUtilsForLeader] = useState(false);
   const [membersOfGroup, setMembersOfGroup] = useState(null);
-
+  const regexLink = /(https?:\/\/[^\s]+)/g;
 
   useEffect(() => {
     setPage(1);
@@ -321,7 +322,16 @@ const ContentChat = ({
     setDisplayIcons(false);
   };
 
-  let handleClickStatusChat = (status, userId, chat) => {
+  let handleClickStatusChat = (status, userId, chat, time) => {
+    console.log(time);
+    const sentTime = new Date(time);
+    const currentTime = new Date();
+    const timeDiff = currentTime - sentTime;
+    const millisIn24Hours = 24 * 60 * 60 * 1000;
+    const isSentMoreThan24HoursAgo = timeDiff >= millisIn24Hours;
+    if(isSentMoreThan24HoursAgo){
+      toast.error("Bạn chỉ có thể thu hồi tin nhắn trong vòng 24h!")
+    }else {
     socket.emit(`Client-Status-Chat`, {
       status: status,
       implementer: userId,
@@ -334,6 +344,7 @@ const ContentChat = ({
           : idChat.id,
     });
     setIsRerenderStatusChat(!isRerenderStatusChat);
+  }
   };
 
 
@@ -666,7 +677,7 @@ const ContentChat = ({
                         {message.dateTimeSend?.slice(11, 16)}
                       </span>
                     </div>
-                    {index === hoveredIndex && message.sender !== userId ? (
+                    {index === hoveredIndex && message.sender !== userId && !message.isRecalls ? (
                       <div style={{ width: "100px", height: "20px" }}>
                         <div
                           className="utils-message"
@@ -798,7 +809,7 @@ const ContentChat = ({
                               handleClickStatusChat(
                                 "recalls",
                                 userId,
-                                message.id
+                                message.id, message.dateTimeSend
                               )
                             }
                           />
@@ -867,7 +878,11 @@ const ContentChat = ({
                         {message.message.includes(regexUrl) ? (
                           <ViewFile url={message.message} />
                         ) : (
-                          <span className="info mess">{message.message}</span>
+                          <span className="info mess">
+                            {message.message.match(regexLink)? 
+                            (<a href={message.message} target="_blank" rel="noopener noreferrer" style={{color: 'blue', textDecoration: "underline"}}>{message.message}</a>)
+                            :message.message}
+                          </span>
                         )}
                         <span
                           className="info time"
@@ -1157,7 +1172,7 @@ const ContentChat = ({
               </div>
             </div>
           </>):(<>
-            <div className="header">Thông tin hội thoại</div>
+            <div className="header">{isGroup? "Thông tin nhóm": "Thông tin hội thoại"}</div>
             <div className="header-info">
               <div className="header-info-avt">
                 <img
@@ -1251,7 +1266,7 @@ const ContentChat = ({
                   <div style={{ display: isClickDownMember ? "none" : "" }}>
                     <div className="member-body" onClick={() => setIsClickViewMember(true)}>
                       <MdGroups className="icon" />
-                      <span>thành viên</span>
+                      <span>{`${membersOfGroup?.length} thành viên`}</span>
                     </div>
                   </div>
                 </div>

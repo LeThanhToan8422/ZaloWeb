@@ -81,9 +81,6 @@ const ContentChat = ({
   const [regexUrl] = useState(
     "https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/"
   );
-  const [regexUrlBlob] = useState(
-    /^blob:http:\/\/localhost:\d+\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
-  );
   const [isRerenderStatusChat, setIsRerenderStatusChat] = useState(false);
   const [socket, setSocket] = useState(null);
   const [forwardedMessageContent, setForwardedMessageContent] = useState("");
@@ -798,13 +795,6 @@ const ContentChat = ({
                     img={nameSender.image}
                     dateTimeSend={message.dateTimeSend}
                   />
-                ) : message.message.match(regexUrlBlob) ? (
-                  <audio
-                    src={
-                      "blob:http://localhost:5173/aa9b1297-1e33-4a49-af71-7c9c233cec26"
-                    }
-                    controls
-                  ></audio>
                 ) : (
                   <div
                     ref={

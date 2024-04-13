@@ -94,7 +94,7 @@ const FormCreateGroup = ({
           key="submit"
           type="primary"
           onClick={sendMessage}
-          disabled={!selectedFriendsTemp.length || !groupName.length>0}
+          disabled={selectedFriendsTemp.length<2 || !groupName.length>0}
         >
           Tạo nhóm
         </Button>,

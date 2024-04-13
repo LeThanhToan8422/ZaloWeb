@@ -33,6 +33,7 @@ function Home() {
     newSocket?.on(
       `Server-Group-Chats-${location.state.userId}`,
       (dataGot) => {
+        setIdChat({});
         setRerender(pre => !pre)
         if(dataGot.data.id === idChat.id){
           setIdChat({})

@@ -677,7 +677,7 @@ const ContentChat = ({
                         {message.dateTimeSend?.slice(11, 16)}
                       </span>
                     </div>
-                    {index === hoveredIndex && message.sender !== userId ? (
+                    {index === hoveredIndex && message.sender !== userId && !message.isRecalls ? (
                       <div style={{ width: "100px", height: "20px" }}>
                         <div
                           className="utils-message"

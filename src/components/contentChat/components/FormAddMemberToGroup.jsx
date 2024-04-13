@@ -9,6 +9,8 @@ const FormAddMemberToGroup = ({
   visible,
   setVisible,
   groupId,
+  group,
+  setGroup,
   urlBackend
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,7 +22,6 @@ const FormAddMemberToGroup = ({
   );
   const [groupName, setGroupName] = useState("");
   const [visibleModal, setVisibleModal] = useState(false);
-  const [group, setGroup] = useState(null);
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
@@ -42,25 +43,14 @@ const FormAddMemberToGroup = ({
         const response = await axios.get(
           `${urlBackend}/users/get-friends-not-join-group/${userId}/${groupId.id}`
         );
+        console.log(response.data);
         setFriendList(response.data);
       } catch (error) {
         console.error("Error fetching friends:", error);
       }
     };
-
-    const fetchGroupChat = async () => {
-      try {
-        const response = await axios.get(
-          `${urlBackend}/group-chats/${groupId.id}`
-        );
-        setGroup(response.data);
-      } catch (error) {
-        console.error("Error fetching friends:", error);
-      }
-    };
     fetchFriends();
-    fetchGroupChat()
-  }, [userId]);
+  }, [userId, JSON.stringify(group)]);
 
   const handleCancel = () => {
     setSelectedFriendsTemp([]);
@@ -92,10 +82,11 @@ const FormAddMemberToGroup = ({
   };
 
   const sendMessage = () => {
-    group.members = [...group.members, ...selectedFriendsTemp]
+    group.members = JSON.stringify([...group.members, ...selectedFriendsTemp])
     socket.emit(`Client-Update-Group-Chats`, {
       group : group
     });
+    setGroup(group)
     setVisible(false)
   };
 

@@ -103,6 +103,26 @@ const ContentChat = ({
   const [videoType, setVideoType] = useState(["mp3", "mp4"]);
   const [isClickViewMember, setIsClickViewMember] = useState(false);
   const [showUtilsForLeader, setShowUtilsForLeader] = useState(false);
+  const [listMember, setListMember] = useState([]);
+  const idListMember = contentMessages[0]?.members
+  console.log(idListMember);
+  console.log(listMember);
+
+  useEffect(() => {
+    const apiGetMember = async () => {
+      if (idListMember && idListMember.length > 0) {
+        const updatedListMember = [];
+        for (let index = 0; index < idListMember.length; index++) {
+          const response = await axios.get(`${urlBackend}/users/${idListMember[index]}`);
+          updatedListMember.push(response.data);
+        }
+        setListMember(updatedListMember);
+      }
+    };
+  
+    apiGetMember();
+  }, [idListMember]);
+
   useEffect(() => {
     setPage(1);
     setNameSender({});
@@ -1094,13 +1114,13 @@ const ContentChat = ({
               </div>
               <div className="list-member">
                 <span className="list-member-text">Danh sách thành viên</span>
-                {contentMessages.map((message, index) => (
+                {listMember?.map((member, index) => (
                   <div className="member" key={index} onMouseEnter={()=>setHoveredIndex(index)} onMouseLeave={()=>setShowUtilsForLeader(false)}>
                     <div className="member-avt">
-                      <img src={message.imageUser}/>
+                      <img src={member.image}/>
                     </div>
                     <div className="member-name">
-                      {message.name}
+                      {member.name}
                     </div>
                     <i className="fa-solid fa-ellipsis icon" onClick={()=>setShowUtilsForLeader(!showUtilsForLeader)}></i>
                     {showUtilsForLeader && index===hoveredIndex && 
@@ -1208,7 +1228,7 @@ const ContentChat = ({
                   <div style={{ display: isClickDownMember ? "none" : "" }}>
                     <div className="member-body" onClick={()=>setIsClickViewMember(true)}>
                       <MdGroups className="icon" />
-                      <span>thành viên</span>
+                      <span>{`${idListMember?.length} thành viên`}</span>
                     </div>
                   </div>
                 </div>

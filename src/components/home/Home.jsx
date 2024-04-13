@@ -35,6 +35,9 @@ function Home() {
       (dataGot) => {
         setIdChat({});
         setRerender(pre => !pre)
+        if(dataGot.data.id === idChat.id){
+          setIdChat({})
+        }
       }
     );
 

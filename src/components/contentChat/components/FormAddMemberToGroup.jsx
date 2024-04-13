@@ -43,7 +43,6 @@ const FormAddMemberToGroup = ({
         const response = await axios.get(
           `${urlBackend}/users/get-friends-not-join-group/${userId}/${groupId.id}`
         );
-        console.log(response.data);
         setFriendList(response.data);
       } catch (error) {
         console.error("Error fetching friends:", error);
@@ -82,10 +81,11 @@ const FormAddMemberToGroup = ({
   };
 
   const sendMessage = () => {
-    group.members = JSON.stringify([...group.members, ...selectedFriendsTemp])
     socket.emit(`Client-Update-Group-Chats`, {
-      group : group
+      group : group,
+      mbs : selectedFriendsTemp
     });
+    group.members = [...group.members, ...selectedFriendsTemp]
     setGroup(group)
     setVisible(false)
   };

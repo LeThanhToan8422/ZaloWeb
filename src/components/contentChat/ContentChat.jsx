@@ -15,7 +15,12 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import { SendOutlined, EditOutlined } from "@ant-design/icons";
 import { LuSticker, LuAlarmClock, LuTrash } from "react-icons/lu";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
-import { IoVideocamOutline,  IoSearchOutline,  IoSettingsOutline,  IoChevronBack} from "react-icons/io5";
+import {
+  IoVideocamOutline,
+  IoSearchOutline,
+  IoSettingsOutline,
+  IoChevronBack,
+} from "react-icons/io5";
 import {
   VscLayoutSidebarRightOff,
   VscLayoutSidebarRight,
@@ -49,6 +54,7 @@ import FormCard from "./components/FormCard";
 import moment from "moment";
 import ViewNewFriend from "./components/ViewNewFriend";
 import FormAddMemberToGroup from "./components/FormAddMemberToGroup";
+import toast from "react-hot-toast";
 
 const ContentChat = ({
   userId,
@@ -99,13 +105,31 @@ const ContentChat = ({
   const [isClickDownMember, setIsClickDownMember] = useState(false);
   const [isClickDownNew, setIsClickDownNew] = useState(false);
   const [isClickAddMember, setIsClickAddMember] = useState(false);
-  const [fileType, setFileType] = useState(["xls", "xlsx","doc", "docx", "csv", "txt","ppt", "pptx","rar", "zip","fa-file"]);
-  const [imageType, setImageType] = useState(["png","jpeg","jpg","gif","bmp","tiff", ]);
+  const [fileType, setFileType] = useState([
+    "xls",
+    "xlsx",
+    "doc",
+    "docx",
+    "csv",
+    "txt",
+    "ppt",
+    "pptx",
+    "rar",
+    "zip",
+    "fa-file",
+  ]);
+  const [imageType, setImageType] = useState([
+    "png",
+    "jpeg",
+    "jpg",
+    "gif",
+    "bmp",
+    "tiff",
+  ]);
   const [videoType, setVideoType] = useState(["mp3", "mp4"]);
   const [isClickViewMember, setIsClickViewMember] = useState(false);
   const [showUtilsForLeader, setShowUtilsForLeader] = useState(false);
   const [membersOfGroup, setMembersOfGroup] = useState(null);
-
 
   useEffect(() => {
     setPage(1);
@@ -133,8 +157,8 @@ const ContentChat = ({
         console.error("Error fetching friends:", error);
       }
     };
-    fetchGroupChat()
-  }, [userId, JSON.stringify(idChat), JSON.stringify(group)])
+    fetchGroupChat();
+  }, [userId, JSON.stringify(idChat), JSON.stringify(group)]);
 
   useEffect(() => {
     if (idChat.type === "Single") {
@@ -171,6 +195,14 @@ const ContentChat = ({
         setRerender((pre) => !pre);
         setIsRerenderStatusChat(!isRerenderStatusChat);
       });
+
+      socket?.on(`Server-Change-Deputy-Group-Chats-${group.id}`, (dataGot) => {
+        setGroup(dataGot.data);
+      });
+
+      socket?.on(`Server-Change-Leader-Group-Chats-${group.id}`, (dataGot) => {
+        setGroup(dataGot.data);
+      });
     }
 
     return () => {
@@ -180,6 +212,7 @@ const ContentChat = ({
     JSON.stringify(contentMessages),
     JSON.stringify(idChat),
     isRerenderStatusChat,
+    JSON.stringify(group),
   ]);
 
   useEffect(() => {
@@ -187,11 +220,13 @@ const ContentChat = ({
   }, [JSON.stringify(contentMessages)]);
 
   useEffect(() => {
-    let getApiMembersOfGroup = async() => {
-      let datas = await axios.get(`${urlBackend}/users/get-members-in-group/${idChat.id}`);
-    setMembersOfGroup(datas.data);
-    }
-    getApiMembersOfGroup()
+    let getApiMembersOfGroup = async () => {
+      let datas = await axios.get(
+        `${urlBackend}/users/get-members-in-group/${idChat.id}`
+      );
+      setMembersOfGroup(datas.data);
+    };
+    getApiMembersOfGroup();
   }, [isClickViewMember, JSON.stringify(group)]);
 
   const sendMessage = () => {
@@ -263,9 +298,9 @@ const ContentChat = ({
 
     let getApiContentGroupChats = async () => {
       let datas = await axios.get(
-        `${urlBackend}/group-chats/content-chats-between-group/${idChat.id}/${userId}/${
-          page * 10
-        }`
+        `${urlBackend}/group-chats/content-chats-between-group/${
+          idChat.id
+        }/${userId}/${page * 10}`
       );
       let sender = await axios.get(`${urlBackend}/users/${datas.sender}`);
 
@@ -336,11 +371,10 @@ const ContentChat = ({
     setIsRerenderStatusChat(!isRerenderStatusChat);
   };
 
-
   let handleClickSendVoiceMessage = (blob) => {
     const formData = new FormData();
     let blobWithProp = new Blob([blob["blob"]], blob["options"]);
-    formData.append('audioFile', blobWithProp, 'test.wav');
+    formData.append("audioFile", blobWithProp, "test.wav");
     console.log(formData);
     // fetch(audioLink).then(res => res.blob()).then(blob => {
     //   const downloadLink = document.createElement('a');
@@ -391,7 +425,6 @@ const ContentChat = ({
     // }
   };
 
-
   const handleForwardButtonClick = (message) => {
     setForwardedMessageContent(message);
     setShowForwardForm(true);
@@ -413,7 +446,7 @@ const ContentChat = ({
 
     const formData = new FormData();
     let blobWithProp = new Blob([blob["blob"]], blob["options"]);
-    formData.append('audioFile', blobWithProp);
+    formData.append("audioFile", blobWithProp);
     console.log(formData);
   };
   const handleStart = () => {
@@ -437,21 +470,42 @@ const ContentChat = ({
   const handleClickRecording = () => {
     setAudioLink("");
     setIsRecoding(!isRecoding);
-  }
+  };
 
-  // let handleClickShowMembersGroup = async() => {
-  //   let datas = await axios.get(`${urlBackend}/users/get-members-in-group/${idChat.id}`);
-  //   setMembersOfGroup(datas.data);
-  //   setIsClickViewMember(true)
-  // }
-
-  let handleClickDeleteMember = async(id) => {
-    console.log(id);
-    group.members = JSON.stringify(group.members.filter(m => m !== id))
+  let handleClickDeleteMember = async (id) => {
     socket.emit(`Client-Update-Group-Chats`, {
-      group : group
+      group: group,
+      mbs: id,
     });
-  }
+    group.members = JSON.stringify(group.members.filter((m) => m !== id));
+    setGroup(group);
+  };
+
+  let handleClickDissolutionGroup = async () => {
+    socket.emit(`Client-Dessolution-Group-Chats`, {
+      group: group,
+    });
+  };
+
+  let handleClickChangeDeputy = (value) => {
+    group.deputy = value;
+    socket.emit(`Client-Change-Deputy-Group-Chats`, {
+      group: group,
+    });
+    setGroup(group);
+  };
+
+  let handleClickChangeLeader = (value) => {
+    if (group.deputy === value) {
+      toast.error("Bạn phải đổi phó nhóm trước khi chuyển trưởng nhóm.");
+    } else {
+      group.leader = value;
+      socket.emit(`Client-Change-Leader-Group-Chats`, {
+        group: group,
+      });
+      setGroup(group);
+    }
+  };
 
   return (
     <div className="container-content-chat">
@@ -1079,7 +1133,11 @@ const ContentChat = ({
                   ref={inputRef}
                   className="chat-text-input"
                   type="text"
-                  placeholder={`Nhập @, tin nhắn tới ${nameReceiver.name? nameReceiver.name : contentMessages[0]?.nameGroup}`}
+                  placeholder={`Nhập @, tin nhắn tới ${
+                    nameReceiver.name
+                      ? nameReceiver.name
+                      : contentMessages[0]?.nameGroup
+                  }`}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -1124,279 +1182,433 @@ const ContentChat = ({
               display: isClickInfo ? "flex" : "none",
               height: isClickInfo ? "100%" : "",
             }}
-          >{isClickViewMember ? (<>
-            <div className="header" style={{justifyContent:"flex-start"}}>
-              <IoChevronBack onClick={() => setIsClickViewMember(false)}
-                            style={{cursor: "pointer"}}/>
-              <span style={{marginLeft: "70px"}}>Thành viên</span>
-            </div>
-            <div className="view-member">
-              <div className="add-member" onClick={() => setIsClickAddMember(true)}>
-                <AiOutlineUsergroupAdd className="icon"/>
-                <span>Thêm thành viên</span>
-              </div>
-              <div className="list-member">
-                <span className="list-member-text">Danh sách thành viên</span>
-                {membersOfGroup?.map((u, index) => (
-                  <div className="member" key={index} onMouseEnter={()=>setHoveredIndex(index)} onMouseLeave={()=>setShowUtilsForLeader(false)}>
-                    <div className="member-avt">
-                      <img src={u.image}/>
-                    </div>
-                    <div className="member-name">
-                      {u.name}
-                    </div>
-                    <i className="fa-solid fa-ellipsis icon" onClick={()=>setShowUtilsForLeader(!showUtilsForLeader)}></i>
-                    {showUtilsForLeader && index===hoveredIndex && 
-                      <div className="utils-leader">
-                        <span>Thêm phó nhóm</span>
-                        <span onClick={() => handleClickDeleteMember(u.id)}>Xóa khỏi nhóm</span>
-                      </div>}
+          >
+            {isClickViewMember ? (
+              <>
+                <div
+                  className="header"
+                  style={{ justifyContent: "flex-start" }}
+                >
+                  <IoChevronBack
+                    onClick={() => setIsClickViewMember(false)}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <span style={{ marginLeft: "70px" }}>Thành viên</span>
                 </div>
-                ))}
-                
-              </div>
-            </div>
-          </>):(<>
-            <div className="header">Thông tin hội thoại</div>
-            <div className="header-info">
-              <div className="header-info-avt">
-                <img
-                  src={
-                    nameReceiver.image == null
-                        ? contentMessages[0]?.imageGroup
-                        : nameReceiver.image
-                  }
-                  style={{
-                    width: "60px",
-                    height: "60px",
-                    borderRadius: "50%",
-                  }}
-                />
-              </div>
-              <div className="header-info-name">
-                <div className="user-name">{nameReceiver.name
-                        ? nameReceiver.name
-                        : contentMessages[0]?.nameGroup}</div>
-                <div className="user-edit">
-                  <EditOutlined />
-                </div>
-              </div>
-              <div className="header-info-utilities">
-                <div className="notif">
-                  <BsBell className="icon" />
-                  <span>
-                    Tắt thông <br /> báo
-                  </span>
-                </div>
-                <div className="pin-chat">
-                  <BsPinAngle className="icon" />
-                  <span>
-                    Ghim hội <br /> thoại
-                  </span>
-                </div>
-                {!isGroup ? (
-                  <div className="group-chat">
+                <div className="view-member">
+                  <div
+                    className="add-member"
+                    onClick={() => setIsClickAddMember(true)}
+                  >
                     <AiOutlineUsergroupAdd className="icon" />
-                    <span>
-                      Tạo nhóm <br /> trò chuyện
-                    </span>
+                    <span>Thêm thành viên</span>
                   </div>
-                ) : (
-                  <>
-                    <div className="group-chat">
-                      <AiOutlineUsergroupAdd
-                        className="icon"
-                        onClick={() => setIsClickAddMember(true)}
-                      />
-                      <span>
-                        Thêm <br /> thành viên
-                      </span>
-                    </div>
-                    <div className="group-chat">
-                      <IoSettingsOutline className="icon" />
-                      <span>
-                        Quản lý <br /> nhóm
-                      </span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-            {!isGroup ? (
-              <div className="chat-info-general">
-                <div className="list-remider">
-                  <LuAlarmClock className="icon" />
-                  <span>Danh sách nhắc hẹn</span>
+                  <div className="list-member">
+                    <span className="list-member-text">
+                      Danh sách thành viên
+                    </span>
+                    {membersOfGroup?.map((u, index) => (
+                      <div
+                        className="member"
+                        key={index}
+                        onMouseEnter={() => setHoveredIndex(index)}
+                        onMouseLeave={() => setShowUtilsForLeader(false)}
+                      >
+                        <div
+                          className="member-avt"
+                          style={{ position: "relative" }}
+                        >
+                          <img src={u.image} />
+                          {(group.leader === u.id || group.deputy === u.id) && (
+                            <i
+                              className="fa-solid fa-key"
+                              style={{
+                                position: "absolute",
+                                bottom: -5,
+                                right: 0,
+                                fontSize: "8px",
+                                color:
+                                  group.leader === u.id ? "yellow" : "silver",
+                                borderRadius: "50%",
+                                padding: "5px",
+                                backgroundColor: "#666666",
+                              }}
+                            ></i>
+                          )}
+                        </div>
+                        <div className="member-name">{u.name}</div>
+                        {(group.leader === userId ||
+                          group.deputy === userId) && (
+                          <i
+                            className="fa-solid fa-ellipsis icon"
+                            onClick={() =>
+                              setShowUtilsForLeader(!showUtilsForLeader)
+                            }
+                          ></i>
+                        )}
+                        {showUtilsForLeader &&
+                          index === hoveredIndex &&
+                          u.id !== group.leader && (
+                            <div
+                              className="utils-leader"
+                              style={{
+                                width: "180px",
+                                textAlign: "center",
+                              }}
+                            >
+                              {(userId === group.leader &&
+                              group.deputy === null) ? (
+                                <span
+                                  onClick={() => handleClickChangeDeputy(u.id)}
+                                >
+                                  Thêm phó nhóm
+                                </span>
+                              ) : userId === group.leader &&
+                                group.deputy === u.id ? (
+                                <span
+                                  onClick={() => handleClickChangeDeputy(null)}
+                                >
+                                  Xóa phó nhóm
+                                </span>
+                              ) : null}
+                              {userId === group.leader && group.deputy !== null && group.deputy !== u.id && (
+                                <span
+                                  onClick={() => handleClickChangeDeputy(u.id)}
+                                >
+                                  Đổi phó nhóm
+                                </span>
+                              )}
+                              {(userId === group.leader ||
+                                userId === group.deputy) && (
+                                <span
+                                  onClick={() => handleClickDeleteMember(u.id)}
+                                >
+                                  {userId === u.id ? "Rời khỏi nhóm" : "Xóa khỏi nhóm"}
+                                </span>
+                              )}
+                              {userId === group.leader && (
+                                <span
+                                  onClick={() => handleClickChangeLeader(u.id)}
+                                >
+                                  Chuyển trưởng nhóm
+                                </span>
+                              )}
+                            </div>
+                          )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="group-general">
-                  <HiOutlineUsers className="icon" />
-                  <span>0 nhóm chung</span>
-                </div>
-              </div>
+              </>
             ) : (
               <>
-                <div className="group-member">
-                  <div className="member-header">
-                    <span>Thành viên nhóm</span>
-                    <div
-                      onClick={() => setIsClickDownMember(!isClickDownMember)}
-                    >
-                      {isClickDownMember ? (
-                        <FaCaretRight className="icon" />
-                      ) : (
-                        <FaCaretDown className="icon" />
-                      )}
+                <div className="header">Thông tin hội thoại</div>
+                <div className="header-info">
+                  <div className="header-info-avt">
+                    <img
+                      src={
+                        nameReceiver.image == null
+                          ? contentMessages[0]?.imageGroup
+                          : nameReceiver.image
+                      }
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "50%",
+                      }}
+                    />
+                  </div>
+                  <div className="header-info-name">
+                    <div className="user-name">
+                      {nameReceiver.name
+                        ? nameReceiver.name
+                        : contentMessages[0]?.nameGroup}
+                    </div>
+                    <div className="user-edit">
+                      <EditOutlined />
                     </div>
                   </div>
-                  <div style={{ display: isClickDownMember ? "none" : "" }}>
-                    <div className="member-body" onClick={() => setIsClickViewMember(true)}>
-                      <MdGroups className="icon" />
-                      <span>thành viên</span>
+                  <div className="header-info-utilities">
+                    <div className="notif">
+                      <BsBell className="icon" />
+                      <span>
+                        Tắt thông <br /> báo
+                      </span>
                     </div>
+                    <div className="pin-chat">
+                      <BsPinAngle className="icon" />
+                      <span>
+                        Ghim hội <br /> thoại
+                      </span>
+                    </div>
+                    {!isGroup ? (
+                      <div className="group-chat">
+                        <AiOutlineUsergroupAdd className="icon" />
+                        <span>
+                          Tạo nhóm <br /> trò chuyện
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="group-chat">
+                          <AiOutlineUsergroupAdd
+                            className="icon"
+                            onClick={() => setIsClickAddMember(true)}
+                          />
+                          <span>
+                            Thêm <br /> thành viên
+                          </span>
+                        </div>
+                        <div className="group-chat">
+                          <IoSettingsOutline className="icon" />
+                          <span>
+                            Quản lý <br /> nhóm
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
-                <div className="group-new">
-                  <div className="new-header">
-                    <span>Bảng tin nhóm</span>
-                    <div onClick={() => setIsClickDownNew(!isClickDownNew)}>
-                      {isClickDownNew ? (
-                        <FaCaretRight className="icon" />
-                      ) : (
-                        <FaCaretDown className="icon" />
-                      )}
-                    </div>
-                  </div>
-                  <div style={{ display: isClickDownNew ? "none" : "" }}>
-                    <div className="new-body">
+                {!isGroup ? (
+                  <div className="chat-info-general">
+                    <div className="list-remider">
                       <LuAlarmClock className="icon" />
                       <span>Danh sách nhắc hẹn</span>
                     </div>
-                    <div className="new-body">
-                      <GiNotebook className="icon" />
-                      <span>Ghi chú, ghim, bình chọn</span>
+                    <div className="group-general">
+                      <HiOutlineUsers className="icon" />
+                      <span>0 nhóm chung</span>
                     </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="group-member">
+                      <div className="member-header">
+                        <span>Thành viên nhóm</span>
+                        <div
+                          onClick={() =>
+                            setIsClickDownMember(!isClickDownMember)
+                          }
+                        >
+                          {isClickDownMember ? (
+                            <FaCaretRight className="icon" />
+                          ) : (
+                            <FaCaretDown className="icon" />
+                          )}
+                        </div>
+                      </div>
+                      <div style={{ display: isClickDownMember ? "none" : "" }}>
+                        <div
+                          className="member-body"
+                          onClick={() => setIsClickViewMember(true)}
+                        >
+                          <MdGroups className="icon" />
+                          <span style={{ marginRight: "5px" }}>
+                            {group.members?.length}
+                          </span>
+                          <span>thành viên</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="group-new">
+                      <div className="new-header">
+                        <span>Bảng tin nhóm</span>
+                        <div onClick={() => setIsClickDownNew(!isClickDownNew)}>
+                          {isClickDownNew ? (
+                            <FaCaretRight className="icon" />
+                          ) : (
+                            <FaCaretDown className="icon" />
+                          )}
+                        </div>
+                      </div>
+                      <div style={{ display: isClickDownNew ? "none" : "" }}>
+                        <div className="new-body">
+                          <LuAlarmClock className="icon" />
+                          <span>Danh sách nhắc hẹn</span>
+                        </div>
+                        <div className="new-body">
+                          <GiNotebook className="icon" />
+                          <span>Ghi chú, ghim, bình chọn</span>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div className="group-media">
+                  <div className="media-header">
+                    <span>Ảnh/Video</span>
+                    <div onClick={() => setIsClickDownMedia(!isClickDownMedia)}>
+                      {isClickDownMedia ? (
+                        <FaCaretRight className="icon" />
+                      ) : (
+                        <FaCaretDown className="icon" />
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ display: isClickDownMedia ? "none" : "" }}>
+                    <div className="media-body">
+                      {contentMessages.map((message, index) => (
+                        <div className="frame" key={index}>
+                          {message.message.includes(regexUrl) &&
+                          imageType.includes(
+                            message.message.substring(
+                              message.message.lastIndexOf(".") + 1
+                            )
+                          ) ? (
+                            <img
+                              src={message.message}
+                              style={{
+                                width: "50px",
+                                height: "50px",
+                                border: "1px solid #7589a3",
+                                borderRadius: "4px",
+                              }}
+                            />
+                          ) : (
+                            ""
+                          )}
+                          {message.message.includes(regexUrl) &&
+                          videoType.includes(
+                            message.message.substring(
+                              message.message.lastIndexOf(".") + 1
+                            )
+                          ) ? (
+                            <video
+                              src={message.message}
+                              controls
+                              style={{
+                                width: "50px",
+                                height: "50px",
+                                border: "1px solid #7589a3",
+                                borderRadius: "4px",
+                              }}
+                            />
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="btn">
+                      <div className="btn-all">Xem tất cả</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="group-file">
+                  <div className="file-header">
+                    <span>File</span>
+                    <div onClick={() => setIsClickDownFile(!isClickDownFile)}>
+                      {isClickDownFile ? (
+                        <FaCaretRight className="icon" />
+                      ) : (
+                        <FaCaretDown className="icon" />
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ display: isClickDownFile ? "none" : "" }}>
+                    {contentMessages.map((message, index) => (
+                      <div className="file-body" key={index}>
+                        {message.message.includes(regexUrl) &&
+                        fileType.includes(
+                          message.message.substring(
+                            message.message.lastIndexOf(".") + 1
+                          )
+                        ) ? (
+                          <div className="frame">
+                            <ViewFile url={message.message} />
+                            <span
+                              className="info time"
+                              style={{ fontSize: 10, color: "darkgrey" }}
+                            >
+                              {message.dateTimeSend?.split("T")[0]}
+                            </span>
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    ))}
+
+                    <div className="btn">
+                      <div className="btn-all">Xem tất cả</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="group-link">
+                  <div className="file-header">
+                    <span>Link</span>
+                    <div onClick={() => setIsClickDownLink(!isClickDownLink)}>
+                      {isClickDownLink ? (
+                        <FaCaretRight className="icon" />
+                      ) : (
+                        <FaCaretDown className="icon" />
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ display: isClickDownLink ? "none" : "" }}>
+                    <div className="link-body">
+                      <div className="frame"></div>
+                    </div>
+                    <div className="btn">
+                      <div className="btn-all">Xem tất cả</div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className="group-setting"
+                  style={{ "border-bottom": "none" }}
+                >
+                  <div className="setting-header">
+                    <span>Thiết lập bảo mật</span>
+                    <div
+                      onClick={() => setIsClickDownSetting(!isClickDownSetting)}
+                    >
+                      {isClickDownSetting ? (
+                        <FaCaretRight className="icon" />
+                      ) : (
+                        <FaCaretDown className="icon" />
+                      )}
+                    </div>
+                  </div>
+                  <div
+                    className="setting-body"
+                    style={{ display: isClickDownSetting ? "none" : "" }}
+                  >
+                    <div className="hidden-chat">
+                      <BsEyeSlash className="icon" />
+                      <span>Ẩn trò chuyện</span>
+                      <BiSolidToggleLeft className="icon-toggle" />
+                    </div>
+                    <div className="delete-chat">
+                      <LuTrash className="icon" />
+                      <span>Xóa lịch sử trò chuyện</span>
+                    </div>
+                    {isGroup && (
+                      <>
+                        <div
+                          className="delete-chat"
+                          onClick={() => handleClickDeleteMember(userId)}
+                        >
+                          <GrReturn className="icon" />
+                          <span>Rời nhóm</span>
+                        </div>
+                        {userId === group?.leader && (
+                          <div
+                            className="delete-chat"
+                            onClick={handleClickDissolutionGroup}
+                          >
+                            <GrReturn className="icon" />
+                            <span>Giải tán nhóm</span>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </>
             )}
-
-            <div className="group-media">
-              <div className="media-header">
-                <span>Ảnh/Video</span>
-                <div onClick={() => setIsClickDownMedia(!isClickDownMedia)}>
-                  {isClickDownMedia ? (
-                    <FaCaretRight className="icon" />
-                  ) : (
-                    <FaCaretDown className="icon" />
-                  )}
-                </div>
-              </div>
-              <div style={{ display: isClickDownMedia ? "none" : "" }}>
-              
-                
-                <div className="media-body" >
-                {contentMessages.map((message, index) => (
-                  <div className="frame" key={index}>
-                  {message.message.includes(regexUrl) && imageType.includes(message.message.substring(message.message.lastIndexOf('.')+1))? (
-                    <img src={message.message} style={{ width:"50px", height:"50px", border:"1px solid #7589a3", borderRadius:"4px"}}/>):""}
-                  {message.message.includes(regexUrl) && videoType.includes(message.message.substring(message.message.lastIndexOf('.')+1))? (
-                    <video src={message.message} controls style={{ width:"50px", height:"50px", border:"1px solid #7589a3", borderRadius:"4px"}}/>):""}
-                  </div>))}
-                </div>
-                
-                <div className="btn">
-                  <div className="btn-all">Xem tất cả</div>
-                </div>
-              </div>
-            </div>
-            <div className="group-file">
-              <div className="file-header">
-                <span>File</span>
-                <div onClick={() => setIsClickDownFile(!isClickDownFile)}>
-                  {isClickDownFile ? (
-                    <FaCaretRight className="icon" />
-                  ) : (
-                    <FaCaretDown className="icon" />
-                  )}
-                </div>
-              </div>
-              <div style={{ display: isClickDownFile ? "none" : "" }}>
-                {contentMessages.map((message, index) => (
-                  <div className="file-body" key={index}>
-                    {message.message.includes(regexUrl) && fileType.includes(message.message.substring(message.message.lastIndexOf('.')+1))? (
-                      <div className="frame">
-                        <ViewFile url={message.message} />
-                        <span
-                            className="info time"
-                            style={{ fontSize: 10, color: "darkgrey" }}
-                          >
-                            {message.dateTimeSend?.split("T")[0]}
-                          </span>
-                      </div>
-                    ) : ""}
-                  </div>
-                ))}
-
-                <div className="btn">
-                  <div className="btn-all">Xem tất cả</div>
-                </div>
-              </div>
-            </div>
-            <div className="group-link">
-              <div className="file-header">
-                <span>Link</span>
-                <div onClick={() => setIsClickDownLink(!isClickDownLink)}>
-                  {isClickDownLink ? (
-                    <FaCaretRight className="icon" />
-                  ) : (
-                    <FaCaretDown className="icon" />
-                  )}
-                </div>
-              </div>
-              <div style={{ display: isClickDownLink ? "none" : "" }}>
-                <div className="link-body">
-                  <div className="frame">
-                    
-                  </div>
-                </div>
-                <div className="btn">
-                  <div className="btn-all">Xem tất cả</div>
-                </div>
-              </div>
-            </div>
-            <div className="group-setting" style={{ "border-bottom": "none" }}>
-              <div className="setting-header">
-                <span>Thiết lập bảo mật</span>
-                <div onClick={() => setIsClickDownSetting(!isClickDownSetting)}>
-                  {isClickDownSetting ? (
-                    <FaCaretRight className="icon" />
-                  ) : (
-                    <FaCaretDown className="icon" />
-                  )}
-                </div>
-              </div>
-              <div
-                className="setting-body"
-                style={{ display: isClickDownSetting ? "none" : "" }}
-              >
-                <div className="hidden-chat">
-                  <BsEyeSlash className="icon" />
-                  <span>Ẩn trò chuyện</span>
-                  <BiSolidToggleLeft className="icon-toggle" />
-                </div>
-                <div className="delete-chat">
-                  <LuTrash className="icon" />
-                  <span>Xóa lịch sử trò chuyện</span>
-                </div>
-                {isGroup && (
-                  <div className="delete-chat">
-                    <GrReturn className="icon" />
-                    <span>Rời nhóm</span>
-                  </div>
-                )}
-              </div>
-            </div>
-            </>)  }
           </div>
         </>
       )}

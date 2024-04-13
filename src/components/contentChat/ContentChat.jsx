@@ -106,7 +106,7 @@ const ContentChat = ({
   const [isClickViewMember, setIsClickViewMember] = useState(false);
   const [showUtilsForLeader, setShowUtilsForLeader] = useState(false);
   const [membersOfGroup, setMembersOfGroup] = useState(null);
-
+  const regexLink = /(https?:\/\/[^\s]+)/g;
 
   useEffect(() => {
     setPage(1);
@@ -878,7 +878,11 @@ const ContentChat = ({
                         {message.message.includes(regexUrl) ? (
                           <ViewFile url={message.message} />
                         ) : (
-                          <span className="info mess">{message.message}</span>
+                          <span className="info mess">
+                            {message.message.match(regexLink)? 
+                            (<a href={message.message} target="_blank" rel="noopener noreferrer" style={{color: 'blue', textDecoration: "underline"}}>{message.message}</a>)
+                            :message.message}
+                          </span>
                         )}
                         <span
                           className="info time"

@@ -17,6 +17,9 @@ const ViewFile = ({ url }) => {
   const [videos] = useState(["mp3", "mp4"]);
   const [zips] = useState(["rar", "zip"]);
   const [file, setFile] = useState("fa-file");
+  const [regexUrlBlob] = useState(
+    /^https:\/\/s3-dynamodb-cloudfront-20040331\.s3\.ap-southeast-1\.amazonaws\.com\/[a-zA-Z0-9-]+--recording-[a-zA-Z0-9-]+\.m4a$/
+  );
 
   useEffect(() => {
     if (images.indexOf(url.split(".").slice(-1)[0]) >= 0) {
@@ -69,7 +72,9 @@ const ViewFile = ({ url }) => {
 
   return (
     <a href={`${url}`} target="_blank" rel="noopener noreferrer">
-      {file.icon === "images" ? (
+      {url.match(regexUrlBlob) ? (
+        <audio src={url} controls></audio>
+      ) : file.icon === "images" ? (
         <img
           src={`${url}`}
           style={{

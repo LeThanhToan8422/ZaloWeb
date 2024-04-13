@@ -1134,7 +1134,7 @@ const ContentChat = ({
               </div>
             </div>
           </>):(<>
-            <div className="header">Thông tin hội thoại</div>
+            <div className="header">{isGroup? "Thông tin nhóm": "Thông tin hội thoại"}</div>
             <div className="header-info">
               <div className="header-info-avt">
                 <img

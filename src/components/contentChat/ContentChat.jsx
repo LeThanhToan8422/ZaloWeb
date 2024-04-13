@@ -49,6 +49,7 @@ import FormCard from "./components/FormCard";
 import moment from "moment";
 import ViewNewFriend from "./components/ViewNewFriend";
 import FormAddMemberToGroup from "./components/FormAddMemberToGroup";
+import toast from "react-hot-toast";
 
 const ContentChat = ({
   userId,
@@ -94,6 +95,7 @@ const ContentChat = ({
   const [audioLink, setAudioLink] = useState("");
   const [voiceMessage, setVoiceMessage] = useState(null);
   const [page, setPage] = useState(1);
+  const [group, setGroup] = useState(null);
   const [isGroup, setIsGroup] = useState(false);
   const [isClickDownMember, setIsClickDownMember] = useState(false);
   const [isClickDownNew, setIsClickDownNew] = useState(false);
@@ -103,25 +105,8 @@ const ContentChat = ({
   const [videoType, setVideoType] = useState(["mp3", "mp4"]);
   const [isClickViewMember, setIsClickViewMember] = useState(false);
   const [showUtilsForLeader, setShowUtilsForLeader] = useState(false);
-  const [listMember, setListMember] = useState([]);
-  const idListMember = contentMessages[0]?.members
-  console.log(idListMember);
-  console.log(listMember);
+  const [membersOfGroup, setMembersOfGroup] = useState(null);
 
-  useEffect(() => {
-    const apiGetMember = async () => {
-      if (idListMember && idListMember.length > 0) {
-        const updatedListMember = [];
-        for (let index = 0; index < idListMember.length; index++) {
-          const response = await axios.get(`${urlBackend}/users/${idListMember[index]}`);
-          updatedListMember.push(response.data);
-        }
-        setListMember(updatedListMember);
-      }
-    };
-  
-    apiGetMember();
-  }, [idListMember]);
 
   useEffect(() => {
     setPage(1);
@@ -137,6 +122,20 @@ const ContentChat = ({
     JSON.stringify(idChat),
     isRerenderStatusChat,
   ]);
+
+  useEffect(() => {
+    const fetchGroupChat = async () => {
+      try {
+        const response = await axios.get(
+          `${urlBackend}/group-chats/${idChat.id}`
+        );
+        setGroup(response.data);
+      } catch (error) {
+        console.error("Error fetching friends:", error);
+      }
+    };
+    fetchGroupChat()
+  }, [userId, JSON.stringify(idChat), JSON.stringify(group)])
 
   useEffect(() => {
     if (idChat.type === "Single") {
@@ -187,6 +186,14 @@ const ContentChat = ({
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [JSON.stringify(contentMessages)]);
+
+  useEffect(() => {
+    let getApiMembersOfGroup = async() => {
+      let datas = await axios.get(`${urlBackend}/users/get-members-in-group/${idChat.id}`);
+    setMembersOfGroup(datas.data);
+    }
+    getApiMembersOfGroup()
+  }, [isClickViewMember, JSON.stringify(group)]);
 
   const sendMessage = () => {
     if (idChat.type === "Single") {
@@ -315,7 +322,16 @@ const ContentChat = ({
     setDisplayIcons(false);
   };
 
-  let handleClickStatusChat = (status, userId, chat) => {
+  let handleClickStatusChat = (status, userId, chat, time) => {
+    console.log(time);
+    const sentTime = new Date(time);
+    const currentTime = new Date();
+    const timeDiff = currentTime - sentTime;
+    const millisIn24Hours = 24 * 60 * 60 * 1000;
+    const isSentMoreThan24HoursAgo = timeDiff >= millisIn24Hours;
+    if(isSentMoreThan24HoursAgo){
+      toast.error("Bạn chỉ có thể thu hồi tin nhắn trong vòng 24h!")
+    }else {
     socket.emit(`Client-Status-Chat`, {
       status: status,
       implementer: userId,
@@ -328,6 +344,7 @@ const ContentChat = ({
           : idChat.id,
     });
     setIsRerenderStatusChat(!isRerenderStatusChat);
+  }
   };
 
 
@@ -432,6 +449,21 @@ const ContentChat = ({
     setAudioLink("");
     setIsRecoding(!isRecoding);
   }
+
+  // let handleClickShowMembersGroup = async() => {
+  //   let datas = await axios.get(`${urlBackend}/users/get-members-in-group/${idChat.id}`);
+  //   setMembersOfGroup(datas.data);
+  //   setIsClickViewMember(true)
+  // }
+
+  let handleClickDeleteMember = async(id) => {
+    console.log(id);
+    group.members = JSON.stringify(group.members.filter(m => m !== id))
+    socket.emit(`Client-Update-Group-Chats`, {
+      group : group
+    });
+  }
+
   return (
     <div className="container-content-chat">
       {/* slide */}
@@ -538,6 +570,8 @@ const ContentChat = ({
             visible={isClickAddMember}
             userId={userId}
             groupId={idChat}
+            group={group}
+            setGroup={setGroup}
             urlBackend={urlBackend}
           />
           <div
@@ -775,7 +809,7 @@ const ContentChat = ({
                               handleClickStatusChat(
                                 "recalls",
                                 userId,
-                                message.id
+                                message.id, message.dateTimeSend
                               )
                             }
                           />
@@ -1103,7 +1137,7 @@ const ContentChat = ({
             }}
           >{isClickViewMember ? (<>
             <div className="header" style={{justifyContent:"flex-start"}}>
-              <IoChevronBack onClick={()=>setIsClickViewMember(false)}
+              <IoChevronBack onClick={() => setIsClickViewMember(false)}
                             style={{cursor: "pointer"}}/>
               <span style={{marginLeft: "70px"}}>Thành viên</span>
             </div>
@@ -1114,19 +1148,19 @@ const ContentChat = ({
               </div>
               <div className="list-member">
                 <span className="list-member-text">Danh sách thành viên</span>
-                {listMember?.map((member, index) => (
+                {membersOfGroup?.map((u, index) => (
                   <div className="member" key={index} onMouseEnter={()=>setHoveredIndex(index)} onMouseLeave={()=>setShowUtilsForLeader(false)}>
                     <div className="member-avt">
-                      <img src={member.image}/>
+                      <img src={u.image}/>
                     </div>
                     <div className="member-name">
-                      {member.name}
+                      {u.name}
                     </div>
                     <i className="fa-solid fa-ellipsis icon" onClick={()=>setShowUtilsForLeader(!showUtilsForLeader)}></i>
                     {showUtilsForLeader && index===hoveredIndex && 
                       <div className="utils-leader">
                         <span>Thêm phó nhóm</span>
-                        <span>Xóa khỏi nhóm</span>
+                        <span onClick={() => handleClickDeleteMember(u.id)}>Xóa khỏi nhóm</span>
                       </div>}
                 </div>
                 ))}
@@ -1226,9 +1260,9 @@ const ContentChat = ({
                     </div>
                   </div>
                   <div style={{ display: isClickDownMember ? "none" : "" }}>
-                    <div className="member-body" onClick={()=>setIsClickViewMember(true)}>
+                    <div className="member-body" onClick={() => setIsClickViewMember(true)}>
                       <MdGroups className="icon" />
-                      <span>{`${idListMember?.length} thành viên`}</span>
+                      <span>{`${membersOfGroup?.length} thành viên`}</span>
                     </div>
                   </div>
                 </div>

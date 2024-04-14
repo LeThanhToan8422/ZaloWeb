@@ -15,6 +15,7 @@ const ForwardMessageForm = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFriendsTemp, setSelectedFriendsTemp] = useState([]);
+  const [selectedIdFriends, setSelectedIdFriends] = useState([]);
   const [sharedContent, setSharedContent] = useState(sharedContentFromInfoMess);
   const [editable, setEditable] = useState(false);
   const [friendList, setFriendList] = useState([]);
@@ -32,7 +33,7 @@ const ForwardMessageForm = ({
     const fetchFriends = async () => {
       try {
         const response = await axios.get(
-          `${urlBackend}/users/friends/${userId}`
+          `${urlBackend}/users/get-chats-by-id/${userId}`
         );
         setFriendList(response.data);
       } catch (error) {
@@ -50,7 +51,21 @@ const ForwardMessageForm = ({
   };
 
   const handleFriendChange = (checkedValues) => {
-    setSelectedFriendsTemp(checkedValues);
+    setSelectedIdFriends(checkedValues)
+    setSelectedFriendsTemp(checkedValues.map(o => {
+      if(o.leader){
+        return {
+          id : o.id,
+          type : "Group"
+        }
+      }
+      else{
+        return {
+          id : o.id,
+          type : "Single"
+        }
+      }
+    }));
   };
 
   const handleEditClick = () => {
@@ -81,8 +96,9 @@ const ForwardMessageForm = ({
           .utcOffset(7)
           .format("YYYY-MM-DD HH:mm:ss"),
           sender: userId,
-          receiver: selectedFriendsTemp[index],
-          chatRoom: userId > selectedFriendsTemp[index] ? `${selectedFriendsTemp[index]}${userId}` : `${userId}${selectedFriendsTemp[index]}`,
+          receiver: selectedFriendsTemp[index].type === "Single" ? selectedFriendsTemp[index].id : null,
+          groupChat: selectedFriendsTemp[index].type === "Group" ? selectedFriendsTemp[index].id : null,
+          chatRoom: selectedFriendsTemp[index].type === "Single" ? userId > selectedFriendsTemp[index].id ? `${selectedFriendsTemp[index].id}${userId}` : `${userId}${selectedFriendsTemp[index].id}` : selectedFriendsTemp[index].id,
         });
       }
       onCancel()
@@ -120,7 +136,7 @@ const ForwardMessageForm = ({
         <Form.Item label="Bạn bè">
           <Checkbox.Group
             onChange={handleFriendChange}
-            value={selectedFriendsTemp}
+            value={selectedIdFriends}
             style={{ width: "100%", display: "flex", flexDirection: "column" }}
           >
             {friendList.map((friend) => (
@@ -132,7 +148,7 @@ const ForwardMessageForm = ({
                   alignItems: "center",
                 }}
               >
-                <Checkbox value={friend.id} style={{ marginRight: "8px" }}>
+                <Checkbox value={friend} style={{ marginRight: "8px" }}>
                   <Avatar src={friend.image} style={{ marginRight: "8px" }} />
                   {friend.name}
                 </Checkbox>

@@ -14,7 +14,7 @@ function Home() {
   const [chats, setChats] = useState([]);
   const [idChat, setIdChat] = useState({});
   const [messageFinal, setMessageFinal] = useState("");
-  const [searchFriends, setSearchFriends] = useState([]);
+  const [searchFriends, setSearchFriends] = useState(null);
   const [user, setUser] = useState({});
   const [rerender, setRerender] = useState(false);
   const [makeFriends, setMakeFriends] = useState([]);
@@ -60,6 +60,7 @@ function Home() {
       let datas = await axios.get(
         `${location.state.urlBackend}/users/get-chats-by-id/${location.state.userId}`
       );
+      console.log(datas.data);
       setChats(datas.data);
     };
     getApiChatsByUserId();
@@ -89,12 +90,12 @@ function Home() {
       datas = await axios.get(
         `${location.state.urlBackend}/users/friends/${location.state.userId}/${value}`
       );
-      setSearchFriends(datas.data);
+      setSearchFriends(chats.filter(c => c.name.toLowerCase().includes(value.toLowerCase())));
     } else {
       datas = await axios.get(
         `${location.state.urlBackend}/users/get-chats-by-id/${location.state.userId}`
       );
-      setSearchFriends([]);
+      setSearchFriends(null);
       setChats(datas.data);
     }
   };

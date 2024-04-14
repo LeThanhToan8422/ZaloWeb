@@ -220,6 +220,14 @@ const ContentChat = ({
           setGroup(dataGot.data);
         }
       );
+
+      socket?.on(
+        `Server-Change-Name-Or-Image-Group-Chats-${group.id}`,
+        (dataGot) => {
+          setGroup(dataGot.data);
+          // setIsReloadPage(!isReloadPage)
+        }
+      );
     }
 
     return () => {
@@ -330,7 +338,7 @@ const ContentChat = ({
   }, [userId, JSON.stringify(idChat), page]);
 
   let handleChangeFile = async (e) => {
-    for (let i = 0; i < e.target.files.length; i++) {
+    for (let i = 0; i < e.currentTarget.files.length; i++) {
       const file = e.target.files[i];
       const reader = new FileReader();
 
@@ -598,10 +606,12 @@ const ContentChat = ({
             urlBackend={urlBackend}
           />
           <FormChangeNameGroup
+            socket={socket}
             setVisible={setIsClickUpdateNameGroup}
             visible={isClickUpdateNameGroup}
-            user={contentMessages[0]?contentMessages[0]:""}
+            group={group}
             urlBackend={urlBackend}
+            setIsReloadPage={setIsReloadPage}
           />
           <div
             className="content-chat"
@@ -616,7 +626,7 @@ const ContentChat = ({
                   <img
                     src={
                       nameReceiver.image == null
-                        ? contentMessages[0]?.imageGroup
+                        ? group.image
                         : nameReceiver.image
                     }
                     style={{
@@ -631,7 +641,7 @@ const ContentChat = ({
                     <div className="user-name">
                       {nameReceiver.name
                         ? nameReceiver.name
-                        : contentMessages[0]?.nameGroup}
+                        : group.name}
                     </div>
                     <div className="user-edit">
                       {nameReceiver.name? 
@@ -1137,7 +1147,7 @@ const ContentChat = ({
                   placeholder={`Nhập @, tin nhắn tới ${
                     nameReceiver.name
                       ? nameReceiver.name
-                      : contentMessages[0]?.nameGroup
+                      : group.name
                   }`}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -1337,7 +1347,7 @@ const ContentChat = ({
                     <img
                       src={
                         nameReceiver.image == null
-                          ? contentMessages[0]?.imageGroup
+                          ? group.image
                           : nameReceiver.image
                       }
                       style={{
@@ -1365,7 +1375,7 @@ const ContentChat = ({
                     <div className="user-name">
                       {nameReceiver.name
                         ? nameReceiver.name
-                        : contentMessages[0]?.nameGroup}
+                        : group.name}
                     </div>
                     <div className="user-edit">
                       {nameReceiver.name? <EditOutlined onClick={()=>setIsClickUpdate(true)}/>: <EditOutlined onClick={()=>setIsClickUpdateNameGroup(true)}/>}

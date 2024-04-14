@@ -23,6 +23,14 @@ function Home() {
     let newSocket = io(`${location.state.urlBackend}`);
 
     newSocket?.on(
+      `Server-Reload-Page-${location.state.userId}`,
+      (dataGot) => {
+        dataGot.data.phone && setUser(dataGot.data)
+        setRerender(pre => !pre)
+      }
+    );
+
+    newSocket?.on(
       `Server-Chat-Room-${location.state.userId}`,
       (dataGot) => {
         handleChangeMessageFinal(dataGot.data);
@@ -60,7 +68,6 @@ function Home() {
       let datas = await axios.get(
         `${location.state.urlBackend}/users/get-chats-by-id/${location.state.userId}`
       );
-      console.log(datas.data);
       setChats(datas.data);
     };
     getApiChatsByUserId();
@@ -103,7 +110,10 @@ function Home() {
 
   return (
     <div className="app">
-      <NavBar user={user} 
+      <NavBar 
+      user={user} 
+      setUser={setUser}
+      setIdChat={setIdChat}
       urlBackend={location.state.urlBackend}
       />
       <ListChat

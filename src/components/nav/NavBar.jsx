@@ -1,17 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../sass/NavBar.scss";
 import InfoAccount from "./components/InfoAccount";
 import { useNavigate } from "react-router-dom";
 
 
-const NavBar = ({ user, urlBackend }) => {
+const NavBar = ({ user, urlBackend, setUser, setIdChat }) => {
   let navigate = useNavigate();
   const [isClickAvt, setIsClickAvt]= useState(false); 
   const [visibleInfoAccount, setVisibleInfoAccount] = useState(false);
 
+  useEffect(() => {
+    visibleInfoAccount && setIdChat({})
+  }, [visibleInfoAccount])
+
   return (
     <div className="container-nav-bar">
-      <InfoAccount setVisible={setVisibleInfoAccount} visible={visibleInfoAccount} userId={user.id} urlBackend={urlBackend}/>
+      <InfoAccount setVisible={setVisibleInfoAccount} visible={visibleInfoAccount} user={user} urlBackend={urlBackend} setUser={setUser}/>
       <div className="nav-avt" onClick={()=> setIsClickAvt(!isClickAvt)}>
         <img
           src={user.image=="null" ?"/public/avatardefault.png":user.image}

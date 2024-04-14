@@ -2,20 +2,16 @@ import { useState, useEffect } from "react";
 
 /*Components*/
 import { Button, Form, Row, Col, Select, message, Modal } from "antd";
-import axios from "axios";
 import { EditOutlined } from "@ant-design/icons";
 import FormUpdate from "./formUpdate";
 import { IoCameraOutline } from "react-icons/io5";
 import moment from "moment";
-import { useNavigate } from "react-router-dom";
 import FormChangePassword from "./FormUpdatePassword";
 import { io } from "socket.io-client";
 
-function InfoAccount({ visible, setVisible, userId, urlBackend}) {
-  let navigate = useNavigate();
+function InfoAccount({ visible, setVisible, user, urlBackend, setUser}) {
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
-  const [user, setUser] = useState({});
   const [isClickUpdate, setIsClickUpdate] = useState(false);
   const [isClickChangePassword, setIsClickChangePassword] = useState(false);
 
@@ -23,54 +19,12 @@ function InfoAccount({ visible, setVisible, userId, urlBackend}) {
   useEffect(() => {
     let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
-  }, [JSON.stringify(user), userId]);
+  }, [JSON.stringify(user)]);
 
-  useEffect(() => {
-    socket?.on(`Server-update-avatar-${userId}`, (dataGot) => {
-      setUser(dataGot.data);
-      setVisible(false)
-      navigate("/home", {
-        state: {
-          userId: dataGot.data.id,
-          rerender : dataGot.data.image,
-          urlBackend : urlBackend
-        },
-      });
-    });
-
-    return () => {
-      socket?.disconnect();
-    };
-  }, [JSON.stringify(user), userId]);
-
-  useEffect(() => {
-    socket?.on(`Server-update-background-${userId}`, (dataGot) => {
-      setUser(dataGot.data);
-      navigate("/home", {
-        state: {
-          userId: dataGot.data.id,
-          rerender : dataGot.data.image,
-          urlBackend : urlBackend
-        },
-      });
-    });
-
-    return () => {
-      socket?.disconnect();
-    };
-  }, [JSON.stringify(user), userId]);
 
   useEffect(() => {
     setVisibleModal(visible);
   }, [visible]);
-
-  useEffect(() => {
-    let getApiUserById = async () => {
-      let datas = await axios.get(`${urlBackend}/users/${userId}`);
-      setUser(datas.data);
-    };
-    getApiUserById();
-  }, [userId, isClickUpdate]);
 
   const handleCancel = () => {
     form.resetFields();
@@ -81,7 +35,7 @@ function InfoAccount({ visible, setVisible, userId, urlBackend}) {
   };
 
   let handleChangeFileAvatar = async (e) => {
-    const file = e.target.files[0];
+    const file = e.currentTarget.files[0];
     const reader = new FileReader();
 
     reader.onload = (readerEvent) => {
@@ -98,11 +52,12 @@ function InfoAccount({ visible, setVisible, userId, urlBackend}) {
       // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
       socket.emit(`Client-update-avatar`, {
         file: reactFile,
-        id: userId,
+        id: user.id,
       });
     };
 
     reader.readAsArrayBuffer(file);
+    setVisible(false)
   };
 
   let handleChangeFileBackground = async (e) => {
@@ -123,11 +78,12 @@ function InfoAccount({ visible, setVisible, userId, urlBackend}) {
       // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
       socket.emit(`Client-update-background`, {
         file: reactFile,
-        id: userId,
+        id: user.id,
       });
     };
 
     reader.readAsArrayBuffer(file);
+    setVisible(false)
   };
 
   return (
@@ -295,7 +251,7 @@ function InfoAccount({ visible, setVisible, userId, urlBackend}) {
       <FormChangePassword
         setVisible={setIsClickChangePassword}
         visible={isClickChangePassword}
-        userId={userId}
+        userId={user.id}
         urlBackend={urlBackend}
       />
     </div>

@@ -284,7 +284,7 @@ const ListChat = ({
                               zIndex:1,
                               borderRadius: "2%",
                               boxShadow: "0 0 5px #b4a7a7",
-                              left: 111,
+                              left: -14,
                               top:25}}>
                               <div className="utils">Ghim hội thoại</div>
                               <div className="utils" style={{color:"red"}} onClick={()=> setVisibleDel(true)}>Xóa hội thoại</div>
@@ -292,7 +292,7 @@ const ListChat = ({
                                 setVisible={setVisibleDel} 
                                 visible={visibleDel} 
                                 userId={userId} 
-                                objectId={chat.id}
+                                objectId={chat}
                                 urlBackend={urlBackend} 
                                 setRerender={setRerender}
                                 setDeleteChat={setDeleteChat}

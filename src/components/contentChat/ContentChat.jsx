@@ -20,6 +20,7 @@ import {
   IoSearchOutline,
   IoSettingsOutline,
   IoChevronBack,
+  IoCameraOutline
 } from "react-icons/io5";
 import {
   VscLayoutSidebarRightOff,
@@ -54,6 +55,8 @@ import FormCard from "./components/FormCard";
 import moment from "moment";
 import ViewNewFriend from "./components/ViewNewFriend";
 import FormAddMemberToGroup from "./components/FormAddMemberToGroup";
+import FormChangeNameGroup from "./components/FormChangeNameGroup";
+
 import toast from "react-hot-toast";
 
 const ContentChat = ({
@@ -127,6 +130,7 @@ const ContentChat = ({
   const [showUtilsForLeader, setShowUtilsForLeader] = useState(false);
   const [membersOfGroup, setMembersOfGroup] = useState(null);
   const regexLink = /(https?:\/\/[^\s]+)/g;
+  const [isClickUpdateNameGroup, setIsClickUpdateNameGroup] = useState(false);
   const [isReloadPage, setIsReloadPage] = useState(false);
 
   useEffect(() => {
@@ -593,6 +597,12 @@ const ContentChat = ({
             setGroup={setGroup}
             urlBackend={urlBackend}
           />
+          <FormChangeNameGroup
+            setVisible={setIsClickUpdateNameGroup}
+            visible={isClickUpdateNameGroup}
+            user={contentMessages[0]?contentMessages[0]:""}
+            urlBackend={urlBackend}
+          />
           <div
             className="content-chat"
             style={{ width: isClickInfo ? "70%" : "" }}
@@ -624,7 +634,10 @@ const ContentChat = ({
                         : contentMessages[0]?.nameGroup}
                     </div>
                     <div className="user-edit">
-                      <EditOutlined onClick={() => setIsClickUpdate(true)} />
+                      {nameReceiver.name? 
+                        <EditOutlined onClick={() => setIsClickUpdate(true)} />:
+                        <EditOutlined onClick={() => setIsClickUpdateNameGroup(true)} />
+                      }                      
                     </div>
                   </div>
                   <div className="is-active">Active</div>
@@ -1333,6 +1346,20 @@ const ContentChat = ({
                         borderRadius: "50%",
                       }}
                     />
+                    <label
+                    htmlFor="image"
+                    style={{ marginLeft: "-15px", marginTop: "45px" }}
+                  >
+                    <IoCameraOutline style={{ cursor: "pointer" }} />
+                  </label>
+                  <input
+                    type="file"
+                    accept=".png, .jpg, .jpeg, .gif, .bmp, .tiff"
+                    multiple
+                    style={{ display: "none" }}
+                    id="image"
+                    onChange={(e) => handleChangeFile(e)}
+                  />
                   </div>
                   <div className="header-info-name">
                     <div className="user-name">
@@ -1341,7 +1368,7 @@ const ContentChat = ({
                         : contentMessages[0]?.nameGroup}
                     </div>
                     <div className="user-edit">
-                      <EditOutlined />
+                      {nameReceiver.name? <EditOutlined onClick={()=>setIsClickUpdate(true)}/>: <EditOutlined onClick={()=>setIsClickUpdateNameGroup(true)}/>}
                     </div>
                   </div>
                   <div className="header-info-utilities">

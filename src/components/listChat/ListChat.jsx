@@ -169,7 +169,7 @@ const ListChat = ({
         height : "100%",
         overflowY : "scroll"
       }}>
-        {searchFriends?.length > 0
+        {searchFriends !== null
           ? searchFriends.map((chat) => (
               <div
                 className="user-chat"

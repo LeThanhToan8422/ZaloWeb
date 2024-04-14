@@ -327,7 +327,7 @@ const ContentChat = ({
     } else {
       getApiContentGroupChats();
     }
-  }, [userId, JSON.stringify(idChat), page, isReloadPage]);
+  }, [userId, JSON.stringify(idChat), page]);
 
   let handleChangeFile = async (e) => {
     for (let i = 0; i < e.target.files.length; i++) {

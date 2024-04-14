@@ -585,7 +585,7 @@ const ContentChat = ({
           <FormUpdateName
             setVisible={setIsClickUpdate}
             visible={isClickUpdate}
-            user={nameReceiver}
+            user={nameReceiver?nameReceiver:""}
             urlBackend={urlBackend}
           />
           <FormAddMemberToGroup
@@ -1058,7 +1058,7 @@ const ContentChat = ({
                 <i className="fa-regular fa-address-card icon"></i>
               </div>
               {/* button chat Recoding */}
-              <div className="chat-utilities-icon">
+              <div className="chat-utilities-icon" style={{backgroundColor: isRecoding? "#d4e4fa" : "", color: isRecoding? "#0068ff" : ""}}>
                 <MdKeyboardVoice
                   className="icon"
                   onClick={handleClickRecording}
@@ -1069,54 +1069,73 @@ const ContentChat = ({
                       position: "absolute",
                       display: "flex",
                       width: "200px",
-                      margin: "0 0 200px 120px",
+                      justifyContent: "space-around",
+                      textAlign: "center",
+                      height:"100px",
+                      margin: "0 0 180px 10px",
                       flexDirection: "column",
                       backgroundColor: "white",
-                      padding: "10px",
+                      padding: "10px 10px 0 10px",
+                      boxShadow: "0 0 5px #b4a7a7"
                     }}
                   >
-                    <ReactMic
+                    {!audioLink && <ReactMic
                       record={voice}
                       className="sound-wave"
                       onStop={onStopRecoding}
                       //onData={onData}
                       strokeColor="#000000"
-                      backgroundColor="#FF4081"
-                    />
-                    {!voice ? (
-                      <button onClick={handleStart}>Start</button>
+                      backgroundColor="#94caf9"
+                    />}
+                    {!audioLink ? (<div>
+                      {!voice ? (
+                      <button onClick={handleStart}>Bắt đầu</button>
                     ) : (
-                      <button onClick={handleStop}>Stop</button>
+                      <button onClick={handleStop}>Dừng</button>
                     )}
+                    </div>):""}
+                    
                     {audioLink ? (
-                      <audio
-                        src={audioLink}
-                        controls
-                        style={{ width: "180px", height: "40px" }}
-                      ></audio>
+                      <>
+                        <audio
+                          src={audioLink}
+                          controls
+                          style={{ width: "180px", height: "40px" }}
+                        ></audio>
+                        <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <button
+                          style={{
+                            padding: "3px 10px",
+                            borderRadius: "10px",
+                            margin: "10px",
+                          }}
+                          onClick={()=>setAudioLink(false)}
+                        >
+                          Xóa
+                        </button>
+                        <button
+                          style={{
+                            backgroundColor: "#94caf9",
+                            padding: "3px 10px",
+                            borderRadius: "10px",
+                            margin: "10px",
+                          }}
+                          onClick={handleClickSendVoiceMessage}
+                        >
+                          Gửi
+                        </button>
+                      </div>
+                      </>
                     ) : (
                       ""
                     )}
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <button
-                        style={{
-                          border: "1px solid black",
-                          padding: "5px 15px",
-                          borderRadius: "10px",
-                          margin: "10px",
-                        }}
-                        onClick={handleClickSendVoiceMessage}
-                      >
-                        Send
-                      </button>
-                    </div>
+                    
                   </div>
                 )}
               </div>

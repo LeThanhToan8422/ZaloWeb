@@ -81,7 +81,6 @@ const ContentChat = ({
   const [regexUrl] = useState(
     "https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/"
   );
-  const [isRerenderStatusChat, setIsRerenderStatusChat] = useState(false);
   const [socket, setSocket] = useState(null);
   const [forwardedMessageContent, setForwardedMessageContent] = useState("");
   const [showForwardForm, setShowForwardForm] = useState(false);
@@ -128,6 +127,7 @@ const ContentChat = ({
   const [showUtilsForLeader, setShowUtilsForLeader] = useState(false);
   const [membersOfGroup, setMembersOfGroup] = useState(null);
   const regexLink = /(https?:\/\/[^\s]+)/g;
+  const [isReloadPage, setIsReloadPage] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -141,7 +141,7 @@ const ContentChat = ({
   }, [
     JSON.stringify(contentMessages),
     JSON.stringify(idChat),
-    isRerenderStatusChat,
+    isReloadPage
   ]);
 
   useEffect(() => {
@@ -158,6 +158,10 @@ const ContentChat = ({
     fetchGroupChat();
   }, [userId, JSON.stringify(idChat), JSON.stringify(group)]);
 
+  let isObjectEqual = (obj1, obj2) => {
+    return JSON.stringify(obj1) === JSON.stringify(obj2);
+  };
+
   useEffect(() => {
     if (idChat.type === "Single") {
       setIsGroup(false);
@@ -166,9 +170,15 @@ const ContentChat = ({
           userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`
         }`,
         (dataGot) => {
-          handleChangeMessageFinal(dataGot.data);
-          setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
-          setRerender((pre) => !pre);
+          const exists = contentMessages.some((item) =>
+            isObjectEqual(item, dataGot.data)
+          );
+          if (!exists) {
+            handleChangeMessageFinal(dataGot.data);
+            setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
+            setRerender((pre) => !pre);
+            setIsReloadPage(!isReloadPage);
+          }
         }
       );
 
@@ -178,29 +188,34 @@ const ContentChat = ({
         }`,
         (dataGot) => {
           handleChangeMessageFinal(dataGot.data.chatFinal);
-          setIsRerenderStatusChat(!isRerenderStatusChat);
+          setIsReloadPage(!isReloadPage)
         }
       );
     } else {
       setIsGroup(true);
       socket?.on(`Server-Chat-Room-${idChat.id}`, (dataGot) => {
-        handleChangeMessageFinal(dataGot.data);
-        setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
-        setRerender((pre) => !pre);
+        const exists = contentMessages.some((item) =>
+          isObjectEqual(item, dataGot.data)
+        );
+        if (!exists) {
+          handleChangeMessageFinal(dataGot.data);
+          setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
+          setRerender((pre) => !pre);
+          setIsReloadPage(!isReloadPage);
+        }
       });
 
       socket?.on(`Server-Status-Chat-${idChat.id}`, (dataGot) => {
         setRerender((pre) => !pre);
-        setIsRerenderStatusChat(!isRerenderStatusChat);
+        setIsReloadPage(!isReloadPage)
       });
 
-      socket?.on(`Server-Change-Deputy-Group-Chats-${group.id}`, (dataGot) => {
-        setGroup(dataGot.data);
-      });
-
-      socket?.on(`Server-Change-Leader-Group-Chats-${group.id}`, (dataGot) => {
-        setGroup(dataGot.data);
-      });
+      socket?.on(
+        `Server-Change-Leader-And-Deputy-Group-Chats-${group.id}`,
+        (dataGot) => {
+          setGroup(dataGot.data);
+        }
+      );
     }
 
     return () => {
@@ -209,13 +224,13 @@ const ContentChat = ({
   }, [
     JSON.stringify(contentMessages),
     JSON.stringify(idChat),
-    isRerenderStatusChat,
     JSON.stringify(group),
+    isReloadPage
   ]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [JSON.stringify(contentMessages)]);
+  }, [JSON.stringify(contentMessages), isReloadPage]);
 
   useEffect(() => {
     let getApiMembersOfGroup = async () => {
@@ -240,12 +255,6 @@ const ContentChat = ({
               ? `${idChat.id}${userId}`
               : `${userId}${idChat.id}`,
         });
-
-        setMessage("");
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-        setDisplayIcons(false);
       }
     } else {
       if (message !== null) {
@@ -256,14 +265,14 @@ const ContentChat = ({
           groupChat: idChat.id,
           chatRoom: idChat.id,
         });
-
-        setMessage("");
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-        setDisplayIcons(false);
       }
     }
+    setMessage("");
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+    setDisplayIcons(false);
+    setIsReloadPage(!isReloadPage)
   };
 
   const handleKeyDown = (event) => {
@@ -314,7 +323,7 @@ const ContentChat = ({
     } else {
       getApiContentGroupChats();
     }
-  }, [userId, JSON.stringify(idChat), isRerenderStatusChat, page]);
+  }, [userId, JSON.stringify(idChat), page, isReloadPage]);
 
   let handleChangeFile = async (e) => {
     for (let i = 0; i < e.target.files.length; i++) {
@@ -331,7 +340,6 @@ const ContentChat = ({
           buffer: buffer,
           size: file.size,
         };
-        console.log(reactFile);
         // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
         socket.emit(`Client-Chat-Room`, {
           file: reactFile,
@@ -352,85 +360,67 @@ const ContentChat = ({
     }
     setMessage("");
     setDisplayIcons(false);
+    setIsReloadPage(!isReloadPage)
   };
 
   let handleClickStatusChat = (status, userId, chat, time) => {
-    console.log(time);
     const sentTime = new Date(time);
     const currentTime = new Date();
     const timeDiff = currentTime - sentTime;
     const millisIn24Hours = 24 * 60 * 60 * 1000;
     const isSentMoreThan24HoursAgo = timeDiff >= millisIn24Hours;
-    if(isSentMoreThan24HoursAgo){
-      toast.error("Bạn chỉ có thể thu hồi tin nhắn trong vòng 24h!")
-    }else {
-    socket.emit(`Client-Status-Chat`, {
-      status: status,
-      implementer: userId,
-      chat: chat,
-      chatRoom:
-        idChat.type === "Single"
-          ? userId > idChat.id
-            ? `${idChat.id}${userId}`
-            : `${userId}${idChat.id}`
-          : idChat.id,
-    });
-    setIsRerenderStatusChat(!isRerenderStatusChat);
-  }
+    if (isSentMoreThan24HoursAgo) {
+      toast.error("Bạn chỉ có thể thu hồi tin nhắn trong vòng 24h!");
+    } else {
+      socket.emit(`Client-Status-Chat`, {
+        status: status,
+        implementer: userId,
+        chat: chat,
+        chatRoom:
+          idChat.type === "Single"
+            ? userId > idChat.id
+              ? `${idChat.id}${userId}`
+              : `${userId}${idChat.id}`
+            : idChat.id,
+      });
+      setIsReloadPage(!isReloadPage);
+    }
   };
 
-  let handleClickSendVoiceMessage = (blob) => {
-    const formData = new FormData();
-    let blobWithProp = new Blob([blob["blob"]], blob["options"]);
-    formData.append("audioFile", blobWithProp, "test.wav");
-    console.log(formData);
-    // fetch(audioLink).then(res => res.blob()).then(blob => {
-    //   const downloadLink = document.createElement('a');
-    //   downloadLink.href = window.URL.createObjectURL(blob);
-    //   downloadLink.download = "test.wav";
-    //   document.body.appendChild(downloadLink);
-    //   downloadLink.click();
-    //   document.body.removeChild(downloadLink);
-    // })
-    // .catch(err => {
-    //   console.error('Lỗi khi tải: ', err);
-    // })
-    // if (idChat.type === "Single") {
-    //   if (audioLink) {
-    //     socket.emit(`Client-Chat-Room`, {
-    //       message: audioLink,
-    //       dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
-    //       sender: userId,
-    //       receiver: idChat.id,
-    //       chatRoom:
-    //         userId > idChat.id
-    //           ? `${idChat.id}${userId}`
-    //           : `${userId}${idChat.id}`,
-    //     });
+  let handleClickSendVoiceMessage = () => {
+    if (voiceMessage) {
+      const reader = new FileReader();
 
-    //     setMessage("");
-    //     if (inputRef.current) {
-    //       inputRef.current.focus();
-    //     }
-    //     setDisplayIcons(false);
-    //   }
-    // } else {
-    //   if (audioLink) {
-    //     socket.emit(`Client-Chat-Room`, {
-    //       message: audioLink,
-    //       dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
-    //       sender: userId,
-    //       groupChat: idChat.id,
-    //       chatRoom: idChat.id,
-    //     });
+      reader.onload = (readerEvent) => {
+        const buffer = readerEvent.target.result;
 
-    //     setMessage("");
-    //     if (inputRef.current) {
-    //       inputRef.current.focus();
-    //     }
-    //     setDisplayIcons(false);
-    //   }
-    // }
+        const reactFile = {
+          originalname: "VoiceMessage",
+          encoding: "7bit",
+          mimetype: voiceMessage.options.mimeType,
+          buffer: buffer,
+          size: voiceMessage.blob.size,
+        };
+        // TODO: Sử dụng đối tượng reactFile theo nhu cầu của bạn
+        socket.emit(`Client-Chat-Room`, {
+          file: reactFile,
+          dateTimeSend: moment().utcOffset(7).format("YYYY-MM-DD HH:mm:ss"),
+          sender: userId,
+          receiver: idChat.type === "Single" ? idChat.id : null,
+          groupChat: idChat.type === "Group" ? idChat.id : null,
+          chatRoom:
+            idChat.type === "Single"
+              ? userId > idChat.id
+                ? `${idChat.id}${userId}`
+                : `${userId}${idChat.id}`
+              : idChat.id,
+        });
+      };
+
+      reader.readAsArrayBuffer(voiceMessage.blob);
+      setIsRecoding(false);
+      setIsReloadPage(!isReloadPage)
+    }
   };
 
   const handleForwardButtonClick = (message) => {
@@ -445,17 +435,6 @@ const ContentChat = ({
   const onStopRecoding = (blob) => {
     setVoiceMessage(blob);
     setAudioLink(blob.blobURL);
-    const reactFile = {
-      mimetype: blob.options.mimeType,
-      buffer: blob.blob.arrayBuffer,
-      size: blob.blob.size,
-    };
-    //handleClickSendVoiceMessage(blob);
-
-    const formData = new FormData();
-    let blobWithProp = new Blob([blob["blob"]], blob["options"]);
-    formData.append("audioFile", blobWithProp);
-    console.log(formData);
   };
   const handleStart = () => {
     setVoice(true);
@@ -495,24 +474,13 @@ const ContentChat = ({
     });
   };
 
-  let handleClickChangeDeputy = (value) => {
-    group.deputy = value;
-    socket.emit(`Client-Change-Deputy-Group-Chats`, {
+  let handleClickChangeLeaderAndDeputy = (leader, deputy, id) => {
+    group.leader = leader;
+    group.deputy = leader === deputy ? null : deputy;
+    socket.emit(`Client-Change-Leader-And-Deputy-Group-Chats`, {
       group: group,
     });
     setGroup(group);
-  };
-
-  let handleClickChangeLeader = (value) => {
-    if (group.deputy === value) {
-      toast.error("Bạn phải đổi phó nhóm trước khi chuyển trưởng nhóm.");
-    } else {
-      group.leader = value;
-      socket.emit(`Client-Change-Leader-Group-Chats`, {
-        group: group,
-      });
-      setGroup(group);
-    }
   };
 
   return (
@@ -728,7 +696,9 @@ const ContentChat = ({
                         {message.dateTimeSend?.slice(11, 16)}
                       </span>
                     </div>
-                    {index === hoveredIndex && message.sender !== userId && !message.isRecalls ? (
+                    {index === hoveredIndex &&
+                    message.sender !== userId &&
+                    !message.isRecalls ? (
                       <div style={{ width: "100px", height: "20px" }}>
                         <div
                           className="utils-message"
@@ -853,7 +823,8 @@ const ContentChat = ({
                               handleClickStatusChat(
                                 "recalls",
                                 userId,
-                                message.id, message.dateTimeSend
+                                message.id,
+                                message.dateTimeSend
                               )
                             }
                           />
@@ -923,9 +894,21 @@ const ContentChat = ({
                           <ViewFile url={message.message} />
                         ) : (
                           <span className="info mess">
-                            {message.message.match(regexLink)? 
-                            (<a href={message.message} target="_blank" rel="noopener noreferrer" style={{color: 'blue', textDecoration: "underline"}}>{message.message}</a>)
-                            :message.message}
+                            {message.message.match(regexLink) ? (
+                              <a
+                                href={message.message}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  color: "blue",
+                                  textDecoration: "underline",
+                                }}
+                              >
+                                {message.message}
+                              </a>
+                            ) : (
+                              message.message
+                            )}
                           </span>
                         )}
                         <span
@@ -1116,7 +1099,7 @@ const ContentChat = ({
                           borderRadius: "10px",
                           margin: "10px",
                         }}
-                        // onClick={handleClickSendVoiceMessage}
+                        onClick={handleClickSendVoiceMessage}
                       >
                         Send
                       </button>
@@ -1261,39 +1244,67 @@ const ContentChat = ({
                                 textAlign: "center",
                               }}
                             >
-                              {(userId === group.leader &&
-                              group.deputy === null) ? (
+                              {userId === group.leader &&
+                              group.deputy === null ? (
                                 <span
-                                  onClick={() => handleClickChangeDeputy(u.id)}
+                                  onClick={() =>
+                                    handleClickChangeLeaderAndDeputy(
+                                      group.leader,
+                                      u.id,
+                                      group.id
+                                    )
+                                  }
                                 >
                                   Thêm phó nhóm
                                 </span>
                               ) : userId === group.leader &&
                                 group.deputy === u.id ? (
                                 <span
-                                  onClick={() => handleClickChangeDeputy(null)}
+                                  onClick={() =>
+                                    handleClickChangeLeaderAndDeputy(
+                                      group.leader,
+                                      null,
+                                      group.id
+                                    )
+                                  }
                                 >
                                   Xóa phó nhóm
                                 </span>
                               ) : null}
-                              {userId === group.leader && group.deputy !== null && group.deputy !== u.id && (
-                                <span
-                                  onClick={() => handleClickChangeDeputy(u.id)}
-                                >
-                                  Đổi phó nhóm
-                                </span>
-                              )}
+                              {userId === group.leader &&
+                                group.deputy !== null &&
+                                group.deputy !== u.id && (
+                                  <span
+                                    onClick={() =>
+                                      handleClickChangeLeaderAndDeputy(
+                                        group.leader,
+                                        u.id,
+                                        group.id
+                                      )
+                                    }
+                                  >
+                                    Đổi phó nhóm
+                                  </span>
+                                )}
                               {(userId === group.leader ||
                                 userId === group.deputy) && (
                                 <span
                                   onClick={() => handleClickDeleteMember(u.id)}
                                 >
-                                  {userId === u.id ? "Rời khỏi nhóm" : "Xóa khỏi nhóm"}
+                                  {userId === u.id
+                                    ? "Rời khỏi nhóm"
+                                    : "Xóa khỏi nhóm"}
                                 </span>
                               )}
                               {userId === group.leader && (
                                 <span
-                                  onClick={() => handleClickChangeLeader(u.id)}
+                                  onClick={() =>
+                                    handleClickChangeLeaderAndDeputy(
+                                      u.id,
+                                      group.deputy,
+                                      group.id
+                                    )
+                                  }
                                 >
                                   Chuyển trưởng nhóm
                                 </span>

@@ -18,7 +18,7 @@ const ViewFile = ({ url }) => {
   const [zips] = useState(["rar", "zip"]);
   const [file, setFile] = useState("fa-file");
   const [regexUrlBlob] = useState(
-    /^https:\/\/s3-dynamodb-cloudfront-20040331\.s3\.ap-southeast-1\.amazonaws\.com\/[a-zA-Z0-9-]+--recording-[a-zA-Z0-9-]+\.m4a$/
+    /https:\/\/s3-dynamodb-cloudfront-20040331\.s3\.ap-southeast-1\.amazonaws\.com\/[\w-]+--(?:recording-[\dA-F]+\.m4a|VoiceMessage)/g
   );
 
   useEffect(() => {

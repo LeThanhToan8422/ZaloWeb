@@ -1,5 +1,4 @@
 import { useState, useEffect} from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 
 /*Components*/
 import {
@@ -8,22 +7,16 @@ import {
   Input,
   Row,
   Col,
-  Select,
-  message,
   Modal,
-  DatePicker,
-  Radio
 } from "antd";
-import axios from "axios";
-import moment from "moment";
 
-function FormChangeNameGroup({visible, setVisible, user, urlBackend}) {
-  const { nameGroup, imageGroup } = user;
+function FormChangeNameGroup({socket, visible, setVisible, group, urlBackend, setIsReloadPage}) {
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
+  const [nameChange, setNameChange] = useState("")
+
   useEffect(() => {
     setVisibleModal(visible);
-    console.log(user);
   }, [visible]);
   const handleCancel = () => {
     form.resetFields();
@@ -32,6 +25,15 @@ function FormChangeNameGroup({visible, setVisible, user, urlBackend}) {
       setVisible(false);
     }
   };
+
+  let handleClickVerifyChangeNameGroup = () => {
+    group.name = nameChange;
+    socket.emit(`Client-Change-Name-Or-Image-Group-Chats`, {
+      group: group,
+    });
+    setIsReloadPage(pre => !pre)
+    setVisible(false)
+  }
     return ( <Modal
         title="Đổi tên nhóm"
         open={visibleModal}
@@ -46,6 +48,7 @@ function FormChangeNameGroup({visible, setVisible, user, urlBackend}) {
             key="submit"
             type="primary"
             size="large"
+            onClick={handleClickVerifyChangeNameGroup}
           >
             Xác nhận
           </Button>
@@ -54,10 +57,10 @@ function FormChangeNameGroup({visible, setVisible, user, urlBackend}) {
     >
               <Form
                 form={form}
-                //onFinish={onFinish}
+                // onFinish={onFinish}
                 name="form_edit_name"
                 className="ant-advanced-search-form"
-                initialValues={{name: nameGroup}}
+                initialValues={{name: group.name}}
               >
                 <Row>
                     <Col lg={10}></Col>
@@ -65,7 +68,7 @@ function FormChangeNameGroup({visible, setVisible, user, urlBackend}) {
                         <Form.Item
                             name="avt"
                         >
-                            <img src={imageGroup=="null" || imageGroup==null ?"/public/avatardefault.png":imageGroup} style={{width : "50px", height : "50px", borderRadius: "50%"}} alt="Ảnh đại diện"/>
+                            <img src={group.image=="null" || group.image==null ?"/public/avatardefault.png":group.image} style={{width : "50px", height : "50px", borderRadius: "50%"}} alt="Ảnh đại diện"/>
                         </Form.Item>  
                     </Col>
                     <Col lg={10}></Col>
@@ -82,7 +85,7 @@ function FormChangeNameGroup({visible, setVisible, user, urlBackend}) {
                     <Form.Item
                       name="name"
                     >
-                      <Input maxLength={100} />
+                      <Input maxLength={100} onChange={(e) => setNameChange(e.target.value)}/>
                     </Form.Item>
                   </Col>             
                 </Row>

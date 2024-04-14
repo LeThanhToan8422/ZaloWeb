@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button, Form, Row, Col, Select, message, Modal } from "antd";
 import toast, { Toaster } from "react-hot-toast";
 import { io } from "socket.io-client";
+import moment from "moment";
 
 function FormDeleteChat({
   visible,
@@ -14,6 +15,7 @@ function FormDeleteChat({
   setRerender,
   setDeleteChat
 }) {
+  console.log(objectId);
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
   const [socket, setSocket] = useState(null);
@@ -22,7 +24,7 @@ function FormDeleteChat({
   useEffect(() => {
     let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
-  }, [userId, objectId, render]);
+  }, [userId, JSON.stringify(objectId), render]);
 
   useEffect(() => {
     socket?.on(
@@ -38,7 +40,7 @@ function FormDeleteChat({
     return () => {
       socket?.disconnect();
     };
-  }, [userId, objectId, render]);
+  }, [userId, JSON.stringify(objectId), render]);
 
 
   useEffect(() => {
@@ -55,8 +57,10 @@ function FormDeleteChat({
 
   let handleClickDeleteChat = () => {
     socket.emit(`Client-Delete-Chat`, {
+      dateTimeSend: moment().utcOffset(7).format("YYYY-MM-DD HH:mm:ss"),
       implementer: userId,
-      objectId: objectId,
+      chat: objectId.phone ? objectId.id : null,
+      groupChat: objectId.leader ? objectId.id : null,
     });
     setRender(!render)
   };

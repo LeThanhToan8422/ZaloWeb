@@ -55,7 +55,8 @@ const ListChat = ({
   }, [JSON.stringify(messageFinal)]);
 
   let handleClickChat = (chat) => {
-    if(chat.receiver){
+    console.log(chat);
+    if(chat.phone){
       handleChangeChat({
         id : chat.id,
         type : "Single"
@@ -290,7 +291,8 @@ const ListChat = ({
                               <div className="utils" style={{color:"red"}} onClick={()=> setVisibleDel(true)}>Xóa hội thoại</div>
                               <FormDeleteChat 
                                 setVisible={setVisibleDel} 
-                                visible={visibleDel} 
+                                visible={visibleDel}
+                                setIsClickUtils={setIsClickUtils}
                                 userId={userId} 
                                 objectId={chat}
                                 urlBackend={urlBackend} 

@@ -72,7 +72,7 @@ const ViewFile = ({ url }) => {
 
   return (
     <a href={`${url}`} target="_blank" rel="noopener noreferrer">
-      {url.match(regexUrlBlob) ? (
+      {url.match(regexUrlBlob) || url.split(".")[url.split(".").length - 1] === "m4a" ? (
         <audio src={url} controls></audio>
       ) : file.icon === "images" ? (
         <img

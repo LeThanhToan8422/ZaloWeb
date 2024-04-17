@@ -34,7 +34,7 @@ function Home() {
       `Server-Chat-Room-${location.state.userId}`,
       (dataGot) => {
         handleChangeMessageFinal(dataGot.data);
-        // setRerender(pre => !pre)
+        setRerender(pre => !pre)
       }
     );
 
@@ -97,7 +97,7 @@ function Home() {
       datas = await axios.get(
         `${location.state.urlBackend}/users/friends/${location.state.userId}/${value}`
       );
-      setSearchFriends(chats.filter(c => c.name.toLowerCase().includes(value.toLowerCase())));
+      setSearchFriends(datas.data);
     } else {
       datas = await axios.get(
         `${location.state.urlBackend}/users/get-chats-by-id/${location.state.userId}`
@@ -134,6 +134,7 @@ function Home() {
         handleChangeMessageFinal={handleChangeMessageFinal}
         setRerender={setRerender}
         urlBackend={location.state.urlBackend}
+        rerender={rerender}
       />
     </div>
   );

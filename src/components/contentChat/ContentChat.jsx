@@ -65,6 +65,7 @@ const ContentChat = ({
   handleChangeMessageFinal,
   setRerender,
   urlBackend,
+  rerender
 }) => {
   let scrollRef = useRef(null);
 
@@ -145,7 +146,8 @@ const ContentChat = ({
   }, [
     JSON.stringify(contentMessages),
     JSON.stringify(idChat),
-    isReloadPage
+    isReloadPage,
+    rerender
   ]);
 
   useEffect(() => {
@@ -160,7 +162,7 @@ const ContentChat = ({
       }
     };
     fetchGroupChat();
-  }, [userId, JSON.stringify(idChat), JSON.stringify(group)]);
+  }, [userId, JSON.stringify(idChat), JSON.stringify(group), isReloadPage]);
 
   let isObjectEqual = (obj1, obj2) => {
     return JSON.stringify(obj1) === JSON.stringify(obj2);
@@ -237,7 +239,8 @@ const ContentChat = ({
     JSON.stringify(contentMessages),
     JSON.stringify(idChat),
     JSON.stringify(group),
-    isReloadPage
+    isReloadPage,
+    rerender
   ]);
 
   useEffect(() => {
@@ -335,7 +338,7 @@ const ContentChat = ({
     } else {
       getApiContentGroupChats();
     }
-  }, [userId, JSON.stringify(idChat), page]);
+  }, [userId, JSON.stringify(idChat), page, isReloadPage, rerender]);
 
   let handleChangeFile = async (e) => {
     for (let i = 0; i < e.currentTarget.files.length; i++) {
@@ -472,12 +475,17 @@ const ContentChat = ({
   };
 
   let handleClickDeleteMember = async (id) => {
-    socket.emit(`Client-Update-Group-Chats`, {
-      group: group,
-      mbs: id,
-    });
-    group.members = JSON.stringify(group.members.filter((m) => m !== id));
-    setGroup(group);
+    if(group.leader === id){
+      toast.error("Bạn phải chuyển trưởng nhóm trước khi rời.")
+    }
+    else{
+      socket.emit(`Client-Update-Group-Chats`, {
+        group: group,
+        mbs: id,
+      });
+      group.members = JSON.stringify(group.members.filter((m) => m !== id));
+      setGroup(group);
+    }
   };
 
   let handleClickDissolutionGroup = async () => {

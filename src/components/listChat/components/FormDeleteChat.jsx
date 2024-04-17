@@ -13,9 +13,9 @@ function FormDeleteChat({
   objectId,
   urlBackend,
   setRerender,
-  setDeleteChat
+  setDeleteChat,
+  setIsClickUtils
 }) {
-  console.log(objectId);
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
   const [socket, setSocket] = useState(null);
@@ -25,23 +25,6 @@ function FormDeleteChat({
     let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
   }, [userId, JSON.stringify(objectId), render]);
-
-  useEffect(() => {
-    socket?.on(
-      `Server-Delete-Chat-${userId}`,
-      (dataGot) => {
-        handleCancel()
-        setDeleteChat("")
-        setRerender(pre => !pre)
-        toast.success("Xóa thành công")
-      }
-    );
-
-    return () => {
-      socket?.disconnect();
-    };
-  }, [userId, JSON.stringify(objectId), render]);
-
 
   useEffect(() => {
     setVisibleModal(visible);
@@ -62,6 +45,7 @@ function FormDeleteChat({
       chat: objectId.phone ? objectId.id : null,
       groupChat: objectId.leader ? objectId.id : null,
     });
+    setIsClickUtils(false)
     setRender(!render)
   };
 

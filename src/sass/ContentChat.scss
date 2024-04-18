@@ -197,6 +197,7 @@
           }
 
           .content-message{
+            position: relative;
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -205,6 +206,33 @@
             border-radius: 10px;
             padding: 5px 15px;
             background-color: white;
+            .emoji-message{
+              position: absolute;
+              bottom: -8px;
+              right: 5px;
+              cursor: pointer;
+              border-radius: 50%;
+              background-color: #b4b4b4;
+              padding: 3px;
+            }
+            .emojis{
+              position: absolute;
+              background-color: #e7eaf3;
+              width: 120px;
+              height: 40px;
+              align-items: center;
+              bottom: 10px;
+              right: -45px;
+              display: flex;
+              justify-content: space-around;
+              border-radius: 20px;
+              .emoji{
+                width: 30px;
+                align-items: center;
+                display: flex;
+                justify-content: center;
+              }
+            }
             
             .mess{
               display: flex;
@@ -226,7 +254,7 @@
           }
         }
 
-      }
+      }      
       .chat-utilities{
         width: 100%;
         display: flex;
@@ -252,16 +280,49 @@
         }  
 
       }
+    .chat{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #d6dbe1;
+        height: 12%; 
+        justify-content: space-around;
+        align-items: center;
+        .chat-reply{
+          width: 98%;
+          margin-top: 5px;
+          background-color: #e6e8ee;
+          height: 50%;
+          padding: 0 20px;
+          display: flex;
+          border-radius: 10px;
+          color: #4a4a4ad8;
+          .chat-reply-message{
+            display: flex;
+            flex-direction: column;
+            width: 99%;
+            padding: 2px;
+            .reply-title{
+              display: flex;
+              font-size: 12px;
+              //width: 1%;
+              justify-content: flex-start;
+            }
+            .reply-message{
+              font-size: 13px;
+            }
+          }
+        }
       .chat-text{
         width: 100%;
         display: flex;
         flex-direction: row;
-        border: 1px solid #d6dbe1;
-        height: 12%;       
+       // border: 1px solid #d6dbe1;
+        //height: 12%;       
         .chat-text-left{
           width: 70%;
           display: flex;
-          flex-direction: row;
+          flex-direction: column;
           justify-content: center;
           align-items: center;
           .chat-text-input{
@@ -322,6 +383,8 @@
           }
         }
       }
+    }
+      
     }
     .chat-info{
       width: 0;

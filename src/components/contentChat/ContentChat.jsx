@@ -12,9 +12,10 @@ import "swiper/css/navigation";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 
 //import icon
+import { IoIosClose } from "react-icons/io";
 import { SendOutlined, EditOutlined } from "@ant-design/icons";
 import { LuSticker, LuAlarmClock, LuTrash } from "react-icons/lu";
-import { AiOutlineUsergroupAdd } from "react-icons/ai";
+import { AiOutlineUsergroupAdd, AiTwotoneLike } from "react-icons/ai";
 import {
   IoVideocamOutline,
   IoSearchOutline,
@@ -31,7 +32,7 @@ import { HiOutlineUsers } from "react-icons/hi2";
 import { CiTrash } from "react-icons/ci";
 import { MdOutlineSettingsBackupRestore, MdGroups } from "react-icons/md";
 import { FaShare, FaCaretDown, FaCaretRight } from "react-icons/fa";
-import { BiSolidToggleLeft } from "react-icons/bi";
+import { BiSolidToggleLeft, BiSolidQuoteRight } from "react-icons/bi";
 import { MdKeyboardVoice } from "react-icons/md";
 import { GiNotebook } from "react-icons/gi";
 import { GrReturn } from "react-icons/gr";
@@ -133,6 +134,12 @@ const ContentChat = ({
   const regexLink = /(https?:\/\/[^\s]+)/g;
   const [isClickUpdateNameGroup, setIsClickUpdateNameGroup] = useState(false);
   const [isReloadPage, setIsReloadPage] = useState(false);
+  const [isClickReply, setIsClickReply] = useState(false);
+  const [messageRelpy, setMessageRelpy] = useState({});
+  const likeEmojis = ["👍", "❤️", "😂",  "🙄"];
+  const [isHoverEmoji, setIsHoverEmoji] = useState(false);
+  const [hoveredIndexE, setHoveredIndexE] = useState(null);
+  const [selectedEmoji, setSelectedEmoji] = useState(null);
 
   useEffect(() => {
     setPage(1);
@@ -503,6 +510,15 @@ const ContentChat = ({
     setGroup(group);
   };
 
+  let handleClickReplyChat = ( message) => {
+    console.log(message);
+    setIsClickReply(true);
+    setMessageRelpy({
+      id: message.id,
+      message: message.message,
+    })
+  }
+
   return (
     <div className="container-content-chat">
       {/* slide */}
@@ -738,7 +754,7 @@ const ContentChat = ({
                             marginTop: "5px",
                             width: "48px",
                           }}
-                        >
+                        >                          
                           <CiTrash
                             style={{
                               color:
@@ -835,15 +851,30 @@ const ContentChat = ({
                       />
                     ) : null}
                     {index === hoveredIndex && message.sender === userId ? (
-                      <div style={{ width: "100px", height: "20px" }}>
+                      <div style={{ width: "120px", height: "20px" }}>
                         <div
                           className="utils-message"
                           style={{
                             marginLeft: "12px",
                             marginTop: "5px",
-                            width: "80px",
+                            width: "100px",
                           }}
                         >
+                          <BiSolidQuoteRight 
+                            style={{
+                              color:
+                                hoverText == "Trả lời"
+                                  ? "#005ae0"
+                                  : "",
+                            }}
+                            onMouseEnter={() =>
+                              setHoverText("Trả lời")
+                            }
+                            onMouseLeave={() => setHoverText("")}
+                            onClick={() =>
+                              handleClickReplyChat(
+                                message
+                              )}/> 
                           <MdOutlineSettingsBackupRestore
                             style={{
                               color: hoverText == "Thu hồi" ? "#005ae0" : "",
@@ -948,18 +979,52 @@ const ContentChat = ({
                         >
                           {message.dateTimeSend?.slice(11, 16)}
                         </span>
+                        {index === hoveredIndex && message.sender !== userId ?
+                          <div className="emoji-message" 
+                                onMouseEnter={() => setIsHoverEmoji(true)}
+                                onMouseLeave={() => setIsHoverEmoji(false)}
+                          >
+                            <AiTwotoneLike/>
+                          </div>:""}
+                          {index === hoveredIndex && isHoverEmoji ? <div className="emojis" onMouseEnter={() => setIsHoverEmoji(true)}
+                                onMouseLeave={() => setIsHoverEmoji(false)}>
+                          {likeEmojis.map((emoji, index)=>(
+                            <div className="emoji" 
+                            key={index} 
+                            onMouseEnter={() => setHoveredIndexE(index)}
+                            onMouseLeave={() => setHoveredIndexE(null)}
+                            style={{ cursor: "pointer", fontSize: index === hoveredIndexE ? "18px" : "15px" }}
+                            onClick={()=> setSelectedEmoji(emoji)}
+                            >{emoji}</div>
+                        ))}
+                        </div>:""}
                       </div>
                     </div>
-                    {index === hoveredIndex && message.sender !== userId ? (
+                    {index === hoveredIndex && message.sender !== userId && !isHoverEmoji? (
                       <div style={{ width: "100px", height: "20px" }}>
                         <div
                           className="utils-message"
                           style={{
                             marginLeft: "7px",
                             marginTop: "5px",
-                            width: "60px",
+                            width: "80px",
                           }}
                         >
+                          <BiSolidQuoteRight 
+                            style={{
+                              color:
+                                hoverText == "Trả lời"
+                                  ? "#005ae0"
+                                  : "",
+                            }}
+                            onMouseEnter={() =>
+                              setHoverText("Trả lời")
+                            }
+                            onMouseLeave={() => setHoverText("")}
+                            onClick={() =>
+                              handleClickReplyChat(
+                                message
+                              )}/>
                           <CiTrash
                             style={{
                               color:
@@ -1013,9 +1078,7 @@ const ContentChat = ({
                           {hoverText}
                         </span>
                       </div>
-                    ) : (
-                      ""
-                    )}
+                    ) : ""}
                   </div>
                 );
               })}
@@ -1164,50 +1227,59 @@ const ContentChat = ({
                 <i className="fa-regular fa-square-check icon"></i>
               </div>
             </div>
-            <div className="chat-text">
-              <div className="chat-text-left">
-                {/*Input Send message*/}
-                <input
-                  ref={inputRef}
-                  className="chat-text-input"
-                  type="text"
-                  placeholder={`Nhập @, tin nhắn tới ${
-                    nameReceiver.name
-                      ? nameReceiver.name
-                      : group.name
-                  }`}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                />
-                {image ? <img src={image} /> : ""}
-              </div>
-              <div className="chat-text-right">
-                <div
-                  className="chat-text-icon"
-                  onClick={() => setDisplayIcons(!displayIcons)}
-                >
-                  <i
-                    className="fa-regular fa-face-grin"
-                    style={{
-                      fontSize: "20px",
-                      color: displayIcons ? "#0068ff" : "",
-                    }}
-                  ></i>
-                  <div
-                    className="content-icons"
-                    style={{ display: displayIcons ? "flex" : "none" }}
-                  >
-                    <Picker
-                      data={data}
-                      onEmojiSelect={(e) => setMessage(message + e.native)}
-                    />
-                  </div>
+            <div className="chat" style={{height: isClickReply? "15%": "12%"}}>
+              <div className="chat-reply" style={{display: isClickReply? "flex": "none"}}>
+                <div className="chat-reply-message">
+                  <div className="reply-title"><BiSolidQuoteRight /> <span style={{marginLeft:"5px"}}>Trả lời <b>{nameReceiver.name}</b></span></div>
+                  <div className="reply-message">{messageRelpy.message}</div>
                 </div>
-
-                {/*Send message*/}
-                <div className="chat-text-icon" onClick={sendMessage}>
-                  <SendOutlined className="icon" />
+                <div style={{cursor: "pointer"}} onClick={()=>setIsClickReply(false)}><IoIosClose style={{fontSize:"20px"}}/></div>
+              </div>
+              <div className="chat-text">
+                <div className="chat-text-left">
+                  {/*Input Send message*/}
+                  <input
+                    ref={inputRef}
+                    className="chat-text-input"
+                    type="text"
+                    placeholder={`Nhập @, tin nhắn tới ${
+                      nameReceiver.name
+                        ? nameReceiver.name
+                        : group.name
+                    }`}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                  />
+                  {image ? <img src={image} /> : ""}
+                </div>
+                <div className="chat-text-right">
+                  <div
+                    className="chat-text-icon"
+                    onClick={() => setDisplayIcons(!displayIcons)}
+                  >
+                    <i
+                      className="fa-regular fa-face-grin"
+                      style={{
+                        fontSize: "20px",
+                        color: displayIcons ? "#0068ff" : "",
+                      }}
+                    ></i>
+                    <div
+                      className="content-icons"
+                      style={{ display: displayIcons ? "flex" : "none" }}
+                    >
+                      <Picker
+                        data={data}
+                        onEmojiSelect={(e) => setMessage(message + e.native)}
+                      />
+                    </div>
+                  </div>
+  
+                  {/*Send message*/}
+                  <div className="chat-text-icon" onClick={sendMessage}>
+                    <SendOutlined className="icon" />
+                  </div>
                 </div>
               </div>
             </div>

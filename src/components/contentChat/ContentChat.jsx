@@ -21,7 +21,7 @@ import {
   IoSearchOutline,
   IoSettingsOutline,
   IoChevronBack,
-  IoCameraOutline
+  IoCameraOutline,
 } from "react-icons/io5";
 import {
   VscLayoutSidebarRightOff,
@@ -66,7 +66,7 @@ const ContentChat = ({
   handleChangeMessageFinal,
   setRerender,
   urlBackend,
-  rerender
+  rerender,
 }) => {
   let scrollRef = useRef(null);
 
@@ -135,8 +135,33 @@ const ContentChat = ({
   const [isClickUpdateNameGroup, setIsClickUpdateNameGroup] = useState(false);
   const [isReloadPage, setIsReloadPage] = useState(false);
   const [isClickReply, setIsClickReply] = useState(false);
-  const [messageRelpy, setMessageRelpy] = useState({});
-  const likeEmojis = ["👍", "❤️", "😂",  "🙄"];
+  const [messageRelpy, setMessageRelpy] = useState(null);
+  const [emojis] = useState([
+    {
+      type: "like",
+      icon: "👍",
+    },
+    {
+      type: "love",
+      icon: "❤️",
+    },
+    {
+      type: "haha",
+      icon: "😂",
+    },
+    {
+      type: "wow",
+      icon: "😲",
+    },
+    {
+      type: "sad",
+      icon: "😭",
+    },
+    {
+      type: "angry",
+      icon: "😡",
+    },
+  ]);
   const [isHoverEmoji, setIsHoverEmoji] = useState(false);
   const [hoveredIndexE, setHoveredIndexE] = useState(null);
   const [selectedEmoji, setSelectedEmoji] = useState(null);
@@ -154,7 +179,7 @@ const ContentChat = ({
     JSON.stringify(contentMessages),
     JSON.stringify(idChat),
     isReloadPage,
-    rerender
+    rerender,
   ]);
 
   useEffect(() => {
@@ -201,7 +226,17 @@ const ContentChat = ({
         }`,
         (dataGot) => {
           handleChangeMessageFinal(dataGot.data.chatFinal);
-          setIsReloadPage(!isReloadPage)
+          setIsReloadPage(!isReloadPage);
+        }
+      );
+
+      socket?.on(
+        `Server-Emotion-Chats-${
+          userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`
+        }`,
+        (dataGot) => {
+          setIsReloadPage(!isReloadPage);
+          console.log(dataGot);
         }
       );
     } else {
@@ -220,7 +255,7 @@ const ContentChat = ({
 
       socket?.on(`Server-Status-Chat-${idChat.id}`, (dataGot) => {
         setRerender((pre) => !pre);
-        setIsReloadPage(!isReloadPage)
+        setIsReloadPage(!isReloadPage);
       });
 
       socket?.on(
@@ -237,6 +272,11 @@ const ContentChat = ({
           // setIsReloadPage(!isReloadPage)
         }
       );
+
+      socket?.on(`Server-Emotion-Chats-${group.id}`, (dataGot) => {
+        console.log(dataGot);
+        setIsReloadPage(!isReloadPage);
+      });
     }
 
     return () => {
@@ -247,7 +287,7 @@ const ContentChat = ({
     JSON.stringify(idChat),
     JSON.stringify(group),
     isReloadPage,
-    rerender
+    rerender,
   ]);
 
   useEffect(() => {
@@ -272,6 +312,7 @@ const ContentChat = ({
           dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
           sender: userId,
           receiver: idChat.id,
+          chatReply : messageRelpy.id,
           chatRoom:
             userId > idChat.id
               ? `${idChat.id}${userId}`
@@ -285,6 +326,7 @@ const ContentChat = ({
           dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
           sender: userId,
           groupChat: idChat.id,
+          chatReply : messageRelpy.id,
           chatRoom: idChat.id,
         });
       }
@@ -294,7 +336,7 @@ const ContentChat = ({
       inputRef.current.focus();
     }
     setDisplayIcons(false);
-    setIsReloadPage(!isReloadPage)
+    setIsReloadPage(!isReloadPage);
   };
 
   const handleKeyDown = (event) => {
@@ -314,12 +356,21 @@ const ContentChat = ({
       let sender = await axios.get(`${urlBackend}/users/${userId}`);
       let receiver = await axios.get(`${urlBackend}/users/${idChat.id}`);
 
-      setContentMessages(datas.data);
+      setContentMessages(
+        datas.data.map((dt) => {
+          if (dt.emojis) {
+            dt.emojis = [...new Set(dt.emojis.split(","))];
+          }
+          return dt;
+        })
+      );
       setNameReceiver({
+        id : receiver.data.id,
         name: receiver.data.name,
         image: receiver.data.image,
       });
       setNameSender({
+        id : sender.data.id,
         name: sender.data.name,
         image: sender.data.image,
       });
@@ -382,7 +433,7 @@ const ContentChat = ({
     }
     setMessage("");
     setDisplayIcons(false);
-    setIsReloadPage(!isReloadPage)
+    setIsReloadPage(!isReloadPage);
   };
 
   let handleClickStatusChat = (status, userId, chat, time) => {
@@ -441,7 +492,7 @@ const ContentChat = ({
 
       reader.readAsArrayBuffer(voiceMessage.blob);
       setIsRecoding(false);
-      setIsReloadPage(!isReloadPage)
+      setIsReloadPage(!isReloadPage);
     }
   };
 
@@ -482,10 +533,9 @@ const ContentChat = ({
   };
 
   let handleClickDeleteMember = async (id) => {
-    if(group.leader === id){
-      toast.error("Bạn phải chuyển trưởng nhóm trước khi rời.")
-    }
-    else{
+    if (group.leader === id) {
+      toast.error("Bạn phải chuyển trưởng nhóm trước khi rời.");
+    } else {
       socket.emit(`Client-Update-Group-Chats`, {
         group: group,
         mbs: id,
@@ -510,14 +560,28 @@ const ContentChat = ({
     setGroup(group);
   };
 
-  let handleClickReplyChat = ( message) => {
+  let handleClickReplyChat = (message) => {
     console.log(message);
     setIsClickReply(true);
     setMessageRelpy({
       id: message.id,
       message: message.message,
-    })
-  }
+    });
+  };
+
+  let handleClickEmoji = async (chat, emoji) => {
+    socket.emit(`Client-Emotion-Chats`, {
+      type: emoji.type,
+      implementer: userId,
+      chat: chat,
+      chatRoom:
+        idChat.type === "Single"
+          ? userId > idChat.id
+            ? `${idChat.id}${userId}`
+            : `${userId}${idChat.id}`
+          : idChat.id,
+    });
+  };
 
   return (
     <div className="container-content-chat">
@@ -617,7 +681,7 @@ const ContentChat = ({
           <FormUpdateName
             setVisible={setIsClickUpdate}
             visible={isClickUpdate}
-            user={nameReceiver?nameReceiver:""}
+            user={nameReceiver ? nameReceiver : ""}
             urlBackend={urlBackend}
           />
           <FormAddMemberToGroup
@@ -663,15 +727,16 @@ const ContentChat = ({
                 <div className="chat-header-left-name">
                   <div className="user">
                     <div className="user-name">
-                      {nameReceiver.name
-                        ? nameReceiver.name
-                        : group.name}
+                      {nameReceiver.name ? nameReceiver.name : group.name}
                     </div>
                     <div className="user-edit">
-                      {nameReceiver.name? 
-                        <EditOutlined onClick={() => setIsClickUpdate(true)} />:
-                        <EditOutlined onClick={() => setIsClickUpdateNameGroup(true)} />
-                      }                      
+                      {nameReceiver.name ? (
+                        <EditOutlined onClick={() => setIsClickUpdate(true)} />
+                      ) : (
+                        <EditOutlined
+                          onClick={() => setIsClickUpdateNameGroup(true)}
+                        />
+                      )}
                     </div>
                   </div>
                   <div className="is-active">Active</div>
@@ -754,7 +819,7 @@ const ContentChat = ({
                             marginTop: "5px",
                             width: "48px",
                           }}
-                        >                          
+                        >
                           <CiTrash
                             style={{
                               color:
@@ -860,21 +925,14 @@ const ContentChat = ({
                             width: "100px",
                           }}
                         >
-                          <BiSolidQuoteRight 
+                          <BiSolidQuoteRight
                             style={{
-                              color:
-                                hoverText == "Trả lời"
-                                  ? "#005ae0"
-                                  : "",
+                              color: hoverText == "Trả lời" ? "#005ae0" : "",
                             }}
-                            onMouseEnter={() =>
-                              setHoverText("Trả lời")
-                            }
+                            onMouseEnter={() => setHoverText("Trả lời")}
                             onMouseLeave={() => setHoverText("")}
-                            onClick={() =>
-                              handleClickReplyChat(
-                                message
-                              )}/> 
+                            onClick={() => handleClickReplyChat(message)}
+                          />
                           <MdOutlineSettingsBackupRestore
                             style={{
                               color: hoverText == "Thu hồi" ? "#005ae0" : "",
@@ -951,7 +1009,7 @@ const ContentChat = ({
                       {!nameReceiver.name && message.sender !== userId && (
                         <span>{message.name}</span>
                       )}
-                      <div className="content-message">
+                      <div className="content-message" style={message.emojis && {minWidth : "200px"}}>
                         {message.message.includes(regexUrl) ? (
                           <ViewFile url={message.message} />
                         ) : (
@@ -979,28 +1037,84 @@ const ContentChat = ({
                         >
                           {message.dateTimeSend?.slice(11, 16)}
                         </span>
-                        {index === hoveredIndex && message.sender !== userId ?
-                          <div className="emoji-message" 
-                                onMouseEnter={() => setIsHoverEmoji(true)}
-                                onMouseLeave={() => setIsHoverEmoji(false)}
+                        {message.sender !== userId ? (
+                          <>
+                            {message.emojis && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  bottom: -10,
+                                  right: 50,
+                                  border: "1px solid #b4b4b4",
+                                  borderRadius: "10px",
+                                  padding: "2px 10px",
+                                  backgroundColor: "white",
+                                  cursor: "pointer"
+                                }}
+                              >
+                                {message.emojis.map((e, index) => {
+                                    if(index < 3){
+                                      return (
+                                        <span
+                                          style={{ margin: "1px" }}
+                                          key={index}
+                                        >
+                                          {
+                                            emojis.find((ej) => ej.type === e)
+                                              .icon
+                                          }
+                                        </span>
+                                      );
+                                    }
+                                  })}
+                                <span>{message.quantities}</span>
+                              </div>
+                            )}
+                            <div
+                              className="emoji-message"
+                              onMouseEnter={() => setIsHoverEmoji(true)}
+                              onMouseLeave={() => setIsHoverEmoji(false)}
+                            >
+                              <AiTwotoneLike />
+                            </div>
+                          </>
+                        ) : (
+                          ""
+                        )}
+                        {index === hoveredIndex && isHoverEmoji ? (
+                          <div
+                            className="emojis"
+                            style={{ width: "200px", padding: "0px 10px" }}
+                            onMouseEnter={() => setIsHoverEmoji(true)}
+                            onMouseLeave={() => setIsHoverEmoji(false)}
                           >
-                            <AiTwotoneLike/>
-                          </div>:""}
-                          {index === hoveredIndex && isHoverEmoji ? <div className="emojis" onMouseEnter={() => setIsHoverEmoji(true)}
-                                onMouseLeave={() => setIsHoverEmoji(false)}>
-                          {likeEmojis.map((emoji, index)=>(
-                            <div className="emoji" 
-                            key={index} 
-                            onMouseEnter={() => setHoveredIndexE(index)}
-                            onMouseLeave={() => setHoveredIndexE(null)}
-                            style={{ cursor: "pointer", fontSize: index === hoveredIndexE ? "18px" : "15px" }}
-                            onClick={()=> setSelectedEmoji(emoji)}
-                            >{emoji}</div>
-                        ))}
-                        </div>:""}
+                            {emojis.map((emoji, index) => (
+                              <div
+                                className="emoji"
+                                key={index}
+                                onMouseEnter={() => setHoveredIndexE(index)}
+                                onMouseLeave={() => setHoveredIndexE(null)}
+                                style={{
+                                  cursor: "pointer",
+                                  fontSize:
+                                    index === hoveredIndexE ? "18px" : "15px",
+                                }}
+                                onClick={() =>
+                                  handleClickEmoji(message.id, emoji)
+                                }
+                              >
+                                {emoji.icon}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          ""
+                        )}
                       </div>
                     </div>
-                    {index === hoveredIndex && message.sender !== userId && !isHoverEmoji? (
+                    {index === hoveredIndex &&
+                    message.sender !== userId &&
+                    !isHoverEmoji ? (
                       <div style={{ width: "100px", height: "20px" }}>
                         <div
                           className="utils-message"
@@ -1010,21 +1124,14 @@ const ContentChat = ({
                             width: "80px",
                           }}
                         >
-                          <BiSolidQuoteRight 
+                          <BiSolidQuoteRight
                             style={{
-                              color:
-                                hoverText == "Trả lời"
-                                  ? "#005ae0"
-                                  : "",
+                              color: hoverText == "Trả lời" ? "#005ae0" : "",
                             }}
-                            onMouseEnter={() =>
-                              setHoverText("Trả lời")
-                            }
+                            onMouseEnter={() => setHoverText("Trả lời")}
                             onMouseLeave={() => setHoverText("")}
-                            onClick={() =>
-                              handleClickReplyChat(
-                                message
-                              )}/>
+                            onClick={() => handleClickReplyChat(message)}
+                          />
                           <CiTrash
                             style={{
                               color:
@@ -1078,7 +1185,9 @@ const ContentChat = ({
                           {hoverText}
                         </span>
                       </div>
-                    ) : ""}
+                    ) : (
+                      ""
+                    )}
                   </div>
                 );
               })}
@@ -1139,7 +1248,13 @@ const ContentChat = ({
                 <i className="fa-regular fa-address-card icon"></i>
               </div>
               {/* button chat Recoding */}
-              <div className="chat-utilities-icon" style={{backgroundColor: isRecoding? "#d4e4fa" : "", color: isRecoding? "#0068ff" : ""}}>
+              <div
+                className="chat-utilities-icon"
+                style={{
+                  backgroundColor: isRecoding ? "#d4e4fa" : "",
+                  color: isRecoding ? "#0068ff" : "",
+                }}
+              >
                 <MdKeyboardVoice
                   className="icon"
                   onClick={handleClickRecording}
@@ -1152,30 +1267,36 @@ const ContentChat = ({
                       width: "200px",
                       justifyContent: "space-around",
                       textAlign: "center",
-                      height:"100px",
+                      height: "100px",
                       margin: "0 0 180px 10px",
                       flexDirection: "column",
                       backgroundColor: "white",
                       padding: "10px 10px 0 10px",
-                      boxShadow: "0 0 5px #b4a7a7"
+                      boxShadow: "0 0 5px #b4a7a7",
                     }}
                   >
-                    {!audioLink && <ReactMic
-                      record={voice}
-                      className="sound-wave"
-                      onStop={onStopRecoding}
-                      //onData={onData}
-                      strokeColor="#000000"
-                      backgroundColor="#94caf9"
-                    />}
-                    {!audioLink ? (<div>
-                      {!voice ? (
-                      <button onClick={handleStart}>Bắt đầu</button>
-                    ) : (
-                      <button onClick={handleStop}>Dừng</button>
+                    {!audioLink && (
+                      <ReactMic
+                        record={voice}
+                        className="sound-wave"
+                        onStop={onStopRecoding}
+                        //onData={onData}
+                        strokeColor="#000000"
+                        backgroundColor="#94caf9"
+                      />
                     )}
-                    </div>):""}
-                    
+                    {!audioLink ? (
+                      <div>
+                        {!voice ? (
+                          <button onClick={handleStart}>Bắt đầu</button>
+                        ) : (
+                          <button onClick={handleStop}>Dừng</button>
+                        )}
+                      </div>
+                    ) : (
+                      ""
+                    )}
+
                     {audioLink ? (
                       <>
                         <audio
@@ -1184,39 +1305,38 @@ const ContentChat = ({
                           style={{ width: "180px", height: "40px" }}
                         ></audio>
                         <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <button
                           style={{
-                            padding: "3px 10px",
-                            borderRadius: "10px",
-                            margin: "10px",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
                           }}
-                          onClick={()=>setAudioLink(false)}
                         >
-                          Xóa
-                        </button>
-                        <button
-                          style={{
-                            backgroundColor: "#94caf9",
-                            padding: "3px 10px",
-                            borderRadius: "10px",
-                            margin: "10px",
-                          }}
-                          onClick={handleClickSendVoiceMessage}
-                        >
-                          Gửi
-                        </button>
-                      </div>
+                          <button
+                            style={{
+                              padding: "3px 10px",
+                              borderRadius: "10px",
+                              margin: "10px",
+                            }}
+                            onClick={() => setAudioLink(false)}
+                          >
+                            Xóa
+                          </button>
+                          <button
+                            style={{
+                              backgroundColor: "#94caf9",
+                              padding: "3px 10px",
+                              borderRadius: "10px",
+                              margin: "10px",
+                            }}
+                            onClick={handleClickSendVoiceMessage}
+                          >
+                            Gửi
+                          </button>
+                        </div>
                       </>
                     ) : (
                       ""
                     )}
-                    
                   </div>
                 )}
               </div>
@@ -1227,13 +1347,29 @@ const ContentChat = ({
                 <i className="fa-regular fa-square-check icon"></i>
               </div>
             </div>
-            <div className="chat" style={{height: isClickReply? "15%": "12%"}}>
-              <div className="chat-reply" style={{display: isClickReply? "flex": "none"}}>
+            <div
+              className="chat"
+              style={{ height: isClickReply ? "15%" : "12%" }}
+            >
+              <div
+                className="chat-reply"
+                style={{ display: isClickReply ? "flex" : "none" }}
+              >
                 <div className="chat-reply-message">
-                  <div className="reply-title"><BiSolidQuoteRight /> <span style={{marginLeft:"5px"}}>Trả lời <b>{nameReceiver.name}</b></span></div>
-                  <div className="reply-message">{messageRelpy.message}</div>
+                  <div className="reply-title">
+                    <BiSolidQuoteRight />{" "}
+                    <span style={{ marginLeft: "5px" }}>
+                      Trả lời <b>{message.sender === nameReceiver.id ? nameReceiver.name : nameSender.name}</b>
+                    </span>
+                  </div>
+                  <div className="reply-message">{messageRelpy?.message}</div>
                 </div>
-                <div style={{cursor: "pointer"}} onClick={()=>setIsClickReply(false)}><IoIosClose style={{fontSize:"20px"}}/></div>
+                <div
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setIsClickReply(false)}
+                >
+                  <IoIosClose style={{ fontSize: "20px" }} />
+                </div>
               </div>
               <div className="chat-text">
                 <div className="chat-text-left">
@@ -1243,9 +1379,7 @@ const ContentChat = ({
                     className="chat-text-input"
                     type="text"
                     placeholder={`Nhập @, tin nhắn tới ${
-                      nameReceiver.name
-                        ? nameReceiver.name
-                        : group.name
+                      nameReceiver.name ? nameReceiver.name : group.name
                     }`}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
@@ -1275,7 +1409,7 @@ const ContentChat = ({
                       />
                     </div>
                   </div>
-  
+
                   {/*Send message*/}
                   <div className="chat-text-icon" onClick={sendMessage}>
                     <SendOutlined className="icon" />
@@ -1456,28 +1590,32 @@ const ContentChat = ({
                       }}
                     />
                     <label
-                    htmlFor="image"
-                    style={{ marginLeft: "-15px", marginTop: "45px" }}
-                  >
-                    <IoCameraOutline style={{ cursor: "pointer" }} />
-                  </label>
-                  <input
-                    type="file"
-                    accept=".png, .jpg, .jpeg, .gif, .bmp, .tiff"
-                    multiple
-                    style={{ display: "none" }}
-                    id="image"
-                    onChange={(e) => handleChangeFile(e)}
-                  />
+                      htmlFor="image"
+                      style={{ marginLeft: "-15px", marginTop: "45px" }}
+                    >
+                      <IoCameraOutline style={{ cursor: "pointer" }} />
+                    </label>
+                    <input
+                      type="file"
+                      accept=".png, .jpg, .jpeg, .gif, .bmp, .tiff"
+                      multiple
+                      style={{ display: "none" }}
+                      id="image"
+                      onChange={(e) => handleChangeFile(e)}
+                    />
                   </div>
                   <div className="header-info-name">
                     <div className="user-name">
-                      {nameReceiver.name
-                        ? nameReceiver.name
-                        : group.name}
+                      {nameReceiver.name ? nameReceiver.name : group.name}
                     </div>
                     <div className="user-edit">
-                      {nameReceiver.name? <EditOutlined onClick={()=>setIsClickUpdate(true)}/>: <EditOutlined onClick={()=>setIsClickUpdateNameGroup(true)}/>}
+                      {nameReceiver.name ? (
+                        <EditOutlined onClick={() => setIsClickUpdate(true)} />
+                      ) : (
+                        <EditOutlined
+                          onClick={() => setIsClickUpdateNameGroup(true)}
+                        />
+                      )}
                     </div>
                   </div>
                   <div className="header-info-utilities">

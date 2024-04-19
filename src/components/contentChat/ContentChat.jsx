@@ -57,6 +57,7 @@ import moment from "moment";
 import ViewNewFriend from "./components/ViewNewFriend";
 import FormAddMemberToGroup from "./components/FormAddMemberToGroup";
 import FormChangeNameGroup from "./components/FormChangeNameGroup";
+import ViewListEmoji from "./components/ViewListEmoji";
 
 import toast from "react-hot-toast";
 
@@ -164,7 +165,9 @@ const ContentChat = ({
   ]);
   const [isHoverEmoji, setIsHoverEmoji] = useState(false);
   const [hoveredIndexE, setHoveredIndexE] = useState(null);
-  const [selectedEmoji, setSelectedEmoji] = useState(null);
+  const [selectedEmoji, setSelectedEmoji] = useState([]);
+  const [isViewListEmoji, setIsViewListEmoji] = useState(false);
+  const [quantityEmoji, setQuantityEmoji] = useState()
 
   useEffect(() => {
     setPage(1);
@@ -435,7 +438,7 @@ const ContentChat = ({
     setDisplayIcons(false);
     setIsReloadPage(!isReloadPage);
   };
-
+console.log(contentMessages);
   let handleClickStatusChat = (status, userId, chat, time) => {
     const sentTime = new Date(time);
     const currentTime = new Date();
@@ -583,6 +586,11 @@ const ContentChat = ({
     });
   };
 
+  let handleClickViewListEmoji = (emojis,quantities) => {
+    setQuantityEmoji(quantities);
+    setSelectedEmoji(emojis);
+    setIsViewListEmoji(true);
+  }
   return (
     <div className="container-content-chat">
       {/* slide */}
@@ -700,6 +708,15 @@ const ContentChat = ({
             group={group}
             urlBackend={urlBackend}
             setIsReloadPage={setIsReloadPage}
+          />
+          <ViewListEmoji
+            setVisible={setIsViewListEmoji}
+            visible={isViewListEmoji}
+            userId={userId}
+            groupId={idChat}
+            urlBackend={urlBackend}
+            emojis={selectedEmoji}
+            quantity={quantityEmoji}
           />
           <div
             className="content-chat"
@@ -1010,6 +1027,13 @@ const ContentChat = ({
                         <span>{message.name}</span>
                       )}
                       <div className="content-message" style={message.emojis && {minWidth : "200px"}}>
+                        {message.chatReply? (
+                          <div className="content-message-reply">
+                            <div><b>gdf</b></div>
+                            <div >fgfdddddddddddddddddddđfffffffffffffffffffffffffff</div>
+                          </div>
+                        ):""}
+                        
                         {message.message.includes(regexUrl) ? (
                           <ViewFile url={message.message} />
                         ) : (
@@ -1051,6 +1075,7 @@ const ContentChat = ({
                                   backgroundColor: "white",
                                   cursor: "pointer"
                                 }}
+                                onClick={()=> handleClickViewListEmoji(message.emojis, message.quantities)}
                               >
                                 {message.emojis.map((e, index) => {
                                     if(index < 3){

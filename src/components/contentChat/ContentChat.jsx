@@ -932,7 +932,8 @@ console.log(contentMessages);
                         style={{ cursor: "pointer" }}
                       />
                     ) : null}
-                    {index === hoveredIndex && message.sender === userId ? (
+                    {index === hoveredIndex && message.sender === userId &&
+                    !isHoverEmoji? (
                       <div style={{ width: "120px", height: "20px" }}>
                         <div
                           className="utils-message"
@@ -1061,7 +1062,7 @@ console.log(contentMessages);
                         >
                           {message.dateTimeSend?.slice(11, 16)}
                         </span>
-                        {message.sender !== userId ? (
+                        {
                           <>
                             {message.emojis && (
                               <div
@@ -1103,9 +1104,7 @@ console.log(contentMessages);
                               <AiTwotoneLike />
                             </div>
                           </>
-                        ) : (
-                          ""
-                        )}
+                        }
                         {index === hoveredIndex && isHoverEmoji ? (
                           <div
                             className="emojis"

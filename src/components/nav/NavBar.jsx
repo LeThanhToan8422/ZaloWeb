@@ -4,7 +4,7 @@ import InfoAccount from "./components/InfoAccount";
 import { useNavigate } from "react-router-dom";
 
 
-const NavBar = ({ user, urlBackend, setUser, setIdChat }) => {
+const NavBar = ({ setDisplayListChat, displayListChat, user, urlBackend, setUser, setIdChat }) => {
   let navigate = useNavigate();
   const [isClickAvt, setIsClickAvt]= useState(false); 
   const [visibleInfoAccount, setVisibleInfoAccount] = useState(false);
@@ -37,7 +37,7 @@ const NavBar = ({ user, urlBackend, setUser, setIdChat }) => {
       </div>
       <div className="nav-group">
         <div className="nav-group-chat">
-          <div className="group-icon">
+          <div className="group-icon" style={{backgroundColor : displayListChat ? "#006EDC" : "transparent"}} onClick={() => setDisplayListChat(pre => !pre)}>
             <i className="fa-regular fa-comment-dots icon"></i>
           </div>
           <div className="group-icon">

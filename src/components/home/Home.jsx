@@ -15,6 +15,7 @@ function Home() {
   const [idChat, setIdChat] = useState({});
   const [messageFinal, setMessageFinal] = useState("");
   const [searchFriends, setSearchFriends] = useState(null);
+  const [displayListChat, setDisplayListChat] = useState(true);
   const [user, setUser] = useState({});
   const [rerender, setRerender] = useState(false);
   const [makeFriends, setMakeFriends] = useState([]);
@@ -111,12 +112,15 @@ function Home() {
   return (
     <div className="app">
       <NavBar 
+      setDisplayListChat={setDisplayListChat}
+      displayListChat={displayListChat}
       user={user} 
       setUser={setUser}
       setIdChat={setIdChat}
       urlBackend={location.state.urlBackend}
       />
       <ListChat
+        displayListChat={displayListChat}
         handleChangeChat={handleChangeChat}
         chats={chats}
         userId={location.state.userId}
@@ -129,6 +133,7 @@ function Home() {
         setDeleteChat={setIdChat}
       />
       <ContentChat
+        displayListChat={displayListChat}
         userId={location.state.userId}
         idChat={idChat}
         handleChangeMessageFinal={handleChangeMessageFinal}

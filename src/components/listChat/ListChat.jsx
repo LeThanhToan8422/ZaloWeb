@@ -7,6 +7,7 @@ import FormDeleteChat from "./components/FormDeleteChat";
 import FormCreateGroup from "./components/FormCreateGroup";
 
 const ListChat = ({
+  displayListChat,
   handleChangeChat,
   chats,
   userId,
@@ -89,7 +90,7 @@ const ListChat = ({
 
   }
   return (
-    <div className="container-list-chat">
+    <div className="container-list-chat" style={{display : displayListChat ? "flex" : "none"}}>
       <div className="contents-search-types">
         <div className="content-search">
           <div className="search">

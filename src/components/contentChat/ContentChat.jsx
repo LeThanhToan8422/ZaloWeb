@@ -62,6 +62,7 @@ import ViewListEmoji from "./components/ViewListEmoji";
 import toast from "react-hot-toast";
 
 const ContentChat = ({
+  displayListChat,
   userId,
   idChat,
   handleChangeMessageFinal,
@@ -101,7 +102,7 @@ const ContentChat = ({
   const [voice, setVoice] = useState(false);
   const [audioLink, setAudioLink] = useState("");
   const [voiceMessage, setVoiceMessage] = useState(null);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(10);
   const [group, setGroup] = useState(null);
   const [isGroup, setIsGroup] = useState(false);
   const [isClickDownMember, setIsClickDownMember] = useState(false);
@@ -169,6 +170,7 @@ const ContentChat = ({
   const [isViewListEmoji, setIsViewListEmoji] = useState(false);
   const [quantityEmoji, setQuantityEmoji] = useState()
   const [nameReply, setNameReply] = useState("")
+  const [chatSelectedDisplayEmojis, setChatSelectedDisplayEmojis] = useState(0)
 
   useEffect(() => {
     setPage(1);
@@ -527,11 +529,11 @@ const ContentChat = ({
     }
   }, [JSON.stringify(idChat)]);
 
-  let handleScrollContentChats = (e) => {
-    if (e.currentTarget.scrollTop === 0) {
-      setPage((pre) => pre + 1);
-    }
-  };
+  // let handleScrollContentChats = (e) => {
+  //   if (e.currentTarget.scrollTop === 0) {
+  //     setPage((pre) => pre + 1);
+  //   }
+  // };
 
   const handleClickRecording = () => {
     setAudioLink("");
@@ -595,13 +597,14 @@ const ContentChat = ({
     });
   };
 
-  let handleClickViewListEmoji = (emojis,quantities) => {
+  let handleClickViewListEmoji = (chatId, emojis,quantities) => {
+    setChatSelectedDisplayEmojis(chatId);
     setQuantityEmoji(quantities);
     setSelectedEmoji(emojis);
     setIsViewListEmoji(true);
   }
   return (
-    <div className="container-content-chat">
+    <div className="container-content-chat" style={{width : displayListChat ? "71%" : "96%"}}>
       {/* slide */}
       {!idChat.id ? (
         <div className="slides">
@@ -726,6 +729,7 @@ const ContentChat = ({
             urlBackend={urlBackend}
             emojis={selectedEmoji}
             quantity={quantityEmoji}
+            chatSelectedDisplayEmojis={chatSelectedDisplayEmojis}
           />
           <div
             className="content-chat"
@@ -793,7 +797,7 @@ const ContentChat = ({
             </div>
             <div
               className="chat-view"
-              onScroll={(e) => handleScrollContentChats(e)}
+              // onScroll={(e) => handleScrollContentChats(e)}
             >
               {contentMessages.map((message, index) => {
                 return message.isRecalls ? (
@@ -1038,7 +1042,7 @@ const ContentChat = ({
                       )}
                       <div className="content-message" style={message.emojis && {minWidth : "200px"}}>
                         {message.chatReply? (
-                          <div className="content-message-reply">
+                          <div className="content-message-reply" style={{width : "100%"}}>
                             <div><b>{contentMessages.find(ms => ms.id === message.chatReply)?.name}</b></div>
                             <div >{contentMessages.find(ms => ms.id === message.chatReply)?.message}</div>
                           </div>
@@ -1085,7 +1089,7 @@ const ContentChat = ({
                                   backgroundColor: "white",
                                   cursor: "pointer"
                                 }}
-                                onClick={()=> handleClickViewListEmoji(message.emojis, message.quantities)}
+                                onClick={()=> handleClickViewListEmoji(message.id, message.emojis, message.quantities)}
                               >
                                 {message.emojis.map((e, index) => {
                                     if(index < 3){

@@ -168,6 +168,7 @@ const ContentChat = ({
   const [selectedEmoji, setSelectedEmoji] = useState([]);
   const [isViewListEmoji, setIsViewListEmoji] = useState(false);
   const [quantityEmoji, setQuantityEmoji] = useState()
+  const [nameReply, setNameReply] = useState("")
 
   useEffect(() => {
     setPage(1);
@@ -219,6 +220,7 @@ const ContentChat = ({
             setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
             setRerender((pre) => !pre);
             setIsReloadPage(!isReloadPage);
+            setMessageRelpy(null)
           }
         }
       );
@@ -230,6 +232,7 @@ const ContentChat = ({
         (dataGot) => {
           handleChangeMessageFinal(dataGot.data.chatFinal);
           setIsReloadPage(!isReloadPage);
+          setMessageRelpy(null)
         }
       );
 
@@ -315,7 +318,7 @@ const ContentChat = ({
           dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
           sender: userId,
           receiver: idChat.id,
-          chatReply : messageRelpy.id,
+          chatReply : messageRelpy?.id,
           chatRoom:
             userId > idChat.id
               ? `${idChat.id}${userId}`
@@ -438,7 +441,7 @@ const ContentChat = ({
     setDisplayIcons(false);
     setIsReloadPage(!isReloadPage);
   };
-console.log(contentMessages);
+
   let handleClickStatusChat = (status, userId, chat, time) => {
     const sentTime = new Date(time);
     const currentTime = new Date();
@@ -565,6 +568,12 @@ console.log(contentMessages);
 
   let handleClickReplyChat = (message) => {
     console.log(message);
+    if(message.sender === nameReceiver.id){
+      setNameReply(nameReceiver.name)
+    }
+    else{
+      setNameReply(nameSender.name)
+    }
     setIsClickReply(true);
     setMessageRelpy({
       id: message.id,
@@ -1029,8 +1038,8 @@ console.log(contentMessages);
                       <div className="content-message" style={message.emojis && {minWidth : "200px"}}>
                         {message.chatReply? (
                           <div className="content-message-reply">
-                            <div><b>gdf</b></div>
-                            <div >fgfdddddddddddddddddddđfffffffffffffffffffffffffff</div>
+                            <div><b>{contentMessages.find(ms => ms.id === message.chatReply)?.name}</b></div>
+                            <div >{contentMessages.find(ms => ms.id === message.chatReply)?.message}</div>
                           </div>
                         ):""}
                         
@@ -1384,7 +1393,7 @@ console.log(contentMessages);
                   <div className="reply-title">
                     <BiSolidQuoteRight />{" "}
                     <span style={{ marginLeft: "5px" }}>
-                      Trả lời <b>{message.sender === nameReceiver.id ? nameReceiver.name : nameSender.name}</b>
+                      Trả lời <b>{nameReply}</b>
                     </span>
                   </div>
                   <div className="reply-message">{messageRelpy?.message}</div>

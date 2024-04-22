@@ -60,6 +60,7 @@ import FormChangeNameGroup from "./components/FormChangeNameGroup";
 import ViewListEmoji from "./components/ViewListEmoji";
 
 import toast from "react-hot-toast";
+import VideoCall from "./components/VideoCall";
 
 const ContentChat = ({
   displayListChat,
@@ -171,6 +172,7 @@ const ContentChat = ({
   const [quantityEmoji, setQuantityEmoji] = useState()
   const [nameReply, setNameReply] = useState("")
   const [chatSelectedDisplayEmojis, setChatSelectedDisplayEmojis] = useState(0)
+  const [isClickVideoCall, setIsClickVideoCall] = useState(false)
 
   useEffect(() => {
     setPage(1);
@@ -731,6 +733,12 @@ const ContentChat = ({
             quantity={quantityEmoji}
             chatSelectedDisplayEmojis={chatSelectedDisplayEmojis}
           />
+          <VideoCall
+            setVisible={setIsClickVideoCall}
+            visible={isClickVideoCall}
+            user={nameReceiver ? nameReceiver : ""}
+            urlBackend={urlBackend}
+            />
           <div
             className="content-chat"
             style={{ width: isClickInfo ? "70%" : "" }}
@@ -776,7 +784,13 @@ const ContentChat = ({
                 <div className="chat-header-right-icon">
                   <IoSearchOutline className="icon" />{" "}
                 </div>
-                <div className="chat-header-right-icon">
+                <div className="chat-header-right-icon"
+                  onClick={() => setIsClickVideoCall(!isClickVideoCall)}
+                  style={{
+                    color: isClickVideoCall ? "#0068ff" : "",
+                    background: isClickVideoCall ? "#d4e4fa" : "",
+                  }}
+                  >
                   <IoVideocamOutline className="icon" />
                 </div>
                 <div

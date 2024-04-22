@@ -22,6 +22,7 @@ import {
   IoSettingsOutline,
   IoChevronBack,
   IoCameraOutline,
+  IoCallOutline
 } from "react-icons/io5";
 import {
   VscLayoutSidebarRightOff,
@@ -61,6 +62,7 @@ import ViewListEmoji from "./components/ViewListEmoji";
 
 import toast from "react-hot-toast";
 import VideoCall from "./components/VideoCall";
+import VoiceCall from "./components/VoiceCall";
 
 const ContentChat = ({
   displayListChat,
@@ -173,6 +175,7 @@ const ContentChat = ({
   const [nameReply, setNameReply] = useState("")
   const [chatSelectedDisplayEmojis, setChatSelectedDisplayEmojis] = useState(0)
   const [isClickVideoCall, setIsClickVideoCall] = useState(false)
+  const [isClickCallVoice, setIsClickCallVoice] = useState(false)
 
   useEffect(() => {
     setPage(1);
@@ -738,7 +741,14 @@ const ContentChat = ({
             visible={isClickVideoCall}
             user={nameReceiver ? nameReceiver : ""}
             urlBackend={urlBackend}
-            />
+          />
+          <VoiceCall
+            setVisible={setIsClickCallVoice}
+            visible={isClickCallVoice}
+            user={nameReceiver ? nameReceiver : ""}
+            urlBackend={urlBackend}
+          />
+            
           <div
             className="content-chat"
             style={{ width: isClickInfo ? "70%" : "" }}
@@ -783,6 +793,15 @@ const ContentChat = ({
               <div className="chat-header-right">
                 <div className="chat-header-right-icon">
                   <IoSearchOutline className="icon" />{" "}
+                </div>
+                <div className="chat-header-right-icon"
+                  onClick={() => setIsClickCallVoice(!isClickCallVoice)}
+                  style={{
+                    color: isClickCallVoice ? "#0068ff" : "",
+                    background: isClickCallVoice ? "#d4e4fa" : "",
+                  }}
+                  >
+                  <IoCallOutline className="icon" />
                 </div>
                 <div className="chat-header-right-icon"
                   onClick={() => setIsClickVideoCall(!isClickVideoCall)}

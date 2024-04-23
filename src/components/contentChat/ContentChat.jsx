@@ -1,15 +1,5 @@
 import "../../sass/ContentChat.scss";
 import { useEffect, useRef, useState } from "react";
-// Import Swiper React components
-import { Swiper, SwiperSlide } from "swiper/react";
-
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/navigation";
-
-// import required modules
-import { Autoplay, Pagination, Navigation } from "swiper/modules";
 
 //import icon
 import { IoIosClose } from "react-icons/io";
@@ -60,6 +50,8 @@ import FormChangeNameGroup from "./components/FormChangeNameGroup";
 import ViewListEmoji from "./components/ViewListEmoji";
 
 import toast from "react-hot-toast";
+import SlideZalo from "../home/SlideZalo";
+import { useNavigate } from "react-router-dom";
 
 const ContentChat = ({
   displayListChat,
@@ -71,6 +63,7 @@ const ContentChat = ({
   rerender,
 }) => {
   let scrollRef = useRef(null);
+  let navigate = useNavigate();
 
   const [isClickInfo, setIsClickInfo] = useState(false);
   const [isClickSticker, setIsClickSticker] = useState(false);
@@ -168,9 +161,9 @@ const ContentChat = ({
   const [hoveredIndexE, setHoveredIndexE] = useState(null);
   const [selectedEmoji, setSelectedEmoji] = useState([]);
   const [isViewListEmoji, setIsViewListEmoji] = useState(false);
-  const [quantityEmoji, setQuantityEmoji] = useState()
-  const [nameReply, setNameReply] = useState("")
-  const [chatSelectedDisplayEmojis, setChatSelectedDisplayEmojis] = useState(0)
+  const [quantityEmoji, setQuantityEmoji] = useState();
+  const [nameReply, setNameReply] = useState("");
+  const [chatSelectedDisplayEmojis, setChatSelectedDisplayEmojis] = useState(0);
 
   useEffect(() => {
     setPage(1);
@@ -222,7 +215,7 @@ const ContentChat = ({
             setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
             setRerender((pre) => !pre);
             setIsReloadPage(!isReloadPage);
-            setMessageRelpy(null)
+            setMessageRelpy(null);
           }
         }
       );
@@ -234,7 +227,7 @@ const ContentChat = ({
         (dataGot) => {
           handleChangeMessageFinal(dataGot.data.chatFinal);
           setIsReloadPage(!isReloadPage);
-          setMessageRelpy(null)
+          setMessageRelpy(null);
         }
       );
 
@@ -312,48 +305,6 @@ const ContentChat = ({
     getApiMembersOfGroup();
   }, [isClickViewMember, JSON.stringify(group)]);
 
-  const sendMessage = () => {
-    if (idChat.type === "Single") {
-      if (message !== null) {
-        socket.emit(`Client-Chat-Room`, {
-          message: message,
-          dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
-          sender: userId,
-          receiver: idChat.id,
-          chatReply : messageRelpy?.id,
-          chatRoom:
-            userId > idChat.id
-              ? `${idChat.id}${userId}`
-              : `${userId}${idChat.id}`,
-        });
-      }
-    } else {
-      if (message !== null) {
-        socket.emit(`Client-Chat-Room`, {
-          message: message,
-          dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
-          sender: userId,
-          groupChat: idChat.id,
-          chatReply : messageRelpy.id,
-          chatRoom: idChat.id,
-        });
-      }
-    }
-    setMessage("");
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-    setDisplayIcons(false);
-    setIsReloadPage(!isReloadPage);
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.keyCode === 13 && !event.shiftKey) {
-      event.preventDefault();
-      sendMessage();
-    }
-  };
-
   useEffect(() => {
     let getApiContentChats = async () => {
       let datas = await axios.get(
@@ -373,12 +324,12 @@ const ContentChat = ({
         })
       );
       setNameReceiver({
-        id : receiver.data.id,
+        id: receiver.data.id,
         name: receiver.data.name,
         image: receiver.data.image,
       });
       setNameSender({
-        id : sender.data.id,
+        id: sender.data.id,
         name: sender.data.name,
         image: sender.data.image,
       });
@@ -405,6 +356,54 @@ const ContentChat = ({
       getApiContentGroupChats();
     }
   }, [userId, JSON.stringify(idChat), page, isReloadPage, rerender]);
+
+  useEffect(() => {
+    if (idChat && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [JSON.stringify(idChat)]);
+
+  const sendMessage = () => {
+    if (idChat.type === "Single") {
+      if (message !== null) {
+        socket.emit(`Client-Chat-Room`, {
+          message: message,
+          dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
+          sender: userId,
+          receiver: idChat.id,
+          chatReply: messageRelpy?.id,
+          chatRoom:
+            userId > idChat.id
+              ? `${idChat.id}${userId}`
+              : `${userId}${idChat.id}`,
+        });
+      }
+    } else {
+      if (message !== null) {
+        socket.emit(`Client-Chat-Room`, {
+          message: message,
+          dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
+          sender: userId,
+          groupChat: idChat.id,
+          chatReply: messageRelpy.id,
+          chatRoom: idChat.id,
+        });
+      }
+    }
+    setMessage("");
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+    setDisplayIcons(false);
+    setIsReloadPage(!isReloadPage);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.keyCode === 13 && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage();
+    }
+  };
 
   let handleChangeFile = async (e) => {
     for (let i = 0; i < e.currentTarget.files.length; i++) {
@@ -517,17 +516,14 @@ const ContentChat = ({
     setVoiceMessage(blob);
     setAudioLink(blob.blobURL);
   };
+
   const handleStart = () => {
     setVoice(true);
   };
+
   const handleStop = () => {
     setVoice(false);
   };
-  useEffect(() => {
-    if (idChat && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [JSON.stringify(idChat)]);
 
   // let handleScrollContentChats = (e) => {
   //   if (e.currentTarget.scrollTop === 0) {
@@ -559,7 +555,7 @@ const ContentChat = ({
     });
   };
 
-  let handleClickChangeLeaderAndDeputy = (leader, deputy, id) => {
+  let handleClickChangeLeaderAndDeputy = (leader, deputy) => {
     group.leader = leader;
     group.deputy = leader === deputy ? null : deputy;
     socket.emit(`Client-Change-Leader-And-Deputy-Group-Chats`, {
@@ -569,12 +565,10 @@ const ContentChat = ({
   };
 
   let handleClickReplyChat = (message) => {
-    console.log(message);
-    if(message.sender === nameReceiver.id){
-      setNameReply(nameReceiver.name)
-    }
-    else{
-      setNameReply(nameSender.name)
+    if (message.sender === nameReceiver.id) {
+      setNameReply(nameReceiver.name);
+    } else {
+      setNameReply(nameSender.name);
     }
     setIsClickReply(true);
     setMessageRelpy({
@@ -597,98 +591,20 @@ const ContentChat = ({
     });
   };
 
-  let handleClickViewListEmoji = (chatId, emojis,quantities) => {
+  let handleClickViewListEmoji = (chatId, emojis, quantities) => {
     setChatSelectedDisplayEmojis(chatId);
     setQuantityEmoji(quantities);
     setSelectedEmoji(emojis);
     setIsViewListEmoji(true);
-  }
+  };
   return (
-    <div className="container-content-chat" style={{width : displayListChat ? "71%" : "96%"}}>
+    <div
+      className="container-content-chat"
+      style={{ width: displayListChat ? "71%" : "96%" }}
+    >
       {/* slide */}
       {!idChat.id ? (
-        <div className="slides">
-          <div className="slogan">
-            <div className="slogan-title">
-              Chào mừng đến với <b>Zalo PC</b>!
-            </div>
-            <p>
-              Khám phá những tiện ích hỗ trợ làm việc và trò chuyện cùng <br />{" "}
-              người thân, bạn bè được tối ưu hóa cho máy tính của bạn
-            </p>
-          </div>
-          <Swiper
-            spaceBetween={30}
-            centeredSlides={true}
-            autoplay={{
-              delay: 2500,
-              disableOnInteraction: false,
-            }}
-            pagination={{
-              clickable: true,
-            }}
-            navigation={true}
-            modules={[Autoplay, Pagination, Navigation]}
-            className="mySwiper"
-          >
-            <SwiperSlide>
-              <img className="slide" alt="" src="/slide1.png" />
-              <div className="slide-title">
-                Nhắn tin nhiều hơn, soạn thảo ít hơn
-              </div>
-              <div className="slide-content">
-                Sử dụng <b>Tin Nhắn Nhanh </b>để lưu sẵn các tin nhắn thường
-                dùng và gửi nhanh trong hội thoại bất kỳ
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <img className="slide" alt="" src="/slide2.png" />
-              <div className="slide-title">Tin nhắn tự xóa</div>
-              <div className="slide-content">
-                Từ giờ tin nhắn đã có thể tự động xóa sau khoảng thời gian nhất
-                định.
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <img className="slide" alt="" src="/slide4.png" />
-              <div className="slide-title">
-                Gọi nhóm và làm việc hiệu quả với Zalo Group Call
-              </div>
-              <div className="slide-content">
-                Trao đổi công việc mọi lúc mọi nơi
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <img className="slide" alt="" src="/slide5.png" />
-              <div className="slide-title">Trải nghiệm xuyên suốt</div>
-              <div className="slide-content">
-                Kết nối và giải quyết công việc trên mọi thiết bị với dữ liệu
-                luôn được đồng bộ
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <img className="slide" alt="" src="/slide6.png" />
-              <div className="slide-title">Gửi file nặng?</div>
-              <div className="slide-content">
-                Đã có Zalo PC &quot;xử&quot; hết
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <img className="slide" alt="" src="/slide7.png" />
-              <div className="slide-title">Chat nhóm với đồng nghiệp</div>
-              <div className="slide-content">
-                Tiện lợi hơn, nhờ các công cụ hỗ trợ chat trên máy tính
-              </div>
-            </SwiperSlide>
-            <SwiperSlide>
-              <img className="slide" alt="" src="/slide8.png" />
-              <div className="slide-title">
-                Giải quyết công việc hiệu quả hơn, lên đến 40%
-              </div>
-              <div className="slide-content">Với Zalo PC</div>
-            </SwiperSlide>
-          </Swiper>
-        </div>
+        <SlideZalo />
       ) : (
         <>
           <InfoUser
@@ -776,7 +692,7 @@ const ContentChat = ({
                 <div className="chat-header-right-icon">
                   <IoSearchOutline className="icon" />{" "}
                 </div>
-                <div className="chat-header-right-icon">
+                <div className="chat-header-right-icon" onClick={() => navigate(`/video-call/room/${45}`)}>
                   <IoVideocamOutline className="icon" />
                 </div>
                 <div
@@ -945,8 +861,9 @@ const ContentChat = ({
                         style={{ cursor: "pointer" }}
                       />
                     ) : null}
-                    {index === hoveredIndex && message.sender === userId &&
-                    !isHoverEmoji? (
+                    {index === hoveredIndex &&
+                    message.sender === userId &&
+                    !isHoverEmoji ? (
                       <div style={{ width: "120px", height: "20px" }}>
                         <div
                           className="utils-message"
@@ -1040,14 +957,36 @@ const ContentChat = ({
                       {!nameReceiver.name && message.sender !== userId && (
                         <span>{message.name}</span>
                       )}
-                      <div className="content-message" style={message.emojis && {minWidth : "200px"}}>
-                        {message.chatReply? (
-                          <div className="content-message-reply" style={{width : "100%"}}>
-                            <div><b>{contentMessages.find(ms => ms.id === message.chatReply)?.name}</b></div>
-                            <div >{contentMessages.find(ms => ms.id === message.chatReply)?.message}</div>
+                      <div
+                        className="content-message"
+                        style={message.emojis && { minWidth: "200px" }}
+                      >
+                        {message.chatReply ? (
+                          <div
+                            className="content-message-reply"
+                            style={{ width: "100%" }}
+                          >
+                            <div>
+                              <b>
+                                {
+                                  contentMessages.find(
+                                    (ms) => ms.id === message.chatReply
+                                  )?.name
+                                }
+                              </b>
+                            </div>
+                            <div>
+                              {
+                                contentMessages.find(
+                                  (ms) => ms.id === message.chatReply
+                                )?.message
+                              }
+                            </div>
                           </div>
-                        ):""}
-                        
+                        ) : (
+                          ""
+                        )}
+
                         {message.message.includes(regexUrl) ? (
                           <ViewFile url={message.message} />
                         ) : (
@@ -1087,25 +1026,31 @@ const ContentChat = ({
                                   borderRadius: "10px",
                                   padding: "2px 10px",
                                   backgroundColor: "white",
-                                  cursor: "pointer"
+                                  cursor: "pointer",
                                 }}
-                                onClick={()=> handleClickViewListEmoji(message.id, message.emojis, message.quantities)}
+                                onClick={() =>
+                                  handleClickViewListEmoji(
+                                    message.id,
+                                    message.emojis,
+                                    message.quantities
+                                  )
+                                }
                               >
                                 {message.emojis.map((e, index) => {
-                                    if(index < 3){
-                                      return (
-                                        <span
-                                          style={{ margin: "1px" }}
-                                          key={index}
-                                        >
-                                          {
-                                            emojis.find((ej) => ej.type === e)
-                                              .icon
-                                          }
-                                        </span>
-                                      );
-                                    }
-                                  })}
+                                  if (index < 3) {
+                                    return (
+                                      <span
+                                        style={{ margin: "1px" }}
+                                        key={index}
+                                      >
+                                        {
+                                          emojis.find((ej) => ej.type === e)
+                                            .icon
+                                        }
+                                      </span>
+                                    );
+                                  }
+                                })}
                                 <span>{message.quantities}</span>
                               </div>
                             )}
@@ -1543,8 +1488,7 @@ const ContentChat = ({
                                   onClick={() =>
                                     handleClickChangeLeaderAndDeputy(
                                       group.leader,
-                                      u.id,
-                                      group.id
+                                      u.id
                                     )
                                   }
                                 >
@@ -1556,8 +1500,7 @@ const ContentChat = ({
                                   onClick={() =>
                                     handleClickChangeLeaderAndDeputy(
                                       group.leader,
-                                      null,
-                                      group.id
+                                      null
                                     )
                                   }
                                 >
@@ -1571,8 +1514,7 @@ const ContentChat = ({
                                     onClick={() =>
                                       handleClickChangeLeaderAndDeputy(
                                         group.leader,
-                                        u.id,
-                                        group.id
+                                        u.id
                                       )
                                     }
                                   >
@@ -1594,8 +1536,7 @@ const ContentChat = ({
                                   onClick={() =>
                                     handleClickChangeLeaderAndDeputy(
                                       u.id,
-                                      group.deputy,
-                                      group.id
+                                      group.deputy
                                     )
                                   }
                                 >

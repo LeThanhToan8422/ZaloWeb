@@ -1,13 +1,14 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 
 const VideoCall = () => {
-  const { roomId } = useParams();
+  const { name, roomId } = useParams();
+  let navigate = useNavigate();
 
   const myMeeting = async(element) => {
     const appID = 1077439513;
     const serverSecret = "ffaa6660bd7cdd0483d89a2981a16372"
-    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomId, Date.now().toString(), "Zalo_Team_6");
+    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomId, Date.now().toString(), name);
     const zc = ZegoUIKitPrebuilt.create(kitToken)
     zc.joinRoom({
         container : element,
@@ -18,7 +19,9 @@ const VideoCall = () => {
         scenario : {
             mode : ZegoUIKitPrebuilt.OneONoneCall,
         },
-        showScreenSharingButton : false
+        showScreenSharingButton : false,
+        showPreJoinView: false,
+        onLeaveRoom : () => navigate(-1)
     })
   }
 

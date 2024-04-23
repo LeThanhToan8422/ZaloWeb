@@ -692,7 +692,18 @@ const ContentChat = ({
                 <div className="chat-header-right-icon">
                   <IoSearchOutline className="icon" />{" "}
                 </div>
-                <div className="chat-header-right-icon" onClick={() => navigate(`/video-call/room/${45}`)}>
+                <div
+                  className="chat-header-right-icon"
+                  onClick={() =>
+                    navigate(
+                      `/video-call/room/${nameSender.name}/${
+                        userId > idChat.id
+                          ? `${idChat.id}${userId}`
+                          : `${userId}${idChat.id}`
+                      }`
+                    )
+                  }
+                >
                   <IoVideocamOutline className="icon" />
                 </div>
                 <div

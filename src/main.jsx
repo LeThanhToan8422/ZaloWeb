@@ -24,7 +24,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path='/forget-password' element={<ForgetPassword />}/>
         <Route path='/forget-password-change' element={<ChangePassword />}/>
         <Route path='/update-password' element={<FormUpdatePassword />}/>
-        <Route path='/video-call/room/:roomId' element={<VideoCall />}/>
+        <Route path='/video-call/room/:name/:roomId' element={<VideoCall />}/>
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,

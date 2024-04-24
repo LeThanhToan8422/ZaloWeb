@@ -48,6 +48,7 @@ import ViewNewFriend from "./components/ViewNewFriend";
 import FormAddMemberToGroup from "./components/FormAddMemberToGroup";
 import FormChangeNameGroup from "./components/FormChangeNameGroup";
 import ViewListEmoji from "./components/ViewListEmoji";
+import FormVideoCall from "./components/FormVideoCall";
 
 import toast from "react-hot-toast";
 import SlideZalo from "../home/SlideZalo";
@@ -164,6 +165,7 @@ const ContentChat = ({
   const [quantityEmoji, setQuantityEmoji] = useState();
   const [nameReply, setNameReply] = useState("");
   const [chatSelectedDisplayEmojis, setChatSelectedDisplayEmojis] = useState(0);
+  const [isClickVideoCall, setIsClickVideoCall] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -647,6 +649,14 @@ const ContentChat = ({
             quantity={quantityEmoji}
             chatSelectedDisplayEmojis={chatSelectedDisplayEmojis}
           />
+          <FormVideoCall
+            setVisible={setIsClickVideoCall}
+            visible={isClickVideoCall}
+            nameCall={nameSender.name}
+            user={nameReceiver ? nameReceiver : ""}
+            urlBackend={urlBackend}
+            idZoom={userId > idChat.id? `${idChat.id}${userId}`: `${userId}${idChat.id}`}
+            />
           <div
             className="content-chat"
             style={{ width: isClickInfo ? "70%" : "" }}
@@ -694,15 +704,15 @@ const ContentChat = ({
                 </div>
                 <div
                   className="chat-header-right-icon"
-                  onClick={() =>
-                    navigate(
-                      `/video-call/room/${nameSender.name}/${
-                        userId > idChat.id
-                          ? `${idChat.id}${userId}`
-                          : `${userId}${idChat.id}`
-                      }`
-                    )
-                  }
+                  onClick={() => setIsClickVideoCall(true)}
+                    // navigate(
+                    //   `/video-call/room/${nameSender.name}/${
+                    //     userId > idChat.id
+                    //       ? `${idChat.id}${userId}`
+                    //       : `${userId}${idChat.id}`
+                    //   }`
+                    // )
+                  
                 >
                   <IoVideocamOutline className="icon" />
                 </div>

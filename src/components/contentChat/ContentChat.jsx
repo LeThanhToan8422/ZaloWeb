@@ -62,9 +62,11 @@ const ContentChat = ({
   setRerender,
   urlBackend,
   rerender,
+  isReceiverTheCall,
+  setIsReceiverTheCall
 }) => {
   let scrollRef = useRef(null);
-  let navigate = useNavigate();
+  let navigate = useNavigate()
 
   const [isClickInfo, setIsClickInfo] = useState(false);
   const [isClickSticker, setIsClickSticker] = useState(false);
@@ -102,7 +104,7 @@ const ContentChat = ({
   const [isClickDownMember, setIsClickDownMember] = useState(false);
   const [isClickDownNew, setIsClickDownNew] = useState(false);
   const [isClickAddMember, setIsClickAddMember] = useState(false);
-  const [fileType, setFileType] = useState([
+  const [fileType] = useState([
     "xls",
     "xlsx",
     "doc",
@@ -115,15 +117,8 @@ const ContentChat = ({
     "zip",
     "fa-file",
   ]);
-  const [imageType, setImageType] = useState([
-    "png",
-    "jpeg",
-    "jpg",
-    "gif",
-    "bmp",
-    "tiff",
-  ]);
-  const [videoType, setVideoType] = useState(["mp3", "mp4"]);
+  const [imageType] = useState(["png", "jpeg", "jpg", "gif", "bmp", "tiff"]);
+  const [videoType] = useState(["mp3", "mp4"]);
   const [isClickViewMember, setIsClickViewMember] = useState(false);
   const [showUtilsForLeader, setShowUtilsForLeader] = useState(false);
   const [membersOfGroup, setMembersOfGroup] = useState(null);
@@ -172,6 +167,10 @@ const ContentChat = ({
     setNameSender({});
     setNameReceiver({});
   }, [JSON.stringify(idChat)]);
+
+  useEffect(() => {
+    isReceiverTheCall ? setIsClickVideoCall(true) : setIsClickVideoCall(false);
+  }, [isReceiverTheCall]);
 
   useEffect(() => {
     let newSocket = io(`${urlBackend}`);
@@ -240,6 +239,23 @@ const ContentChat = ({
         (dataGot) => {
           setIsReloadPage(!isReloadPage);
           console.log(dataGot);
+        }
+      );
+
+      socket?.on(
+        `Server-Answer-Video-Call-${
+          userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`
+        }`,
+        (dataGot) => {
+          if(!dataGot.data.isTurnOff){
+            if(dataGot.data.isAnswer){
+              navigate(`/video-call/room/${nameSender.name}/${dataGot.data.idZoom}`);
+            }
+          }
+          else{
+            setIsClickVideoCall(false)
+          }
+          setIsReceiverTheCall(false)
         }
       );
     } else {
@@ -599,6 +615,15 @@ const ContentChat = ({
     setSelectedEmoji(emojis);
     setIsViewListEmoji(true);
   };
+
+  let handleClickVideoCall = () => {
+    setIsClickVideoCall(true);
+    socket.emit("Client-Video-Call", {
+      caller: nameSender,
+      receiver: idChat,
+    });
+  };
+
   return (
     <div
       className="container-content-chat"
@@ -655,8 +680,14 @@ const ContentChat = ({
             nameCall={nameSender.name}
             user={nameReceiver ? nameReceiver : ""}
             urlBackend={urlBackend}
-            idZoom={userId > idChat.id? `${idChat.id}${userId}`: `${userId}${idChat.id}`}
-            />
+            idZoom={
+              userId > idChat.id
+                ? `${idChat.id}${userId}`
+                : `${userId}${idChat.id}`
+            }
+            isReceiverTheCall={isReceiverTheCall}
+            socket={socket}
+          />
           <div
             className="content-chat"
             style={{ width: isClickInfo ? "70%" : "" }}
@@ -704,15 +735,7 @@ const ContentChat = ({
                 </div>
                 <div
                   className="chat-header-right-icon"
-                  onClick={() => setIsClickVideoCall(true)}
-                    // navigate(
-                    //   `/video-call/room/${nameSender.name}/${
-                    //     userId > idChat.id
-                    //       ? `${idChat.id}${userId}`
-                    //       : `${userId}${idChat.id}`
-                    //   }`
-                    // )
-                  
+                  onClick={handleClickVideoCall}
                 >
                   <IoVideocamOutline className="icon" />
                 </div>

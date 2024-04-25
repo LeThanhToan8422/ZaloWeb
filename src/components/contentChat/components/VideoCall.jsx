@@ -1,33 +1,45 @@
+import { useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 
 const VideoCall = () => {
   const { name, roomId } = useParams();
-  let navigate = useNavigate();
+  const navigate = useNavigate();
+  const meetingRef = useRef(null);
 
-  const myMeeting = async(element) => {
+  useEffect(() => {
     const appID = 1077439513;
-    const serverSecret = "ffaa6660bd7cdd0483d89a2981a16372"
-    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomId, Date.now().toString(), name);
-    const zc = ZegoUIKitPrebuilt.create(kitToken)
-    zc.joinRoom({
-        container : element,
-        sharedLinks : [{
-            name : "Copy Link",
-            url : `http://localhost:5173/video-call/room/${roomId}`
-        }],
-        scenario : {
-            mode : ZegoUIKitPrebuilt.OneONoneCall,
-        },
-        showScreenSharingButton : false,
-        showPreJoinView: false,
-        onLeaveRoom : () => navigate(-1)
-    })
-  }
+    const serverSecret = "ffaa6660bd7cdd0483d89a2981a16372";
+    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
+      appID,
+      serverSecret,
+      roomId,
+      Date.now().toString(),
+      name
+    );
+    const zc = ZegoUIKitPrebuilt.create(kitToken);
 
-  return <div>
-    <div ref={myMeeting}></div>
-  </div>;
+    zc.joinRoom({
+      container: meetingRef.current,
+      sharedLinks: [
+        {
+          name: "Copy Link",
+          url: `http://localhost:5173/video-call/room/${roomId}`,
+        },
+      ],
+      scenario: {
+        mode: ZegoUIKitPrebuilt.OneONoneCall,
+      },
+      showScreenSharingButton: false,
+      showPreJoinView: false,
+      showLeaveRoomConfirmDialog: false,
+      onLeaveRoom: () => {
+        navigate(-1);
+      },
+    });
+  }, [roomId, name, navigate]);
+
+  return <div ref={meetingRef}></div>;
 };
 
 export default VideoCall;

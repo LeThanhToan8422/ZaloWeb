@@ -19,6 +19,8 @@ function Home() {
   const [user, setUser] = useState({});
   const [rerender, setRerender] = useState(false);
   const [makeFriends, setMakeFriends] = useState([]);
+  
+  const [isReceiverTheCall, setIsReceiverTheCall] = useState(false);
 
   useEffect(() => {
     let newSocket = io(`${location.state.urlBackend}`);
@@ -50,10 +52,17 @@ function Home() {
       }
     );
 
+    newSocket?.on(
+      `Server-Video-Call-${location.state.userId}`,
+      (dataGot) => {
+        setIsReceiverTheCall(true)
+      }
+    );
+
     return () => {
       newSocket?.disconnect();
     };
-  }, [location.state.userId, JSON.stringify(idChat), rerender, messageFinal]);
+  }, [location.state.userId, JSON.stringify(idChat), rerender, messageFinal, isReceiverTheCall]);
 
 
   useEffect(() => {
@@ -140,6 +149,8 @@ function Home() {
         setRerender={setRerender}
         urlBackend={location.state.urlBackend}
         rerender={rerender}
+        isReceiverTheCall={isReceiverTheCall}
+        setIsReceiverTheCall={setIsReceiverTheCall}
       />
     </div>
   );

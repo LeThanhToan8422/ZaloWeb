@@ -6,6 +6,7 @@ const VoiceCall = () => {
   const { name, roomId } = useParams();
   const navigate = useNavigate();
   const meetingRef = useRef(null);
+  const zcRef = useRef(null);
 
   useEffect(() => {
     const appID = 802507212;
@@ -18,6 +19,7 @@ const VoiceCall = () => {
       name
     );
     const zc = ZegoUIKitPrebuilt.create(kitToken);
+    zcRef.current = zc;
 
     zc.joinRoom({
       container: meetingRef.current,
@@ -35,8 +37,18 @@ const VoiceCall = () => {
       showPreJoinView: false,
       showLeaveRoomConfirmDialog: false,
       onLeaveRoom: () => {
+        // Khi một trong hai bên kết thúc cuộc gọi, hủy bỏ thể hiện của ZegoUIKitPrebuilt
+        zcRef.current.destroy();
+        // Di chuyển người dùng đến trang trước đó hoặc trang chính
         navigate(-1);
       },
+      onUserLeave: (users) => {
+        // Khi một người dùng rời khỏi phòng, cũng kết thúc cuộc gọi
+        if (users.length === 1) { // Kiểm tra nếu chỉ còn một người dùng trong phòng
+          zcRef.current.destroy();
+          navigate(-1); // Di chuyển người dùng đến trang trước đó hoặc trang chính
+        }
+      }
     });
   }, [roomId, name, navigate]);
 

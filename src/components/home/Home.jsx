@@ -45,9 +45,11 @@ function Home() {
     newSocket?.on(
       `Server-Group-Chats-${location.state.userId}`,
       (dataGot) => {
-        setIdChat({});
         setRerender(pre => !pre)
-        if(dataGot.data.id === idChat.id){
+        if(dataGot.data.id === idChat.id  && dataGot.data.user === location.state.userId) {
+          setIdChat({})
+        }
+        if(dataGot.data.isDissolution){
           setIdChat({})
         }
       }

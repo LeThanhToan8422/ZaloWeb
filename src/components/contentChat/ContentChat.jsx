@@ -12,7 +12,7 @@ import {
   IoSettingsOutline,
   IoChevronBack,
   IoCameraOutline,
-  IoCallOutline
+  IoCallOutline,
 } from "react-icons/io5";
 import {
   VscLayoutSidebarRightOff,
@@ -66,10 +66,10 @@ const ContentChat = ({
   rerender,
   isReceiverTheCall,
   setIsReceiverTheCall,
-  isVideoCall
+  isVideoCall,
 }) => {
   let scrollRef = useRef(null);
-  let navigate = useNavigate()
+  let navigate = useNavigate();
 
   const [isClickInfo, setIsClickInfo] = useState(false);
   const [isClickSticker, setIsClickSticker] = useState(false);
@@ -166,7 +166,6 @@ const ContentChat = ({
   const [isClickVideoCall, setIsClickVideoCall] = useState(false);
   const [isClickVoiceCall, setIsClickVoiceCall] = useState(false);
 
-
   useEffect(() => {
     setPage(1);
     setNameSender({});
@@ -252,22 +251,24 @@ const ContentChat = ({
           userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`
         }`,
         (dataGot) => {
-          if(!dataGot.data.isTurnOff){
-            if(dataGot.data.isAnswer){
+          if (!dataGot.data.isTurnOff) {
+            if (dataGot.data.isAnswer) {
               console.log(dataGot.data.isVideoCall);
-              if(dataGot.data.isVideoCall){
-                navigate(`/video-call/room/${nameSender.name}/${dataGot.data.idZoom}`);
-              }else{
-                navigate(`/voice-call/room/${nameSender.name}/${dataGot.data.idZoom}`);
+              if (dataGot.data.isVideoCall) {
+                navigate(
+                  `/video-call/room/${nameSender.name}/${dataGot.data.idZoom}`
+                );
+              } else {
+                navigate(
+                  `/voice-call/room/${nameSender.name}/${dataGot.data.idZoom}`
+                );
               }
-              
             }
-          }
-          else{
+          } else {
             setIsClickVoiceCall(false);
-            setIsClickVideoCall(false)
+            setIsClickVideoCall(false);
           }
-          setIsReceiverTheCall(false)
+          setIsReceiverTheCall(false);
         }
       );
     } else {
@@ -573,9 +574,10 @@ const ContentChat = ({
       socket.emit(`Client-Update-Group-Chats`, {
         group: group,
         mbs: id,
+        implementer : userId
       });
-      group.members = JSON.stringify(group.members.filter((m) => m !== id));
-      setGroup(group);
+      group.members = group.members.filter((m) => m !== id);
+      setGroup({...group});
     }
   };
 
@@ -633,7 +635,7 @@ const ContentChat = ({
     socket.emit("Client-Video-Call", {
       caller: nameSender,
       receiver: idChat,
-      isVideoCall : true
+      isVideoCall: true,
     });
   };
   let handleClickVoiceCall = () => {
@@ -641,9 +643,9 @@ const ContentChat = ({
     socket.emit("Client-Video-Call", {
       caller: nameSender,
       receiver: idChat,
-      isVideoCall : false
+      isVideoCall: false,
     });
-  }
+  };
 
   return (
     <div
@@ -921,6 +923,16 @@ const ContentChat = ({
                     img={nameSender.image}
                     dateTimeSend={message.dateTimeSend}
                   />
+                ) : message.message.match(/(.+) đã thêm (.+) vào nhóm\./) || message.message.match(/(.+) đã xóa (.+) khỏi nhóm\./) ? (
+                  <span
+                    style={{
+                      color: "#7589A3",
+                      fontSize: "12px",
+                      margin: "3px 0px",
+                    }}
+                  >
+                    {message.message}
+                  </span>
                 ) : (
                   <div
                     ref={

@@ -58,7 +58,7 @@ const VideoCall = () => {
     };
   }, [roomId, name, navigate]);
 
-  return <div ref={meetingRef}></div>;
+  return <div ref={meetingRef} style={{ width: '100vw', height: '100vh' }}></div>;
 };
 
 export default VideoCall;

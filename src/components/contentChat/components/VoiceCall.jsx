@@ -32,10 +32,14 @@ const VoiceCall = () => {
       scenario: {
         mode: ZegoUIKitPrebuilt.OneONoneCall,
         audio: true,
+        video: false
       },
+      turnOnCameraWhenJoining: false,
+      showMyCameraToggleButton: false,
       showScreenSharingButton: false,
       showPreJoinView: false,
       showLeaveRoomConfirmDialog: false,
+      showAudioVideoSettingsButton: false,
       onLeaveRoom: () => {
         // Khi một trong hai bên kết thúc cuộc gọi, hủy bỏ thể hiện của ZegoUIKitPrebuilt
         zcRef.current.destroy();
@@ -52,7 +56,7 @@ const VoiceCall = () => {
     });
   }, [roomId, name, navigate]);
 
-  return <div ref={meetingRef}></div>;
+  return <div ref={meetingRef} style={{ width: '100vw', height: '100vh' }}></div>;
 };
 
 export default VoiceCall;

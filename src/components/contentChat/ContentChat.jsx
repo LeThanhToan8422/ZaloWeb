@@ -12,6 +12,7 @@ import {
   IoSettingsOutline,
   IoChevronBack,
   IoCameraOutline,
+  IoCallOutline
 } from "react-icons/io5";
 import {
   VscLayoutSidebarRightOff,
@@ -49,6 +50,7 @@ import FormAddMemberToGroup from "./components/FormAddMemberToGroup";
 import FormChangeNameGroup from "./components/FormChangeNameGroup";
 import ViewListEmoji from "./components/ViewListEmoji";
 import FormVideoCall from "./components/FormVideoCall";
+import FormVoiceCall from "./components/FormVoiceCall";
 
 import toast from "react-hot-toast";
 import SlideZalo from "../home/SlideZalo";
@@ -161,6 +163,7 @@ const ContentChat = ({
   const [nameReply, setNameReply] = useState("");
   const [chatSelectedDisplayEmojis, setChatSelectedDisplayEmojis] = useState(0);
   const [isClickVideoCall, setIsClickVideoCall] = useState(false);
+  const [isClickVoiceCall, setIsClickVoiceCall] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -249,10 +252,16 @@ const ContentChat = ({
         (dataGot) => {
           if(!dataGot.data.isTurnOff){
             if(dataGot.data.isAnswer){
-              navigate(`/video-call/room/${nameSender.name}/${dataGot.data.idZoom}`);
+              if(dataGot.data.isVideoCall){
+                navigate(`/video-call/room/${nameSender.name}/${dataGot.data.idZoom}`);
+              }else{
+                navigate(`/voice-call/room/${nameSender.name}/${dataGot.data.idZoom}`);
+              }
+              
             }
           }
           else{
+            setIsClickVoiceCall(false);
             setIsClickVideoCall(false)
           }
           setIsReceiverTheCall(false)
@@ -623,6 +632,13 @@ const ContentChat = ({
       receiver: idChat,
     });
   };
+  let handleClickVoiceCall = () => {
+    setIsClickVoiceCall(true);
+    socket.emit("Client-Video-Call", {
+      caller: nameSender,
+      receiver: idChat,
+    });
+  }
 
   return (
     <div
@@ -688,6 +704,20 @@ const ContentChat = ({
             isReceiverTheCall={isReceiverTheCall}
             socket={socket}
           />
+          <FormVoiceCall
+            setVisible={setIsClickVoiceCall}
+            visible={isClickVoiceCall}
+            nameCall={nameSender.name}
+            user={nameReceiver ? nameReceiver : ""}
+            urlBackend={urlBackend}
+            idZoom={
+              userId > idChat.id
+                ? `${idChat.id}${userId}`
+                : `${userId}${idChat.id}`
+            }
+            isReceiverTheCall={isReceiverTheCall}
+            socket={socket}
+          />
           <div
             className="content-chat"
             style={{ width: isClickInfo ? "70%" : "" }}
@@ -732,6 +762,12 @@ const ContentChat = ({
               <div className="chat-header-right">
                 <div className="chat-header-right-icon">
                   <IoSearchOutline className="icon" />{" "}
+                </div>
+                <div
+                  className="chat-header-right-icon"
+                  onClick={handleClickVoiceCall}
+                >
+                  <IoCallOutline className="icon" />
                 </div>
                 <div
                   className="chat-header-right-icon"

@@ -1,15 +1,28 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 /*Components*/
-import { Button, Form, Row, Col, Modal } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  Row,
+  Col,
+  Select,
+  message,
+  Modal,
+  DatePicker,
+  Radio
+} from "antd";
+import axios from "axios";
+import moment from "moment";
 
 import { MdCall, MdCallEnd } from "react-icons/md";
 import Sound from "react-sound";
 import callSound from "../../../../public/nhac-cho.mp3";
 import receiverSound from "../../../../public/Nhac-chuong-cuoc-goi-Zalo.mp3";
 
-function FormVideoCall({
+function FormVoiceCall({
   visible,
   setVisible,
   user,
@@ -23,6 +36,7 @@ function FormVideoCall({
   const [visibleModal, setVisibleModal] = useState(false);
   const [isCallSound, setIsCallSound] = useState(false);
   
+
   useEffect(() => {
     setVisibleModal(visible);
     if (visible) {
@@ -52,10 +66,9 @@ function FormVideoCall({
       idZoom : idZoom
     })
   }
-
-  return (
-    <div>
-      {isReceiverTheCall? <Sound
+    return ( 
+        <div>
+            {isReceiverTheCall? <Sound
                             url={receiverSound}
                             playStatus={isReceiverTheCall ? Sound.status.PLAYING : Sound.status.STOPPED}
                             volume={50}
@@ -69,41 +82,35 @@ function FormVideoCall({
                             autoLoad={true}
                             loop={true}
                           />}
-      
-      <Modal
-        title={`Zalo Call - ${name}`}
-        open={visibleModal}
-        onOk={() => handleCancel()}
-        onCancel={() => handleCancel()}
-        width="30%"
-        footer={null}
-      >
-        <Row>
-          <Col lg={10}></Col>
-          <Col lg={4}>
-            <Form.Item name="avt">
-              <img
-                src={
-                  image == "null" || image == null
-                    ? "/public/avatardefault.png"
-                    : image
-                }
-                style={{ width: "50px", height: "50px" }}
-                alt="Ảnh đại diện"
-              />
-            </Form.Item>
-          </Col>
-          <Col lg={10}></Col>
-        </Row>
-        <Row>
-          <Col lg={24}>
-            <Form.Item style={{ textAlign: "center" }}>
-              {`Đang đổ chuông ...`}
-            </Form.Item>
-          </Col>
-        </Row>
+        <Modal
+            title={`Zalo Call - ${name}`}
+            open={visibleModal}
+            onOk={() => handleCancel()}
+            onCancel={() => handleCancel()}
+            width="30%"
+            footer={null}
+            
+        >
+            <Row>
+                        <Col lg={10}></Col>
+                        <Col lg={4}>
+                            <Form.Item
+                                name="avt"
+                            >
+                                <img src={image=="null" || image==null ?"/public/avatardefault.png":image} style={{width : "50px", height : "50px"}} alt="Ảnh đại diện"/>
+                            </Form.Item>  
+                        </Col>
+                        <Col lg={10}></Col>
+                    </Row>
+                    <Row>
+                        <Col lg={24} >
+                        <Form.Item style={{textAlign: "center"}} >
+                        {`Đang đổ chuông ...`}
+                        </Form.Item> 
+                        </Col>
+                    </Row>
 
-        <Row
+                    <Row
           style={{
             display: "flex",
             justifyContent: "center",
@@ -138,9 +145,9 @@ function FormVideoCall({
             </Button>
           </div>
         </Row>
-      </Modal>
-    </div>
-  );
+                    
+            </Modal> 
+        </div>);
 }
 
-export default FormVideoCall;
+export default FormVoiceCall;

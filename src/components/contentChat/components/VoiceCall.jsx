@@ -24,11 +24,12 @@ const VoiceCall = () => {
       sharedLinks: [
         {
           name: "Copy Link",
-          url: `http://localhost:5173/video-call/room/${roomId}`,
+          url: `http://localhost:5173/voice-call/room/${roomId}`,
         },
       ],
       scenario: {
         mode: ZegoUIKitPrebuilt.OneONoneCall,
+        audio: true,
       },
       showScreenSharingButton: false,
       showPreJoinView: false,

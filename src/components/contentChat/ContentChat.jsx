@@ -252,10 +252,16 @@ const ContentChat = ({
         (dataGot) => {
           if(!dataGot.data.isTurnOff){
             if(dataGot.data.isAnswer){
-              navigate(`/video-call/room/${nameSender.name}/${dataGot.data.idZoom}`);
+              if(dataGot.data.isVideoCall){
+                navigate(`/video-call/room/${nameSender.name}/${dataGot.data.idZoom}`);
+              }else{
+                navigate(`/voice-call/room/${nameSender.name}/${dataGot.data.idZoom}`);
+              }
+              
             }
           }
           else{
+            setIsClickVoiceCall(false);
             setIsClickVideoCall(false)
           }
           setIsReceiverTheCall(false)

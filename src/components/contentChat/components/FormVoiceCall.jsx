@@ -63,7 +63,8 @@ function FormVoiceCall({
     socket?.emit("Client-Answer-Video-Call", {
       isAnswer : true,
       isTurnOff : false,
-      idZoom : idZoom
+      idZoom : idZoom, 
+      isVideoCall : false
     })
   }
     return ( 

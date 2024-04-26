@@ -16,13 +16,14 @@ function FormVideoCall({
   idZoom,
   nameCall,
   isReceiverTheCall,
-  socket
+  isVideoCall,
+  socket,
 }) {
   const { name, image } = user;
   const [form] = Form.useForm();
   const [visibleModal, setVisibleModal] = useState(false);
   const [isCallSound, setIsCallSound] = useState(false);
-  
+
   useEffect(() => {
     setVisibleModal(visible);
     if (visible) {
@@ -34,10 +35,11 @@ function FormVideoCall({
 
   const handleCancel = () => {
     socket?.emit("Client-Answer-Video-Call", {
-      isAnswer : false,
-      isTurnOff : true,
-      idZoom : idZoom
-    })
+      isAnswer: false,
+      isTurnOff: true,
+      idZoom: idZoom,
+      isVideoCall: isVideoCall
+    });
     form.resetFields();
     setVisibleModal(false);
     if (typeof setVisible === "function") {
@@ -45,32 +47,37 @@ function FormVideoCall({
     }
   };
 
-  let handleClickAnswerVideoCall = () =>{
+  let handleClickAnswerVideoCall = () => {
     socket?.emit("Client-Answer-Video-Call", {
-      isAnswer : true,
-      isTurnOff : false,
-      idZoom : idZoom,
-      isVideoCall : true
-    })
-  }
+      isAnswer: true,
+      isTurnOff: false,
+      idZoom: idZoom,
+      isVideoCall: isVideoCall
+    });
+  };
 
   return (
     <div>
-      {isReceiverTheCall? <Sound
-                            url={receiverSound}
-                            playStatus={isReceiverTheCall ? Sound.status.PLAYING : Sound.status.STOPPED}
-                            volume={50}
-                            autoLoad={true}
-                            loop={true}
-                          />: 
-                          <Sound
-                            url={callSound}
-                            playStatus={isCallSound ? Sound.status.PLAYING : Sound.status.STOPPED}
-                            volume={50}
-                            autoLoad={true}
-                            loop={true}
-                          />}
-      
+      {isReceiverTheCall ? (
+        <Sound
+          url={receiverSound}
+          playStatus={
+            isReceiverTheCall ? Sound.status.PLAYING : Sound.status.STOPPED
+          }
+          volume={50}
+          autoLoad={true}
+          loop={true}
+        />
+      ) : (
+        <Sound
+          url={callSound}
+          playStatus={isCallSound ? Sound.status.PLAYING : Sound.status.STOPPED}
+          volume={50}
+          autoLoad={true}
+          loop={true}
+        />
+      )}
+
       <Modal
         title={`Zalo Call - ${name}`}
         open={visibleModal}

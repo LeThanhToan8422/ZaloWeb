@@ -65,7 +65,8 @@ const ContentChat = ({
   urlBackend,
   rerender,
   isReceiverTheCall,
-  setIsReceiverTheCall
+  setIsReceiverTheCall,
+  isVideoCall
 }) => {
   let scrollRef = useRef(null);
   let navigate = useNavigate()
@@ -165,6 +166,7 @@ const ContentChat = ({
   const [isClickVideoCall, setIsClickVideoCall] = useState(false);
   const [isClickVoiceCall, setIsClickVoiceCall] = useState(false);
 
+
   useEffect(() => {
     setPage(1);
     setNameSender({});
@@ -252,6 +254,7 @@ const ContentChat = ({
         (dataGot) => {
           if(!dataGot.data.isTurnOff){
             if(dataGot.data.isAnswer){
+              console.log(dataGot.data.isVideoCall);
               if(dataGot.data.isVideoCall){
                 navigate(`/video-call/room/${nameSender.name}/${dataGot.data.idZoom}`);
               }else{
@@ -630,6 +633,7 @@ const ContentChat = ({
     socket.emit("Client-Video-Call", {
       caller: nameSender,
       receiver: idChat,
+      isVideoCall : true
     });
   };
   let handleClickVoiceCall = () => {
@@ -637,6 +641,7 @@ const ContentChat = ({
     socket.emit("Client-Video-Call", {
       caller: nameSender,
       receiver: idChat,
+      isVideoCall : false
     });
   }
 
@@ -702,6 +707,7 @@ const ContentChat = ({
                 : `${userId}${idChat.id}`
             }
             isReceiverTheCall={isReceiverTheCall}
+            isVideoCall={isVideoCall}
             socket={socket}
           />
           <FormVoiceCall
@@ -716,6 +722,7 @@ const ContentChat = ({
                 : `${userId}${idChat.id}`
             }
             isReceiverTheCall={isReceiverTheCall}
+            isVideoCall={isVideoCall}
             socket={socket}
           />
           <div

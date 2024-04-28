@@ -183,7 +183,7 @@ const ContentChat = ({
     JSON.stringify(contentMessages),
     JSON.stringify(idChat),
     isReloadPage,
-    rerender,
+    // rerender,
   ]);
 
   useEffect(() => {
@@ -217,10 +217,10 @@ const ContentChat = ({
           );
           if (!exists) {
             handleChangeMessageFinal(dataGot.data);
-            setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
+            // setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
             setRerender((pre) => !pre);
-            setIsReloadPage(!isReloadPage);
-            setMessageRelpy(null);
+            setIsReloadPage(pre => !pre);
+            setIsClickReply(false);
           }
         }
       );
@@ -231,8 +231,8 @@ const ContentChat = ({
         }`,
         (dataGot) => {
           handleChangeMessageFinal(dataGot.data.chatFinal);
-          setIsReloadPage(!isReloadPage);
-          setMessageRelpy(null);
+          setIsReloadPage(pre => !pre);
+          setIsClickReply(false);
         }
       );
 
@@ -241,8 +241,7 @@ const ContentChat = ({
           userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`
         }`,
         (dataGot) => {
-          setIsReloadPage(!isReloadPage);
-          console.log(dataGot);
+          setIsReloadPage(pre => !pre);
         }
       );
 
@@ -253,14 +252,13 @@ const ContentChat = ({
         (dataGot) => {
           if (!dataGot.data.isTurnOff) {
             if (dataGot.data.isAnswer) {
-              console.log(dataGot.data.isVideoCall);
               if (dataGot.data.isVideoCall) {
                 navigate(
-                  `/video-call/room/${nameSender.name}/${dataGot.data.idZoom}`
+                  `/video-call/room/${userId}/${nameSender.name}/${dataGot.data.idZoom}`
                 );
               } else {
                 navigate(
-                  `/voice-call/room/${nameSender.name}/${dataGot.data.idZoom}`
+                  `/voice-call/room/${userId}/${nameSender.name}/${dataGot.data.idZoom}`
                 );
               }
             }
@@ -279,15 +277,15 @@ const ContentChat = ({
         );
         if (!exists) {
           handleChangeMessageFinal(dataGot.data);
-          setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
+          // setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
           setRerender((pre) => !pre);
-          setIsReloadPage(!isReloadPage);
+          setIsReloadPage(pre => !pre);
         }
       });
 
       socket?.on(`Server-Status-Chat-${idChat.id}`, (dataGot) => {
         setRerender((pre) => !pre);
-        setIsReloadPage(!isReloadPage);
+        setIsReloadPage(pre => !pre);
       });
 
       socket?.on(
@@ -301,13 +299,12 @@ const ContentChat = ({
         `Server-Change-Name-Or-Image-Group-Chats-${group.id}`,
         (dataGot) => {
           setGroup(dataGot.data);
-          // setIsReloadPage(!isReloadPage)
+          setIsReloadPage(pre => !pre);
         }
       );
 
       socket?.on(`Server-Emotion-Chats-${group.id}`, (dataGot) => {
-        console.log(dataGot);
-        setIsReloadPage(!isReloadPage);
+        setIsReloadPage(pre => !pre);
       });
     }
 
@@ -331,7 +328,7 @@ const ContentChat = ({
       let datas = await axios.get(
         `${urlBackend}/users/get-members-in-group/${idChat.id}`
       );
-      setMembersOfGroup(datas.data);
+      setMembersOfGroup([...datas.data]);
     };
     getApiMembersOfGroup();
   }, [isClickViewMember, JSON.stringify(group)]);
@@ -347,12 +344,12 @@ const ContentChat = ({
       let receiver = await axios.get(`${urlBackend}/users/${idChat.id}`);
 
       setContentMessages(
-        datas.data.map((dt) => {
+        [...datas.data.map((dt) => {
           if (dt.emojis) {
             dt.emojis = [...new Set(dt.emojis.split(","))];
           }
           return dt;
-        })
+        })]
       );
       setNameReceiver({
         id: receiver.data.id,
@@ -374,7 +371,7 @@ const ContentChat = ({
       );
       let sender = await axios.get(`${urlBackend}/users/${datas.sender}`);
 
-      setContentMessages(datas.data);
+      setContentMessages([...datas.data]);
       setNameSender({
         name: sender.data.name,
         image: sender.data.image,
@@ -426,7 +423,7 @@ const ContentChat = ({
       inputRef.current.focus();
     }
     setDisplayIcons(false);
-    setIsReloadPage(!isReloadPage);
+    setIsReloadPage(pre => !pre);
   };
 
   const handleKeyDown = (event) => {
@@ -471,7 +468,7 @@ const ContentChat = ({
     }
     setMessage("");
     setDisplayIcons(false);
-    setIsReloadPage(!isReloadPage);
+    setIsReloadPage(pre => !pre);
   };
 
   let handleClickStatusChat = (status, userId, chat, time) => {
@@ -494,7 +491,7 @@ const ContentChat = ({
               : `${userId}${idChat.id}`
             : idChat.id,
       });
-      setIsReloadPage(!isReloadPage);
+      setIsReloadPage(pre => !pre);
     }
   };
 
@@ -530,7 +527,7 @@ const ContentChat = ({
 
       reader.readAsArrayBuffer(voiceMessage.blob);
       setIsRecoding(false);
-      setIsReloadPage(!isReloadPage);
+      setIsReloadPage(pre => !pre);
     }
   };
 

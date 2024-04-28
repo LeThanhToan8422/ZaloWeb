@@ -46,13 +46,13 @@ const VoiceCall = () => {
         // Di chuyển người dùng đến trang trước đó hoặc trang chính
         navigate(-1);
       },
-      onUserLeave: (users) => {
-        // Khi một người dùng rời khỏi phòng, cũng kết thúc cuộc gọi
-        if (users.length === 1) { // Kiểm tra nếu chỉ còn một người dùng trong phòng
-          zcRef.current.destroy();
-          navigate(-1); // Di chuyển người dùng đến trang trước đó hoặc trang chính
+        onUserLeave: (users) => {
+          // Khi một người dùng rời khỏi phòng, cũng kết thúc cuộc gọi
+          if (users.length === 1) { // Kiểm tra nếu chỉ còn một người dùng trong phòng
+            zcRef.current.destroy();
+            navigate(-1); // Di chuyển người dùng đến trang trước đó hoặc trang chính
+          }
         }
-      }
     });
   }, [roomId, name, navigate]);
 

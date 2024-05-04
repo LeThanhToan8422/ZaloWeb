@@ -413,7 +413,7 @@ const ContentChat = ({
           dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
           sender: userId,
           groupChat: idChat.id,
-          chatReply: messageRelpy.id,
+          chatReply: messageRelpy?.id ? messageRelpy?.id : null,
           chatRoom: idChat.id,
         });
       }

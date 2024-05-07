@@ -10,8 +10,6 @@ import './index.css'
 import InfoUser from './components/register/InfoUser.jsx'
 import ChangePassword from './components/forgetPassword/ChangePassword.jsx'
 import FormUpdatePassword from './components/nav/components/FormUpdatePassword.jsx'
-import VideoCall from './components/contentChat/components/VideoCall.jsx'
-import VoiceCall from './components/contentChat/components/VoiceCall.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -25,8 +23,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path='/forget-password' element={<ForgetPassword />}/>
         <Route path='/forget-password-change' element={<ChangePassword />}/>
         <Route path='/update-password' element={<FormUpdatePassword />}/>
-        <Route path='/video-call/room/:name/:roomId' element={<VideoCall />}/>
-        <Route path='/voice-call/room/:name/:roomId' element={<VoiceCall />}/>
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,

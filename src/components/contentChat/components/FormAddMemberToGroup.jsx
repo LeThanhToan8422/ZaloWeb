@@ -83,7 +83,8 @@ const FormAddMemberToGroup = ({
   const sendMessage = () => {
     socket.emit(`Client-Update-Group-Chats`, {
       group : group,
-      mbs : selectedFriendsTemp
+      mbs : selectedFriendsTemp,
+      implementer : userId
     });
     group.members = [...group.members, ...selectedFriendsTemp]
     setGroup(group)

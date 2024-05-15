@@ -7,6 +7,7 @@ import "../../App.css";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
+import zegocloudConfig from "../config/zegocloud.config";
 
 function Home() {
   let location = useLocation();
@@ -20,8 +21,7 @@ function Home() {
   const [rerender, setRerender] = useState(false);
   const [makeFriends, setMakeFriends] = useState([]);
   
-  const [isReceiverTheCall, setIsReceiverTheCall] = useState(false);
-  const [isVideoCall, setIsVideoCall] = useState(false);
+  const [zegoCloud, setZegoCloud] = useState(null);
 
   useEffect(() => {
     let newSocket = io(`${location.state.urlBackend}`);
@@ -45,32 +45,28 @@ function Home() {
     newSocket?.on(
       `Server-Group-Chats-${location.state.userId}`,
       (dataGot) => {
-        setIdChat({});
         setRerender(pre => !pre)
-        if(dataGot.data.id === idChat.id){
+        if(dataGot.data.id === idChat.id  && dataGot.data.user === location.state.userId) {
           setIdChat({})
         }
-      }
-    );
-
-    newSocket?.on(
-      `Server-Video-Call-${location.state.userId}`,
-      (dataGot) => {
-        setIsReceiverTheCall(true)
-        setIsVideoCall(dataGot.data.isVideoCall)
+        if(dataGot.data.isDissolution){
+          setIdChat({})
+        }
       }
     );
 
     return () => {
       newSocket?.disconnect();
     };
-  }, [location.state.userId, JSON.stringify(idChat), rerender, messageFinal, isReceiverTheCall]);
+  }, [location.state.userId, JSON.stringify(idChat), rerender, messageFinal]);
 
 
   useEffect(() => {
     let getApiUserById = async () => {
       let datas = await axios.get(`${location.state.urlBackend}/users/${location.state.userId}`);
       setUser(datas.data);
+      setZegoCloud(zegocloudConfig(datas.data))
+
     };
     getApiUserById();
   }, [location.state.userId]);
@@ -151,9 +147,7 @@ function Home() {
         setRerender={setRerender}
         urlBackend={location.state.urlBackend}
         rerender={rerender}
-        isReceiverTheCall={isReceiverTheCall}
-        setIsReceiverTheCall={setIsReceiverTheCall}
-        isVideoCall={isVideoCall}
+        zp={zegoCloud}
       />
     </div>
   );

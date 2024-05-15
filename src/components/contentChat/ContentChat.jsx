@@ -12,7 +12,7 @@ import {
   IoSettingsOutline,
   IoChevronBack,
   IoCameraOutline,
-  IoCallOutline
+  IoCallOutline,
 } from "react-icons/io5";
 import {
   VscLayoutSidebarRightOff,
@@ -49,12 +49,11 @@ import ViewNewFriend from "./components/ViewNewFriend";
 import FormAddMemberToGroup from "./components/FormAddMemberToGroup";
 import FormChangeNameGroup from "./components/FormChangeNameGroup";
 import ViewListEmoji from "./components/ViewListEmoji";
-import FormVideoCall from "./components/FormVideoCall";
-import FormVoiceCall from "./components/FormVoiceCall";
 
 import toast from "react-hot-toast";
 import SlideZalo from "../home/SlideZalo";
-import { useNavigate } from "react-router-dom";
+
+import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 
 const ContentChat = ({
   displayListChat,
@@ -64,12 +63,9 @@ const ContentChat = ({
   setRerender,
   urlBackend,
   rerender,
-  isReceiverTheCall,
-  setIsReceiverTheCall,
-  isVideoCall
+  zp,
 }) => {
   let scrollRef = useRef(null);
-  let navigate = useNavigate()
 
   const [isClickInfo, setIsClickInfo] = useState(false);
   const [isClickSticker, setIsClickSticker] = useState(false);
@@ -163,9 +159,6 @@ const ContentChat = ({
   const [quantityEmoji, setQuantityEmoji] = useState();
   const [nameReply, setNameReply] = useState("");
   const [chatSelectedDisplayEmojis, setChatSelectedDisplayEmojis] = useState(0);
-  const [isClickVideoCall, setIsClickVideoCall] = useState(false);
-  const [isClickVoiceCall, setIsClickVoiceCall] = useState(false);
-
 
   useEffect(() => {
     setPage(1);
@@ -174,17 +167,13 @@ const ContentChat = ({
   }, [JSON.stringify(idChat)]);
 
   useEffect(() => {
-    isReceiverTheCall ? setIsClickVideoCall(true) : setIsClickVideoCall(false);
-  }, [isReceiverTheCall]);
-
-  useEffect(() => {
     let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
   }, [
     JSON.stringify(contentMessages),
     JSON.stringify(idChat),
     isReloadPage,
-    rerender,
+    // rerender,
   ]);
 
   useEffect(() => {
@@ -218,10 +207,9 @@ const ContentChat = ({
           );
           if (!exists) {
             handleChangeMessageFinal(dataGot.data);
-            setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
             setRerender((pre) => !pre);
-            setIsReloadPage(!isReloadPage);
-            setMessageRelpy(null);
+            setIsReloadPage((pre) => !pre);
+            setIsClickReply(false);
           }
         }
       );
@@ -232,8 +220,8 @@ const ContentChat = ({
         }`,
         (dataGot) => {
           handleChangeMessageFinal(dataGot.data.chatFinal);
-          setIsReloadPage(!isReloadPage);
-          setMessageRelpy(null);
+          setIsReloadPage((pre) => !pre);
+          setIsClickReply(false);
         }
       );
 
@@ -242,34 +230,10 @@ const ContentChat = ({
           userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`
         }`,
         (dataGot) => {
-          setIsReloadPage(!isReloadPage);
-          console.log(dataGot);
+          setIsReloadPage((pre) => !pre);
         }
       );
 
-      socket?.on(
-        `Server-Answer-Video-Call-${
-          userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`
-        }`,
-        (dataGot) => {
-          if(!dataGot.data.isTurnOff){
-            if(dataGot.data.isAnswer){
-              console.log(dataGot.data.isVideoCall);
-              if(dataGot.data.isVideoCall){
-                navigate(`/video-call/room/${nameSender.name}/${dataGot.data.idZoom}`);
-              }else{
-                navigate(`/voice-call/room/${nameSender.name}/${dataGot.data.idZoom}`);
-              }
-              
-            }
-          }
-          else{
-            setIsClickVoiceCall(false);
-            setIsClickVideoCall(false)
-          }
-          setIsReceiverTheCall(false)
-        }
-      );
     } else {
       setIsGroup(true);
       socket?.on(`Server-Chat-Room-${idChat.id}`, (dataGot) => {
@@ -278,15 +242,15 @@ const ContentChat = ({
         );
         if (!exists) {
           handleChangeMessageFinal(dataGot.data);
-          setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
+          // setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
           setRerender((pre) => !pre);
-          setIsReloadPage(!isReloadPage);
+          setIsReloadPage((pre) => !pre);
         }
       });
 
       socket?.on(`Server-Status-Chat-${idChat.id}`, (dataGot) => {
         setRerender((pre) => !pre);
-        setIsReloadPage(!isReloadPage);
+        setIsReloadPage((pre) => !pre);
       });
 
       socket?.on(
@@ -300,13 +264,12 @@ const ContentChat = ({
         `Server-Change-Name-Or-Image-Group-Chats-${group.id}`,
         (dataGot) => {
           setGroup(dataGot.data);
-          // setIsReloadPage(!isReloadPage)
+          setIsReloadPage((pre) => !pre);
         }
       );
 
       socket?.on(`Server-Emotion-Chats-${group.id}`, (dataGot) => {
-        console.log(dataGot);
-        setIsReloadPage(!isReloadPage);
+        setIsReloadPage((pre) => !pre);
       });
     }
 
@@ -330,7 +293,7 @@ const ContentChat = ({
       let datas = await axios.get(
         `${urlBackend}/users/get-members-in-group/${idChat.id}`
       );
-      setMembersOfGroup(datas.data);
+      setMembersOfGroup([...datas.data]);
     };
     getApiMembersOfGroup();
   }, [isClickViewMember, JSON.stringify(group)]);
@@ -345,14 +308,14 @@ const ContentChat = ({
       let sender = await axios.get(`${urlBackend}/users/${userId}`);
       let receiver = await axios.get(`${urlBackend}/users/${idChat.id}`);
 
-      setContentMessages(
-        datas.data.map((dt) => {
+      setContentMessages([
+        ...datas.data.map((dt) => {
           if (dt.emojis) {
             dt.emojis = [...new Set(dt.emojis.split(","))];
           }
           return dt;
-        })
-      );
+        }),
+      ]);
       setNameReceiver({
         id: receiver.data.id,
         name: receiver.data.name,
@@ -373,7 +336,7 @@ const ContentChat = ({
       );
       let sender = await axios.get(`${urlBackend}/users/${datas.sender}`);
 
-      setContentMessages(datas.data);
+      setContentMessages([...datas.data]);
       setNameSender({
         name: sender.data.name,
         image: sender.data.image,
@@ -415,7 +378,7 @@ const ContentChat = ({
           dateTimeSend: moment().format("YYYY-MM-DD HH:mm:ss"),
           sender: userId,
           groupChat: idChat.id,
-          chatReply: messageRelpy.id,
+          chatReply: messageRelpy?.id ? messageRelpy?.id : null,
           chatRoom: idChat.id,
         });
       }
@@ -425,7 +388,7 @@ const ContentChat = ({
       inputRef.current.focus();
     }
     setDisplayIcons(false);
-    setIsReloadPage(!isReloadPage);
+    setIsReloadPage((pre) => !pre);
   };
 
   const handleKeyDown = (event) => {
@@ -470,7 +433,7 @@ const ContentChat = ({
     }
     setMessage("");
     setDisplayIcons(false);
-    setIsReloadPage(!isReloadPage);
+    setIsReloadPage((pre) => !pre);
   };
 
   let handleClickStatusChat = (status, userId, chat, time) => {
@@ -493,7 +456,7 @@ const ContentChat = ({
               : `${userId}${idChat.id}`
             : idChat.id,
       });
-      setIsReloadPage(!isReloadPage);
+      setIsReloadPage((pre) => !pre);
     }
   };
 
@@ -529,7 +492,7 @@ const ContentChat = ({
 
       reader.readAsArrayBuffer(voiceMessage.blob);
       setIsRecoding(false);
-      setIsReloadPage(!isReloadPage);
+      setIsReloadPage((pre) => !pre);
     }
   };
 
@@ -573,9 +536,10 @@ const ContentChat = ({
       socket.emit(`Client-Update-Group-Chats`, {
         group: group,
         mbs: id,
+        implementer: userId,
       });
-      group.members = JSON.stringify(group.members.filter((m) => m !== id));
-      setGroup(group);
+      group.members = group.members.filter((m) => m !== id);
+      setGroup({ ...group });
     }
   };
 
@@ -629,21 +593,40 @@ const ContentChat = ({
   };
 
   let handleClickVideoCall = () => {
-    setIsClickVideoCall(true);
-    socket.emit("Client-Video-Call", {
-      caller: nameSender,
-      receiver: idChat,
-      isVideoCall : true
-    });
+    const targetUser = {
+      userID: nameReceiver.id + "",
+      userName: nameReceiver.name,
+    };
+    zp?.sendCallInvitation({
+      callees: [targetUser],
+      callType: ZegoUIKitPrebuilt.InvitationTypeVideoCall,
+      timeout: 60, // Timeout duration (second). 60s by default, range from [1-600s].
+    })
+      .then((res) => {
+        console.warn(res);
+      })
+      .catch((err) => {
+        console.warn(err);
+      });
   };
+
   let handleClickVoiceCall = () => {
-    setIsClickVoiceCall(true);
-    socket.emit("Client-Video-Call", {
-      caller: nameSender,
-      receiver: idChat,
-      isVideoCall : false
-    });
-  }
+    const targetUser = {
+      userID: nameReceiver.id + "",
+      userName: nameReceiver.name,
+    };
+    zp?.sendCallInvitation({
+      callees: [targetUser],
+      callType: ZegoUIKitPrebuilt.InvitationTypeVoiceCall,
+      timeout: 60, // Timeout duration (second). 60s by default, range from [1-600s].
+    })
+      .then((res) => {
+        console.warn(res);
+      })
+      .catch((err) => {
+        console.warn(err);
+      });
+  };
 
   return (
     <div
@@ -694,36 +677,6 @@ const ContentChat = ({
             emojis={selectedEmoji}
             quantity={quantityEmoji}
             chatSelectedDisplayEmojis={chatSelectedDisplayEmojis}
-          />
-          <FormVideoCall
-            setVisible={setIsClickVideoCall}
-            visible={isClickVideoCall}
-            nameCall={nameSender.name}
-            user={nameReceiver ? nameReceiver : ""}
-            urlBackend={urlBackend}
-            idZoom={
-              userId > idChat.id
-                ? `${idChat.id}${userId}`
-                : `${userId}${idChat.id}`
-            }
-            isReceiverTheCall={isReceiverTheCall}
-            isVideoCall={isVideoCall}
-            socket={socket}
-          />
-          <FormVoiceCall
-            setVisible={setIsClickVoiceCall}
-            visible={isClickVoiceCall}
-            nameCall={nameSender.name}
-            user={nameReceiver ? nameReceiver : ""}
-            urlBackend={urlBackend}
-            idZoom={
-              userId > idChat.id
-                ? `${idChat.id}${userId}`
-                : `${userId}${idChat.id}`
-            }
-            isReceiverTheCall={isReceiverTheCall}
-            isVideoCall={isVideoCall}
-            socket={socket}
           />
           <div
             className="content-chat"
@@ -921,6 +874,17 @@ const ContentChat = ({
                     img={nameSender.image}
                     dateTimeSend={message.dateTimeSend}
                   />
+                ) : message.message.match(/(.+) đã thêm (.+) vào nhóm\./) ||
+                  message.message.match(/(.+) đã xóa (.+) khỏi nhóm\./) ? (
+                  <span
+                    style={{
+                      color: "#7589A3",
+                      fontSize: "12px",
+                      margin: "3px 0px",
+                    }}
+                  >
+                    {message.message}
+                  </span>
                 ) : (
                   <div
                     ref={

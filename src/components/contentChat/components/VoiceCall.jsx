@@ -56,7 +56,7 @@ const VoiceCall = () => {
     });
   }, [roomId, name, navigate]);
 
-  return <div ref={meetingRef} style={{ width: '100vw', height: '100vh' }}></div>;
+  return <div ref={meetingRef} style={{ width: '100vw', height: '100vh', backgroundColor: "#ffffff" }}></div>;
 };
 
 export default VoiceCall;

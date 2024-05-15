@@ -593,12 +593,20 @@ const ContentChat = ({
   };
 
   let handleClickVideoCall = () => {
-    const targetUser = {
-      userID: nameReceiver.id + "",
-      userName: nameReceiver.name,
-    };
+    let targetUser;
+    if (isGroup) {
+      targetUser = membersOfGroup?.map(user => ({
+        userID: user.id + "",
+        userName: user.name,
+      }));
+    } else {
+      targetUser = [{
+        userID: nameReceiver.id + "",
+        userName: nameReceiver.name,
+      }]; 
+    }
     zp?.sendCallInvitation({
-      callees: [targetUser],
+      callees: targetUser,
       callType: ZegoUIKitPrebuilt.InvitationTypeVideoCall,
       timeout: 60, // Timeout duration (second). 60s by default, range from [1-600s].
     })
@@ -611,12 +619,20 @@ const ContentChat = ({
   };
 
   let handleClickVoiceCall = () => {
-    const targetUser = {
-      userID: nameReceiver.id + "",
-      userName: nameReceiver.name,
-    };
+    let targetUser;
+    if (isGroup) {
+      targetUser = membersOfGroup?.map(user => ({
+        userID: user.id + "",
+        userName: user.name,
+      }));
+    } else {
+      targetUser = [{
+        userID: nameReceiver.id + "",
+        userName: nameReceiver.name,
+      }]; 
+    }
     zp?.sendCallInvitation({
-      callees: [targetUser],
+      callees: targetUser,
       callType: ZegoUIKitPrebuilt.InvitationTypeVoiceCall,
       timeout: 60, // Timeout duration (second). 60s by default, range from [1-600s].
     })

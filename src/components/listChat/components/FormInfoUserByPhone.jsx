@@ -118,6 +118,16 @@ function FormInfoUserByPhone({
     }
   };
 
+  let handleClickDeleteFriends = () => {
+    socket.emit(`Client-Update-Friends`, {
+      userId: userId,
+      friendId: friendId,
+      chatRoom:
+        userId > friendId ? `${friendId}${userId}` : `${userId}${friendId}`,
+    });
+    setVisible(false)
+  }
+
   return (
     <div>
       <Modal
@@ -183,7 +193,7 @@ function FormInfoUserByPhone({
                   >
                     Đã gửi lời mời kết bạn
                   </Button>
-                ) : (
+                ) : (isFriend.isFriends === '0' ? (
                   <Button
                     type="default"
                     size="large"
@@ -192,7 +202,15 @@ function FormInfoUserByPhone({
                   >
                     Kết bạn
                   </Button>
-                )}
+                ) : (<Button
+                  type="default"
+                  size="large"
+                  block
+                  onClick={handleClickAddFriend}
+                >
+                  Bạn bè
+                </Button>))
+              }
               </Form.Item>
             </Col>
             <Col lg={2}></Col>
@@ -283,6 +301,7 @@ function FormInfoUserByPhone({
                   alignItems: "center",
                   justifyContent: "center",
                 }}
+                onClick={handleClickDeleteFriends}
               >
                 &nbsp;
                 <CiTrash size={20} />

@@ -161,7 +161,9 @@ const ContentChat = ({
   const [quantityEmoji, setQuantityEmoji] = useState();
   const [nameReply, setNameReply] = useState("");
   const [chatSelectedDisplayEmojis, setChatSelectedDisplayEmojis] = useState(0);
+  const [rerenderSocket, setRerenderSocket] = useState(false);
   const [isClickDisGroup, setIsClickDisGroup] = useState(false);
+  
   useEffect(() => {
     setPage(1);
     setNameSender({});
@@ -175,7 +177,8 @@ const ContentChat = ({
     JSON.stringify(contentMessages),
     JSON.stringify(idChat),
     isReloadPage,
-    rerenderGroupChat
+    rerenderGroupChat,
+    rerenderSocket
   ]);
 
   useEffect(() => {
@@ -232,7 +235,6 @@ const ContentChat = ({
           userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`
         }`,
         (dataGot) => {
-          console.log("EMoji");
           setIsReloadPage((pre) => !pre);
         }
       );
@@ -256,7 +258,7 @@ const ContentChat = ({
       });
 
       socket?.on(`Server-Emotion-Chats-${group.id}`, (dataGot) => {
-        console.log();
+        console.log("OKKKK");
         setIsReloadPage((pre) => !pre);
       });
     }
@@ -270,6 +272,7 @@ const ContentChat = ({
     JSON.stringify(group),
     isReloadPage,
     rerender,
+    rerenderSocket
   ]);
 
   useEffect(() => {
@@ -323,8 +326,14 @@ const ContentChat = ({
         }/${userId}/${page * 10}`
       );
       let sender = await axios.get(`${urlBackend}/users/${datas.sender}`);
-
-      setContentMessages([...datas.data]);
+      setContentMessages([
+        ...datas.data.map((dt) => {
+          if (dt.emojis) {
+            dt.emojis = [...new Set(dt.emojis.split(","))];
+          }
+          return dt;
+        }),
+      ]);
       setNameSender({
         name: sender.data.name,
         image: sender.data.image,
@@ -566,7 +575,10 @@ const ContentChat = ({
             ? `${idChat.id}${userId}`
             : `${userId}${idChat.id}`
           : idChat.id,
+      members : idChat.type === "Single" ? [nameSender.id, nameReceiver.id] : group.members
     });
+    setIsHoverEmoji(false)
+    setRerenderSocket(pre => pre)
   };
 
   let handleClickViewListEmoji = (chatId, emojis, quantities) => {
@@ -1018,7 +1030,7 @@ const ContentChat = ({
                       )}
                       <div
                         className="content-message"
-                        style={message.emojis && { minWidth: "200px" }}
+                        style={{ minWidth: message.emojis && "200px"}}
                       >
                         {message.chatReply ? (
                           <div
@@ -1125,7 +1137,7 @@ const ContentChat = ({
                         {index === hoveredIndex && isHoverEmoji ? (
                           <div
                             className="emojis"
-                            style={{ width: "200px", padding: "0px 10px" }}
+                            style={{ width: "200px", padding: "0px 10px", marginRight : message.sender === userId ? "20px" : "0px"  }}
                             onMouseEnter={() => setIsHoverEmoji(true)}
                             onMouseLeave={() => setIsHoverEmoji(false)}
                           >
@@ -1339,7 +1351,6 @@ const ContentChat = ({
                         <audio
                           src={audioLink}
                           controls
-                          style={{ width: "180px", height: "40px" }}
                         ></audio>
 
                         <div

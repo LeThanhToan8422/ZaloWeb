@@ -17,7 +17,7 @@ import {
 import axios from "axios";
 import moment from "moment";
 
-function FormUpdate({visible, setVisible, user, urlBackend}) {
+function FormUpdate({visible, setVisible, user, urlBackend, setUser}) {
   const { name = "", gender = "", dob = "" } = user;
   let setGender = gender? 1: 0;
   const [form] = Form.useForm();
@@ -44,7 +44,11 @@ function FormUpdate({visible, setVisible, user, urlBackend}) {
       }
       const res = await axios.put(`${urlBackend}/users`, userUpdate)
       if(res){
+        user.name = name
+        user.gender = gender
+        user.dob = dob
         message.success("Cập nhật thành công!")
+        setUser(JSON.stringify(user))
         setVisible(false);
       }
     } catch (error) {

@@ -63,6 +63,7 @@ const ContentChat = ({
   setRerender,
   urlBackend,
   rerender,
+  rerenderGroupChat,
   zp,
 }) => {
   let scrollRef = useRef(null);
@@ -173,7 +174,7 @@ const ContentChat = ({
     JSON.stringify(contentMessages),
     JSON.stringify(idChat),
     isReloadPage,
-    // rerender,
+    rerenderGroupChat
   ]);
 
   useEffect(() => {
@@ -188,7 +189,7 @@ const ContentChat = ({
       }
     };
     fetchGroupChat();
-  }, [userId, JSON.stringify(idChat), JSON.stringify(group), isReloadPage]);
+  }, [userId, JSON.stringify(idChat), JSON.stringify(group), isReloadPage, rerenderGroupChat]);
 
   let isObjectEqual = (obj1, obj2) => {
     return JSON.stringify(obj1) === JSON.stringify(obj2);
@@ -230,6 +231,7 @@ const ContentChat = ({
           userId > idChat.id ? `${idChat.id}${userId}` : `${userId}${idChat.id}`
         }`,
         (dataGot) => {
+          console.log("EMoji");
           setIsReloadPage((pre) => !pre);
         }
       );
@@ -242,7 +244,6 @@ const ContentChat = ({
         );
         if (!exists) {
           handleChangeMessageFinal(dataGot.data);
-          // setContentMessages((oldMsgs) => [...oldMsgs, dataGot.data]);
           setRerender((pre) => !pre);
           setIsReloadPage((pre) => !pre);
         }
@@ -253,22 +254,8 @@ const ContentChat = ({
         setIsReloadPage((pre) => !pre);
       });
 
-      socket?.on(
-        `Server-Change-Leader-And-Deputy-Group-Chats-${group.id}`,
-        (dataGot) => {
-          setGroup(dataGot.data);
-        }
-      );
-
-      socket?.on(
-        `Server-Change-Name-Or-Image-Group-Chats-${group.id}`,
-        (dataGot) => {
-          setGroup(dataGot.data);
-          setIsReloadPage((pre) => !pre);
-        }
-      );
-
       socket?.on(`Server-Emotion-Chats-${group.id}`, (dataGot) => {
+        console.log();
         setIsReloadPage((pre) => !pre);
       });
     }
@@ -550,12 +537,10 @@ const ContentChat = ({
   };
 
   let handleClickChangeLeaderAndDeputy = (leader, deputy) => {
-    group.leader = leader;
-    group.deputy = leader === deputy ? null : deputy;
     socket.emit(`Client-Change-Leader-And-Deputy-Group-Chats`, {
-      group: group,
+      group: {...group, leader: leader, deputy : leader === deputy ? null : deputy},
+      oldLeader : group.leader
     });
-    setGroup(group);
   };
 
   let handleClickReplyChat = (message) => {
@@ -891,7 +876,8 @@ const ContentChat = ({
                     dateTimeSend={message.dateTimeSend}
                   />
                 ) : message.message.match(/(.+) đã thêm (.+) vào nhóm\./) ||
-                  message.message.match(/(.+) đã xóa (.+) khỏi nhóm\./) ? (
+                  message.message.match(/(.+) đã xóa (.+) khỏi nhóm\./) ||
+                  message.message.match(/(.+) đã phân quyền (.+) thành (.+) nhóm\./) ? (
                   <span
                     style={{
                       color: "#7589A3",
@@ -1513,10 +1499,8 @@ const ContentChat = ({
                         >
                           <img src={u.image} />
                           {(group.leader === u.id || group.deputy === u.id) && (
-                            <i
-                              className="fa-solid fa-key"
-                              style={{
-                                position: "absolute",
+                            <span style={{
+                              position: "absolute",
                                 bottom: -5,
                                 right: 0,
                                 fontSize: "8px",
@@ -1525,8 +1509,8 @@ const ContentChat = ({
                                 borderRadius: "50%",
                                 padding: "5px",
                                 backgroundColor: "#666666",
-                              }}
-                            ></i>
+                                fontWeight: "bold",
+                            }}>{group.leader === u.id ? "TN" : "PN"}</span>
                           )}
                         </div>
                         <div className="member-name">{u.name}</div>

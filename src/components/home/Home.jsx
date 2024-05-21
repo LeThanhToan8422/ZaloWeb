@@ -19,9 +19,11 @@ function Home() {
   const [displayListChat, setDisplayListChat] = useState(true);
   const [user, setUser] = useState({});
   const [rerender, setRerender] = useState(false);
+  const [rerenderGroupChat, setRerenderGroupChat] = useState(false);
   const [makeFriends, setMakeFriends] = useState([]);
   
   const [zegoCloud, setZegoCloud] = useState(null);
+  // const [rerenderUser, setRerenderUser] = useState(false);
 
   useEffect(() => {
     let newSocket = io(`${location.state.urlBackend}`);
@@ -55,6 +57,14 @@ function Home() {
       }
     );
 
+    newSocket?.on(
+      `Server-Rerender-Group-Chats-${location.state.userId}`,
+      (dataGot) => {
+        setRerenderGroupChat(pre => !pre)
+        setRerender(pre => !pre)
+      }
+    );
+
     return () => {
       newSocket?.disconnect();
     };
@@ -66,10 +76,11 @@ function Home() {
       let datas = await axios.get(`${location.state.urlBackend}/users/${location.state.userId}`);
       setUser(datas.data);
       setZegoCloud(zegocloudConfig(datas.data))
-
+      
+      console.log(datas.data);
     };
     getApiUserById();
-  }, [location.state.userId]);
+  }, [location.state.userId, JSON.stringify(user)]);
 
   useEffect(() => {
     let getApiChatsByUserId = async () => {
@@ -147,6 +158,7 @@ function Home() {
         setRerender={setRerender}
         urlBackend={location.state.urlBackend}
         rerender={rerender}
+        rerenderGroupChat={rerenderGroupChat}
         zp={zegoCloud}
       />
     </div>

@@ -16,9 +16,11 @@ function InfoAccount({ visible, setVisible, user, urlBackend, setUser}) {
   const [isClickChangePassword, setIsClickChangePassword] = useState(false);
 
   const [socket, setSocket] = useState(null);
+
   useEffect(() => {
     let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
+    console.log(user);
   }, [JSON.stringify(user)]);
 
 
@@ -247,11 +249,12 @@ function InfoAccount({ visible, setVisible, user, urlBackend, setUser}) {
         visible={isClickUpdate}
         user={user}
         urlBackend={urlBackend}
+        setUser={setUser}
       />
       <FormChangePassword
         setVisible={setIsClickChangePassword}
         visible={isClickChangePassword}
-        userId={user.id}
+        userId={user?.id}
         urlBackend={urlBackend}
       />
     </div>

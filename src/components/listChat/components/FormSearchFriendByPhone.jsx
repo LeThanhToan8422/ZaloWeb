@@ -59,7 +59,8 @@ function FormSearchFriendByPhone({
       let dts = await axios.get(
         `${urlBackend}/users/check-is-friend/${userId}/${datas.data.user}`
       );
-      if(!Boolean(dts.data)){
+      console.log(dts.data);
+      if(Number(dts.data) === 0){
         setIsFriend({
           id : 0,
           isFriends : "0"

@@ -56,7 +56,6 @@ const ListChat = ({
   }, [JSON.stringify(messageFinal)]);
 
   let handleClickChat = (chat) => {
-    console.log(chat);
     if(chat.phone){
       handleChangeChat({
         id : chat.id,

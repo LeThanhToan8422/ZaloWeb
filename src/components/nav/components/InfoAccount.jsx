@@ -20,7 +20,6 @@ function InfoAccount({ visible, setVisible, user, urlBackend, setUser}) {
   useEffect(() => {
     let newSocket = io(`${urlBackend}`);
     setSocket(newSocket);
-    console.log(user);
   }, [JSON.stringify(user)]);
 
 

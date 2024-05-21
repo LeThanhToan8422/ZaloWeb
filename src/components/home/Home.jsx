@@ -76,8 +76,6 @@ function Home() {
       let datas = await axios.get(`${location.state.urlBackend}/users/${location.state.userId}`);
       setUser(datas.data);
       setZegoCloud(zegocloudConfig(datas.data))
-      
-      console.log(datas.data);
     };
     getApiUserById();
   }, [location.state.userId, JSON.stringify(user)]);

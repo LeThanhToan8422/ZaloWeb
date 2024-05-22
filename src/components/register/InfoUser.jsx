@@ -4,6 +4,7 @@ import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import bcrypt from "bcryptjs"
+import { subYears, format } from "date-fns";
 
 const InfoUser = () => {
   let salt = bcrypt.genSaltSync(10);
@@ -13,7 +14,8 @@ const InfoUser = () => {
   const [name, setname] = useState("");
   const [gender, setGender] = useState(true);
   const [dob, setDob] = useState("");
-  const currentDate = new Date().toISOString().split("T")[0];
+  // const currentDate = new Date().toISOString().split("T")[0];
+  const currentDate = format(subYears(new Date(), 15), "yyyy-MM-dd");
 
   let handleClickRegisterUser = async () => {
     let checkPhone = await axios.get(

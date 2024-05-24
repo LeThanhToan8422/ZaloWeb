@@ -8,6 +8,7 @@ import { CiTrash } from "react-icons/ci";
 import { MdOutlineBlock } from "react-icons/md";
 import moment from "moment";
 import { io } from "socket.io-client";
+import FormConfirmDelete from "./FormConfirm";
 
 function FormInfoUserByPhone({
   visible,
@@ -29,6 +30,7 @@ function FormInfoUserByPhone({
   const [isBlock, setIsBlock] = useState(false);
   const [socket, setSocket] = useState(null);
   const [render, setRender] = useState(false);
+  const [isClickDelete, setIsClickDelete] = useState(false);
 
   useEffect(() => {
     let newSocket = io(`${urlBackend}`);
@@ -118,18 +120,18 @@ function FormInfoUserByPhone({
     }
   };
 
-  let handleClickDeleteFriends = () => {
-    socket.emit(`Client-Update-Friends`, {
-      userId: userId,
-      friendId: friendId,
-      chatRoom:
-        userId > friendId ? `${friendId}${userId}` : `${userId}${friendId}`,
-    });
-    setVisible(false)
-  }
 
   return (
     <div>
+      <FormConfirmDelete
+        setVisible={setIsClickDelete}
+        visible={isClickDelete}
+        userId={userId}
+        friendId={friendId}
+        isFriend={isFriend}
+        socket={socket}
+        title={`Bạn có chắc chắn hủy kết bạn với ${friend?.name}`}
+      />
       <Modal
         title="Thông tin tài khoản"
         open={visibleModal}
@@ -137,6 +139,9 @@ function FormInfoUserByPhone({
         onCancel={() => handleCancel()}
         width="30%"
         footer={null}
+        style={{
+          display: isClickDelete ? 'none' : 'block'
+        }}
       >
         <Form
           form={form}
@@ -290,7 +295,7 @@ function FormInfoUserByPhone({
               </Button>
             )}
           </Row>
-          {isFriend.isFriends ? (
+          {isFriend.isFriends !== '0' ? (
             <Row>
               <Button
                 type="text"
@@ -301,7 +306,7 @@ function FormInfoUserByPhone({
                   alignItems: "center",
                   justifyContent: "center",
                 }}
-                onClick={handleClickDeleteFriends}
+                onClick={()=>setIsClickDelete(true)}
               >
                 &nbsp;
                 <CiTrash size={20} />

@@ -54,6 +54,7 @@ import toast from "react-hot-toast";
 import SlideZalo from "../home/SlideZalo";
 
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
+import FormConfirm from "./components/FormConfirm";
 
 const ContentChat = ({
   displayListChat,
@@ -161,7 +162,8 @@ const ContentChat = ({
   const [nameReply, setNameReply] = useState("");
   const [chatSelectedDisplayEmojis, setChatSelectedDisplayEmojis] = useState(0);
   const [rerenderSocket, setRerenderSocket] = useState(false);
-
+  const [isClickDisGroup, setIsClickDisGroup] = useState(false);
+  
   useEffect(() => {
     setPage(1);
     setNameSender({});
@@ -546,10 +548,8 @@ const ContentChat = ({
     }
   };
 
-  let handleClickDissolutionGroup = async () => {
-    socket.emit(`Client-Dessolution-Group-Chats`, {
-      group: group,
-    });
+  let handleClickDissolutionGroup = () => {
+    setIsClickDisGroup(true);
   };
 
   let handleClickChangeLeaderAndDeputy = (leader, deputy) => {
@@ -698,6 +698,13 @@ const ContentChat = ({
             quantity={quantityEmoji}
             chatSelectedDisplayEmojis={chatSelectedDisplayEmojis}
           />
+          {isClickDisGroup && <FormConfirm
+            setVisible={setIsClickDisGroup}
+            visible={isClickDisGroup}
+            group={group?group:null}
+            socket={socket}
+            message={"Bạn có chắc chắn muốn giải tán nhóm?"}
+          />}
           <div
             className="content-chat"
             style={{ width: isClickInfo ? "70%" : "" }}
@@ -1348,15 +1355,12 @@ const ContentChat = ({
                         )}
                       </div>
                     ) : (
-                      ""
-                    )}
-
-                    {audioLink ? (
                       <>
                         <audio
                           src={audioLink}
                           controls
                         ></audio>
+
                         <div
                           style={{
                             display: "flex",
@@ -1387,8 +1391,6 @@ const ContentChat = ({
                           </button>
                         </div>
                       </>
-                    ) : (
-                      ""
                     )}
                   </div>
                 )}
@@ -1895,7 +1897,7 @@ const ContentChat = ({
                 </div>
                 <div
                   className="group-setting"
-                  style={{ "border-bottom": "none" }}
+                  style={{ "borderBottom": "none" }}
                 >
                   <div className="setting-header">
                     <span>Thiết lập bảo mật</span>

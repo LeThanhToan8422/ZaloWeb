@@ -2,7 +2,7 @@ import { BsFillShieldLockFill, BsTelephoneFill } from "react-icons/bs";
 import { CgSpinner } from "react-icons/cg";
 
 import OtpInput from "otp-input-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import "../../sass/register.css";
@@ -21,6 +21,28 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
   const [user, setUser] = useState(null);
+  const [expiryTime, setExpiryTime] = useState(null);
+  const timerRef = useRef(null); // Ref để giữ bộ đếm thời gian
+
+  useEffect(() => {
+    // Nếu showOTP được thiết lập và không có thời gian hết hạn được thiết lập trước đó
+    if (showOTP && !expiryTime) {
+      // Thiết lập thời gian hết hạn là 1 phút từ thời điểm hiện tại
+      const now = new Date();
+      const expiry = new Date(now.getTime() + 60000); // 1 phút
+      setExpiryTime(expiry);
+
+      // Hủy bỏ thời gian hết hạn sau 1 phút
+      timerRef.current = setTimeout(() => {
+        setExpiryTime(null);
+        setShowOTP(false);
+        setOtp(""); // Clear OTP input
+        toast.error("Mã OTP đã hết hạn. Vui lòng thử lại.");
+      }, 60000);
+      
+      return () => clearTimeout(timerRef.current); // Clear timeout khi component unmount
+    }
+  }, [showOTP, expiryTime]);
 
   function onCaptchVerify() {
     if (!window.recaptchaVerifier) {
@@ -139,6 +161,11 @@ const Register = () => {
                   )}
                   <span>Xác thực OTP</span>
                 </button>
+                {expiryTime && (
+              <div style={{fontSize:'12px', color:'red', fontWeight:'bold'}}>
+                Mã OTP sẽ hết hạn sau 1 phút.
+              </div>
+            )}
               </div>
             ) : (
               <div className="content-form-number">

@@ -59,6 +59,7 @@ function Home() {
       (dataGot) => {
         setRerender(pre => !pre)
         if(dataGot.data?.response === "Delete-Chat"){
+          console.log(idChat.type === dataGot.data?.type && idChat.id === dataGot.data?.id);
           if(idChat.type === dataGot.data?.type && idChat.id === dataGot.data?.id){
             setIdChat({})
           }

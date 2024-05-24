@@ -34,7 +34,6 @@ import { io } from "socket.io-client";
 
 import { ReactMic } from "react-mic";
 
-//emotion
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 

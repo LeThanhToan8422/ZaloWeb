@@ -126,7 +126,7 @@ const FormAddMemberToGroup = ({
             value={selectedFriendsTemp}
             style={{ width: "100%", display: "flex", flexDirection: "column" }}
           >
-            {friendList.map((friend) => (
+            {friendList?.map((friend) => (
               <div
                 key={friend.id}
                 style={{

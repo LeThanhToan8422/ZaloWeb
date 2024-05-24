@@ -394,6 +394,7 @@ const ContentChat = ({
     }
     setDisplayIcons(false);
     setIsReloadPage((pre) => !pre);
+    setRerender(pre => !pre)
   };
 
   const handleKeyDown = (event) => {
@@ -1295,7 +1296,7 @@ const ContentChat = ({
                 </label>
               </div>
               {/* button name card */}
-              <div
+              {/* <div
                 className="chat-utilities-icon"
                 onClick={() => setShowFormCard(true)}
               >
@@ -1307,7 +1308,7 @@ const ContentChat = ({
                 />
 
                 <i className="fa-regular fa-address-card icon"></i>
-              </div>
+              </div> */}
               {/* button chat Recoding */}
               <div
                 className="chat-utilities-icon"

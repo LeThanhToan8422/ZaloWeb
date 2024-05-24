@@ -60,7 +60,7 @@ function FormChangeNameGroup({socket, visible, setVisible, group, urlBackend, se
                 // onFinish={onFinish}
                 name="form_edit_name"
                 className="ant-advanced-search-form"
-                initialValues={{name: group.name}}
+                initialValues={{name: group?.name}}
               >
                 <Row>
                     <Col lg={10}></Col>
@@ -68,7 +68,7 @@ function FormChangeNameGroup({socket, visible, setVisible, group, urlBackend, se
                         <Form.Item
                             name="avt"
                         >
-                            <img src={group.image=="null" || group.image==null ?"/public/avatardefault.png":group.image} style={{width : "50px", height : "50px", borderRadius: "50%"}} alt="Ảnh đại diện"/>
+                            <img src={group?.image=="null" || group?.image==null ?"/public/avatardefault.png":group?.image} style={{width : "50px", height : "50px", borderRadius: "50%"}} alt="Ảnh đại diện"/>
                         </Form.Item>  
                     </Col>
                     <Col lg={10}></Col>

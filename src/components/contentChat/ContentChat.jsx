@@ -182,17 +182,19 @@ const ContentChat = ({
   ]);
 
   useEffect(() => {
-    const fetchGroupChat = async () => {
-      try {
-        const response = await axios.get(
-          `${urlBackend}/group-chats/${idChat.id}`
-        );
-        setGroup(response.data);
-      } catch (error) {
-        console.error("Error fetching friends:", error);
-      }
-    };
-    fetchGroupChat();
+    if(idChat.id){
+      const fetchGroupChat = async () => {
+        try {
+          const response = await axios.get(
+            `${urlBackend}/group-chats/${idChat.id}`
+          );
+          setGroup(response.data);
+        } catch (error) {
+          console.error("Error fetching friends:", error);
+        }
+      };
+      fetchGroupChat();
+    }
   }, [userId, JSON.stringify(idChat), JSON.stringify(group), isReloadPage, rerenderGroupChat]);
 
   let isObjectEqual = (obj1, obj2) => {
@@ -257,7 +259,7 @@ const ContentChat = ({
         setIsReloadPage((pre) => !pre);
       });
 
-      socket?.on(`Server-Emotion-Chats-${group.id}`, (dataGot) => {
+      socket?.on(`Server-Emotion-Chats-${group?.id}`, (dataGot) => {
         console.log("OKKKK");
         setIsReloadPage((pre) => !pre);
       });
@@ -280,13 +282,15 @@ const ContentChat = ({
   }, [JSON.stringify(contentMessages), isReloadPage]);
 
   useEffect(() => {
-    let getApiMembersOfGroup = async () => {
-      let datas = await axios.get(
-        `${urlBackend}/users/get-members-in-group/${idChat.id}`
-      );
-      setMembersOfGroup([...datas.data]);
-    };
-    getApiMembersOfGroup();
+    if(idChat.id){
+      let getApiMembersOfGroup = async () => {
+        let datas = await axios.get(
+          `${urlBackend}/users/get-members-in-group/${idChat.id}`
+        );
+        setMembersOfGroup([...datas.data]);
+      };
+      getApiMembersOfGroup();
+    }
   }, [isClickViewMember, JSON.stringify(group)]);
 
   useEffect(() => {
@@ -340,10 +344,12 @@ const ContentChat = ({
       });
     };
 
-    if (idChat.type === "Single") {
-      getApiContentChats();
-    } else {
-      getApiContentGroupChats();
+    if(idChat.id){
+      if (idChat.type === "Single") {
+        getApiContentChats();
+      } else {
+        getApiContentGroupChats();
+      }
     }
   }, [userId, JSON.stringify(idChat), page, isReloadPage, rerender]);
 
@@ -366,6 +372,7 @@ const ContentChat = ({
             userId > idChat.id
               ? `${idChat.id}${userId}`
               : `${userId}${idChat.id}`,
+          type : idChat.type
         });
       }
     } else {
@@ -377,6 +384,7 @@ const ContentChat = ({
           groupChat: idChat.id,
           chatReply: messageRelpy?.id ? messageRelpy?.id : null,
           chatRoom: idChat.id,
+          type : idChat.type
         });
       }
     }
@@ -709,9 +717,9 @@ const ContentChat = ({
                 >
                   <img
                     src={
-                      nameReceiver.image == null
-                        ? group.image
-                        : nameReceiver.image
+                      nameReceiver?.image == null
+                        ? group?.image
+                        : nameReceiver?.image
                     }
                     style={{
                       width: "60px",
@@ -723,10 +731,10 @@ const ContentChat = ({
                 <div className="chat-header-left-name">
                   <div className="user">
                     <div className="user-name">
-                      {nameReceiver.name ? nameReceiver.name : group.name}
+                      {nameReceiver?.name ? nameReceiver?.name : group?.name}
                     </div>
                     <div className="user-edit">
-                      {nameReceiver.name ? (
+                      {nameReceiver?.name ? (
                         <EditOutlined onClick={() => setIsClickUpdate(true)} />
                       ) : (
                         <EditOutlined
@@ -1426,7 +1434,7 @@ const ContentChat = ({
                     className="chat-text-input"
                     type="text"
                     placeholder={`Nhập @, tin nhắn tới ${
-                      nameReceiver.name ? nameReceiver.name : group.name
+                      nameReceiver?.name ? nameReceiver?.name : group?.name
                     }`}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
@@ -1620,9 +1628,9 @@ const ContentChat = ({
                   <div className="header-info-avt">
                     <img
                       src={
-                        nameReceiver.image == null
-                          ? group.image
-                          : nameReceiver.image
+                        nameReceiver?.image == null
+                          ? group?.image
+                          : nameReceiver?.image
                       }
                       style={{
                         width: "60px",
@@ -1647,10 +1655,10 @@ const ContentChat = ({
                   </div>
                   <div className="header-info-name">
                     <div className="user-name">
-                      {nameReceiver.name ? nameReceiver.name : group.name}
+                      {nameReceiver?.name ? nameReceiver?.name : group?.name}
                     </div>
                     <div className="user-edit">
-                      {nameReceiver.name ? (
+                      {nameReceiver?.name ? (
                         <EditOutlined onClick={() => setIsClickUpdate(true)} />
                       ) : (
                         <EditOutlined
@@ -1735,7 +1743,7 @@ const ContentChat = ({
                         >
                           <MdGroups className="icon" />
                           <span style={{ marginRight: "5px" }}>
-                            {group.members?.length}
+                            {group?.members?.length}
                           </span>
                           <span>thành viên</span>
                         </div>

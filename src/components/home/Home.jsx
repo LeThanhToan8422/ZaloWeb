@@ -38,7 +38,18 @@ function Home() {
 
     newSocket?.on(
       `Server-Chat-Room-${location.state.userId}`,
-      (dataGot) => {
+      async (dataGot) => {
+        if(!dataGot.waitMessage.groupChat && idChat.type === 'Single' && dataGot.waitMessage.sender === idChat.id){
+          await axios.post(`${location.state.urlBackend}/wait-message/update/${dataGot.waitMessage.id}`)
+        }
+        else if(dataGot.waitMessage.groupChat && idChat.type === 'Group' && dataGot.waitMessage.groupChat === idChat.id){
+          if(dataGot.waitMessage.sender === location.state.userId){
+            await axios.post(`${location.state.urlBackend}/wait-message/update/${dataGot.waitMessage.id}`)
+          }
+          else{
+            await axios.post(`${location.state.urlBackend}/wait-message/update/${location.state.userId}/Group/${dataGot.waitMessage.groupChat}`)
+          }
+        }
         handleChangeMessageFinal(dataGot.data);
         setRerender(pre => !pre)
       }

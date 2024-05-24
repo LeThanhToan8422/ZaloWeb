@@ -74,7 +74,7 @@ const ViewFile = ({ url }) => {
     <a href={`${url}`} target="_blank" rel="noopener noreferrer">
       {url.match(regexUrlBlob) ||
       url.split(".")[url.split(".").length - 1] === "m4a" ? (
-        <audio src="https://s3-dynamodb-cloudfront-20040331.s3.ap-southeast-1.amazonaws.com/ffdv-1716309070545--VoiceMessage" controls></audio>
+        <audio src={url} controls></audio>
       ) : file.icon === "images" ? (
         <img
           src={`${url}`}

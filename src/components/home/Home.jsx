@@ -23,7 +23,6 @@ function Home() {
   const [makeFriends, setMakeFriends] = useState([]);
   
   const [zegoCloud, setZegoCloud] = useState(null);
-  // const [rerenderUser, setRerenderUser] = useState(false);
 
   useEffect(() => {
     let newSocket = io(`${location.state.urlBackend}`);
@@ -40,7 +39,7 @@ function Home() {
       `Server-Chat-Room-${location.state.userId}`,
       async (dataGot) => {
         if(!dataGot.waitMessage.groupChat && idChat.type === 'Single' && dataGot.waitMessage.sender === idChat.id){
-          await axios.post(`${location.state.urlBackend}/wait-message/update/${dataGot.waitMessage.id}`)
+          await axios.post(`${location.state.urlBackend}/wait-message/update/${dataGot.waitMessage.id}/${dataGot.data.dateTimeSend}`)  
         }
         else if(dataGot.waitMessage.groupChat && idChat.type === 'Group' && dataGot.waitMessage.groupChat === idChat.id){
           if(dataGot.waitMessage.sender === location.state.userId){
@@ -80,7 +79,6 @@ function Home() {
       newSocket?.disconnect();
     };
   }, [location.state.userId, JSON.stringify(idChat), rerender, messageFinal]);
-
 
   useEffect(() => {
     let getApiUserById = async () => {

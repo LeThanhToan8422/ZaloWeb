@@ -68,7 +68,12 @@ const ViewFile = ({ url }) => {
         color: "#F0CD4B",
       });
     }
-  }, []);
+  }, [url]);
+
+
+  useEffect(() => {
+    console.log(url);
+  }, [url])
 
   return (
     <a href={`${url}`} target="_blank" rel="noopener noreferrer">

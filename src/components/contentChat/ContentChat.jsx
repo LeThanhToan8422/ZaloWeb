@@ -98,7 +98,7 @@ const ContentChat = ({
   const [voice, setVoice] = useState(false);
   const [audioLink, setAudioLink] = useState("");
   const [voiceMessage, setVoiceMessage] = useState(null);
-  const [page, setPage] = useState(10);
+  const [page, setPage] = useState(1);
   const [group, setGroup] = useState(null);
   const [isGroup, setIsGroup] = useState(false);
   const [isClickDownMember, setIsClickDownMember] = useState(false);
@@ -523,11 +523,11 @@ const ContentChat = ({
     setVoice(false);
   };
 
-  // let handleScrollContentChats = (e) => {
-  //   if (e.currentTarget.scrollTop === 0) {
-  //     setPage((pre) => pre + 1);
-  //   }
-  // };
+  let handleScrollContentChats = (e) => {
+    if (e.currentTarget.scrollTop === 0) {
+      setPage((pre) => pre + 1);
+    }
+  };
 
   const handleClickRecording = () => {
     setAudioLink("");
@@ -780,7 +780,7 @@ const ContentChat = ({
             </div>
             <div
               className="chat-view"
-              // onScroll={(e) => handleScrollContentChats(e)}
+              onScroll={(e) => handleScrollContentChats(e)}
             >
               {contentMessages.map((message, index) => {
                 return message.isRecalls ? (

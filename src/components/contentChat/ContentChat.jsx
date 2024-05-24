@@ -160,7 +160,7 @@ const ContentChat = ({
   const [chatSelectedDisplayEmojis, setChatSelectedDisplayEmojis] = useState(0);
   const [rerenderSocket, setRerenderSocket] = useState(false);
   const [isClickDisGroup, setIsClickDisGroup] = useState(false);
-  
+
   useEffect(() => {
     setPage(1);
     setNameSender({});
@@ -175,11 +175,11 @@ const ContentChat = ({
     JSON.stringify(idChat),
     isReloadPage,
     rerenderGroupChat,
-    rerenderSocket
+    rerenderSocket,
   ]);
 
   useEffect(() => {
-    if(idChat.id){
+    if (idChat.id) {
       const fetchGroupChat = async () => {
         try {
           const response = await axios.get(
@@ -192,7 +192,13 @@ const ContentChat = ({
       };
       fetchGroupChat();
     }
-  }, [userId, JSON.stringify(idChat), JSON.stringify(group), isReloadPage, rerenderGroupChat]);
+  }, [
+    userId,
+    JSON.stringify(idChat),
+    JSON.stringify(group),
+    isReloadPage,
+    rerenderGroupChat,
+  ]);
 
   let isObjectEqual = (obj1, obj2) => {
     return JSON.stringify(obj1) === JSON.stringify(obj2);
@@ -237,7 +243,6 @@ const ContentChat = ({
           setIsReloadPage((pre) => !pre);
         }
       );
-
     } else {
       setIsGroup(true);
       socket?.on(`Server-Chat-Room-${idChat.id}`, (dataGot) => {
@@ -271,7 +276,7 @@ const ContentChat = ({
     JSON.stringify(group),
     isReloadPage,
     rerender,
-    rerenderSocket
+    rerenderSocket,
   ]);
 
   useEffect(() => {
@@ -279,7 +284,7 @@ const ContentChat = ({
   }, [JSON.stringify(contentMessages), isReloadPage]);
 
   useEffect(() => {
-    if(idChat.id){
+    if (idChat.id) {
       let getApiMembersOfGroup = async () => {
         let datas = await axios.get(
           `${urlBackend}/users/get-members-in-group/${idChat.id}`
@@ -341,7 +346,7 @@ const ContentChat = ({
       });
     };
 
-    if(idChat.id){
+    if (idChat.id) {
       if (idChat.type === "Single") {
         getApiContentChats();
       } else {
@@ -369,7 +374,7 @@ const ContentChat = ({
             userId > idChat.id
               ? `${idChat.id}${userId}`
               : `${userId}${idChat.id}`,
-          type : idChat.type
+          type: idChat.type,
         });
       }
     } else {
@@ -381,7 +386,7 @@ const ContentChat = ({
           groupChat: idChat.id,
           chatReply: messageRelpy?.id ? messageRelpy?.id : null,
           chatRoom: idChat.id,
-          type : idChat.type
+          type: idChat.type,
         });
       }
     }
@@ -390,10 +395,10 @@ const ContentChat = ({
       inputRef.current.focus();
     }
     setDisplayIcons(false);
-    setIsClickReply(false)
-    setMessageRelpy(null)
+    setIsClickReply(false);
+    setMessageRelpy(null);
     setIsReloadPage((pre) => !pre);
-    setRerender(pre => !pre)
+    setRerender((pre) => !pre);
   };
 
   const handleKeyDown = (event) => {
@@ -554,8 +559,12 @@ const ContentChat = ({
 
   let handleClickChangeLeaderAndDeputy = (leader, deputy) => {
     socket.emit(`Client-Change-Leader-And-Deputy-Group-Chats`, {
-      group: {...group, leader: leader, deputy : leader === deputy ? null : deputy},
-      oldLeader : group.leader
+      group: {
+        ...group,
+        leader: leader,
+        deputy: leader === deputy ? null : deputy,
+      },
+      oldLeader: group.leader,
     });
   };
 
@@ -583,10 +592,13 @@ const ContentChat = ({
             ? `${idChat.id}${userId}`
             : `${userId}${idChat.id}`
           : idChat.id,
-      members : idChat.type === "Single" ? [nameSender.id, nameReceiver.id] : group.members
+      members:
+        idChat.type === "Single"
+          ? [nameSender.id, nameReceiver.id]
+          : group.members,
     });
-    setIsHoverEmoji(false)
-    setRerenderSocket(pre => pre)
+    setIsHoverEmoji(false);
+    setRerenderSocket((pre) => pre);
   };
 
   let handleClickViewListEmoji = (chatId, emojis, quantities) => {
@@ -599,15 +611,17 @@ const ContentChat = ({
   let handleClickVideoCall = () => {
     let targetUser;
     if (isGroup) {
-      targetUser = membersOfGroup?.map(user => ({
+      targetUser = membersOfGroup?.map((user) => ({
         userID: user.id + "",
         userName: user.name,
       }));
     } else {
-      targetUser = [{
-        userID: nameReceiver.id + "",
-        userName: nameReceiver.name,
-      }]; 
+      targetUser = [
+        {
+          userID: nameReceiver.id + "",
+          userName: nameReceiver.name,
+        },
+      ];
     }
     zp?.sendCallInvitation({
       callees: targetUser,
@@ -625,15 +639,17 @@ const ContentChat = ({
   let handleClickVoiceCall = () => {
     let targetUser;
     if (isGroup) {
-      targetUser = membersOfGroup?.map(user => ({
+      targetUser = membersOfGroup?.map((user) => ({
         userID: user.id + "",
         userName: user.name,
       }));
     } else {
-      targetUser = [{
-        userID: nameReceiver.id + "",
-        userName: nameReceiver.name,
-      }]; 
+      targetUser = [
+        {
+          userID: nameReceiver.id + "",
+          userName: nameReceiver.name,
+        },
+      ];
     }
     zp?.sendCallInvitation({
       callees: targetUser,
@@ -698,13 +714,15 @@ const ContentChat = ({
             quantity={quantityEmoji}
             chatSelectedDisplayEmojis={chatSelectedDisplayEmojis}
           />
-          {isClickDisGroup && <FormConfirm
-            setVisible={setIsClickDisGroup}
-            visible={isClickDisGroup}
-            group={group?group:null}
-            socket={socket}
-            message={"Bạn có chắc chắn muốn giải tán nhóm?"}
-          />}
+          {isClickDisGroup && (
+            <FormConfirm
+              setVisible={setIsClickDisGroup}
+              visible={isClickDisGroup}
+              group={group ? group : null}
+              socket={socket}
+              message={"Bạn có chắc chắn muốn giải tán nhóm?"}
+            />
+          )}
           <div
             className="content-chat"
             style={{ width: isClickInfo ? "70%" : "" }}
@@ -903,7 +921,9 @@ const ContentChat = ({
                   />
                 ) : message.message.match(/(.+) đã thêm (.+) vào nhóm\./) ||
                   message.message.match(/(.+) đã xóa (.+) khỏi nhóm\./) ||
-                  message.message.match(/(.+) đã phân quyền (.+) thành (.+) nhóm\./) ? (
+                  message.message.match(
+                    /(.+) đã phân quyền (.+) thành (.+) nhóm\./
+                  ) ? (
                   <span
                     style={{
                       color: "#7589A3",
@@ -1038,7 +1058,7 @@ const ContentChat = ({
                       )}
                       <div
                         className="content-message"
-                        style={{ minWidth: message.emojis && "200px"}}
+                        style={{ minWidth: message.emojis && "200px" }}
                       >
                         {message.chatReply ? (
                           <div
@@ -1145,7 +1165,12 @@ const ContentChat = ({
                         {index === hoveredIndex && isHoverEmoji ? (
                           <div
                             className="emojis"
-                            style={{ width: "200px", padding: "0px 10px", marginRight : message.sender === userId ? "20px" : "0px"  }}
+                            style={{
+                              width: "200px",
+                              padding: "0px 10px",
+                              marginRight:
+                                message.sender === userId ? "20px" : "0px",
+                            }}
                             onMouseEnter={() => setIsHoverEmoji(true)}
                             onMouseLeave={() => setIsHoverEmoji(false)}
                           >
@@ -1356,10 +1381,7 @@ const ContentChat = ({
                       </div>
                     ) : (
                       <>
-                        <audio
-                          src={audioLink}
-                          controls
-                        ></audio>
+                        <audio src={audioLink} controls></audio>
 
                         <div
                           style={{
@@ -1395,12 +1417,12 @@ const ContentChat = ({
                   </div>
                 )}
               </div>
-              <div className="chat-utilities-icon">
+              {/* <div className="chat-utilities-icon">
                 <i className="fa-regular fa-clock icon"></i>
               </div>
               <div className="chat-utilities-icon">
                 <i className="fa-regular fa-square-check icon"></i>
-              </div>
+              </div> */}
             </div>
             <div
               className="chat"
@@ -1519,8 +1541,9 @@ const ContentChat = ({
                         >
                           <img src={u.image} />
                           {(group.leader === u.id || group.deputy === u.id) && (
-                            <span style={{
-                              position: "absolute",
+                            <span
+                              style={{
+                                position: "absolute",
                                 bottom: -5,
                                 right: 0,
                                 fontSize: "8px",
@@ -1530,7 +1553,10 @@ const ContentChat = ({
                                 padding: "5px",
                                 backgroundColor: "#666666",
                                 fontWeight: "bold",
-                            }}>{group.leader === u.id ? "TN" : "PN"}</span>
+                              }}
+                            >
+                              {group.leader === u.id ? "TN" : "PN"}
+                            </span>
                           )}
                         </div>
                         <div className="member-name">{u.name}</div>
@@ -1795,17 +1821,23 @@ const ContentChat = ({
                               message.message.lastIndexOf(".") + 1
                             )
                           ) ? (
-                            <img
-                              src={message.message}
-                              style={{
-                                width: "50px",
-                                height: "50px",
-                                border: "1px solid #7589a3",
-                                borderRadius: "4px",
-                              }}
-                            />
+                            <a
+                              href={message.message}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <img
+                                src={message.message}
+                                style={{
+                                  width: "50px",
+                                  height: "50px",
+                                  border: "1px solid #7589a3",
+                                  borderRadius: "4px",
+                                }}
+                              />
+                            </a>
                           ) : (
-                            ""
+                            null
                           )}
                           {message.message.includes(regexUrl) &&
                           videoType.includes(
@@ -1813,18 +1845,24 @@ const ContentChat = ({
                               message.message.lastIndexOf(".") + 1
                             )
                           ) ? (
-                            <video
-                              src={message.message}
-                              controls
-                              style={{
-                                width: "50px",
-                                height: "50px",
-                                border: "1px solid #7589a3",
-                                borderRadius: "4px",
-                              }}
-                            />
+                            <a
+                              href={message.message}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <video
+                                src={message.message}
+                                controls
+                                style={{
+                                  width: "50px",
+                                  height: "50px",
+                                  border: "1px solid #7589a3",
+                                  borderRadius: "4px",
+                                }}
+                              />
+                            </a>
                           ) : (
-                            ""
+                            null
                           )}
                         </div>
                       ))}
@@ -1895,10 +1933,7 @@ const ContentChat = ({
                     </div>
                   </div>
                 </div>
-                <div
-                  className="group-setting"
-                  style={{ "borderBottom": "none" }}
-                >
+                <div className="group-setting" style={{ borderBottom: "none" }}>
                   <div className="setting-header">
                     <span>Thiết lập bảo mật</span>
                     <div
@@ -1915,7 +1950,7 @@ const ContentChat = ({
                     className="setting-body"
                     style={{ display: isClickDownSetting ? "none" : "" }}
                   >
-                    <div className="hidden-chat">
+                    {/* <div className="hidden-chat">
                       <BsEyeSlash className="icon" />
                       <span>Ẩn trò chuyện</span>
                       <BiSolidToggleLeft className="icon-toggle" />
@@ -1923,7 +1958,7 @@ const ContentChat = ({
                     <div className="delete-chat">
                       <LuTrash className="icon" />
                       <span>Xóa lịch sử trò chuyện</span>
-                    </div>
+                    </div> */}
                     {isGroup && (
                       <>
                         <div

@@ -390,6 +390,8 @@ const ContentChat = ({
       inputRef.current.focus();
     }
     setDisplayIcons(false);
+    setIsClickReply(false)
+    setMessageRelpy(null)
     setIsReloadPage((pre) => !pre);
     setRerender(pre => !pre)
   };

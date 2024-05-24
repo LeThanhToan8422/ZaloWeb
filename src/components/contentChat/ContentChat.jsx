@@ -37,12 +37,10 @@ import { ReactMic } from "react-mic";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 
-//form
 import InfoUser from "./components/InfoUser";
 import FormUpdateName from "./components/formUpdateName";
 import ViewFile from "./components/ViewFile";
 import ForwardMessageForm from "./components/ForwardMessageForm";
-import FormCard from "./components/FormCard";
 import moment from "moment";
 import ViewNewFriend from "./components/ViewNewFriend";
 import FormAddMemberToGroup from "./components/FormAddMemberToGroup";

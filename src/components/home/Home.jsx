@@ -58,6 +58,11 @@ function Home() {
       `Server-Group-Chats-${location.state.userId}`,
       (dataGot) => {
         setRerender(pre => !pre)
+        if(dataGot.data?.response === "Delete-Chat"){
+          if(idChat.type === dataGot.data?.type && idChat.id === dataGot.data?.id){
+            setIdChat({})
+          }
+        }
         if(dataGot.data.id === idChat.id  && dataGot.data.user === location.state.userId) {
           setIdChat({})
         }

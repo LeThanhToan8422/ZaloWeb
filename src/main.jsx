@@ -13,7 +13,7 @@ import FormUpdatePassword from './components/nav/components/FormUpdatePassword.j
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename='/ZaloWeb'>
       <Routes>
         <Route path='/' element={<App />}/>
         <Route path='/register' element={<Register />}/>

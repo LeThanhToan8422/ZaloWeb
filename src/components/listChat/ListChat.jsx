@@ -57,8 +57,9 @@ const ListChat = ({
   }, [JSON.stringify(messageFinal)]);
 
   let handleClickChat = async(chat) => {
+    let dateTimeSend = moment().format("YYYY-MM-DD HH:mm:ss")
     if (chat.phone) {
-      await axios.post(`${urlBackend}/wait-message/update/${chat.id}/${userId}`)
+      await axios.post(`${urlBackend}/wait-message/update/${chat.id}/${userId}/${dateTimeSend}`)
       handleChangeChat({
         id: chat.id,
         type: "Single",
@@ -68,7 +69,7 @@ const ListChat = ({
         type: "Single",
       });
     } else {
-      await axios.post(`${urlBackend}/wait-message/update/${userId}/Group/${chat.id}`)
+      await axios.post(`${urlBackend}/wait-message/update/${userId}/Group/${chat.id}/${dateTimeSend}`)
       handleChangeChat({
         id: chat.id,
         type: "Group",

@@ -70,11 +70,6 @@ const ViewFile = ({ url }) => {
     }
   }, [url]);
 
-
-  useEffect(() => {
-    console.log(url);
-  }, [url])
-
   return (
     <a href={`${url}`} target="_blank" rel="noopener noreferrer">
       {url.match(regexUrlBlob) ||

@@ -8,6 +8,7 @@ import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
 import zegocloudConfig from "../config/zegocloud.config";
+import moment from "moment";
 
 function Home() {
   let location = useLocation();
@@ -41,12 +42,15 @@ function Home() {
         if(!dataGot.waitMessage.groupChat && idChat.type === 'Single' && dataGot.waitMessage.sender === idChat.id){
           await axios.post(`${location.state.urlBackend}/wait-message/update/${dataGot.waitMessage.id}/${dataGot.data.dateTimeSend}`)  
         }
+        else if(!dataGot.waitMessage.groupChat && idChat.type === 'Single' && dataGot.waitMessage.receiver === idChat.id){
+          await axios.post(`${location.state.urlBackend}/wait-message/update/${idChat.id}/${location.state.userId}/${dataGot.data.dateTimeSend}`)
+        }
         else if(dataGot.waitMessage.groupChat && idChat.type === 'Group' && dataGot.waitMessage.groupChat === idChat.id){
           if(dataGot.waitMessage.sender === location.state.userId){
-            await axios.post(`${location.state.urlBackend}/wait-message/update/${dataGot.waitMessage.id}`)
+            await axios.post(`${location.state.urlBackend}/wait-message/update/${dataGot.waitMessage.id}/${dataGot.data.dateTimeSend}`)
           }
           else{
-            await axios.post(`${location.state.urlBackend}/wait-message/update/${location.state.userId}/Group/${dataGot.waitMessage.groupChat}`)
+            await axios.post(`${location.state.urlBackend}/wait-message/update/${location.state.userId}/Group/${dataGot.waitMessage.groupChat}/${dataGot.data.dateTimeSend}`)
           }
         }
         handleChangeMessageFinal(dataGot.data);
@@ -59,7 +63,6 @@ function Home() {
       (dataGot) => {
         setRerender(pre => !pre)
         if(dataGot.data?.response === "Delete-Chat"){
-          console.log(idChat.type === dataGot.data?.type && idChat.id === dataGot.data?.id);
           if(idChat.type === dataGot.data?.type && idChat.id === dataGot.data?.id){
             setIdChat({})
           }
@@ -84,7 +87,7 @@ function Home() {
     return () => {
       newSocket?.disconnect();
     };
-  }, [location.state.userId, JSON.stringify(idChat), rerender, messageFinal]);
+  }, [location.state.userId, JSON.stringify(idChat), rerender, JSON.stringify(messageFinal)]);
 
   useEffect(() => {
     let getApiUserById = async () => {
@@ -103,7 +106,7 @@ function Home() {
       setChats(datas.data);
     };
     getApiChatsByUserId();
-  }, [location.state.userId, JSON.stringify(idChat), rerender, messageFinal]);
+  }, [location.state.userId, JSON.stringify(idChat), rerender, JSON.stringify(messageFinal)]);
 
   useEffect(() => {
     let getApiMakeFriends = async () => {
@@ -113,7 +116,7 @@ function Home() {
       setMakeFriends(datas.data);
     };
     getApiMakeFriends();
-  }, [location.state.userId, JSON.stringify(idChat), rerender, messageFinal]);
+  }, [location.state.userId, JSON.stringify(idChat), rerender, JSON.stringify(messageFinal)]);
 
   let handleChangeMessageFinal = (mess) => {
     setMessageFinal(mess);

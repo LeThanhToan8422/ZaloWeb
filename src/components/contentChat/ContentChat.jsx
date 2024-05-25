@@ -219,7 +219,6 @@ const ContentChat = ({
             handleChangeMessageFinal(dataGot.data);
             setRerender((pre) => !pre);
             setIsReloadPage((pre) => !pre);
-            setIsClickReply(false);
           }
         }
       );
